@@ -24,18 +24,19 @@ def run(text: str):
 
 def mono_to_stereo(file_in):
 
-    with io.BytesIO() as stream:
-        with wave.open(file_in, 'rb') as wave_in, wave.open(stream, 'wb') as wave_out:
-            wave_out.setnchannels(2)
-            wave_out.setsampwidth(wave_in.getsampwidth())
-            wave_out.setframerate(wave_in.getframerate())
-            nframes = wave_in.getnframes()
-            wave_out.setnframes(nframes)
-            for _ in range(nframes):
-                frame = wave_in.readframes(1)
-                wave_out.writeframesraw(frame)
-                wave_out.writeframesraw(frame)
-            data = stream.getvalue()
+    with io.BytesIO() as stream, \
+          wave.open(file_in, 'rb') as wave_in, \
+           wave.open(stream, 'wb') as wave_out:
+        wave_out.setnchannels(2)
+        wave_out.setsampwidth(wave_in.getsampwidth())
+        wave_out.setframerate(wave_in.getframerate())
+        nframes = wave_in.getnframes()
+        wave_out.setnframes(nframes)
+        for _ in range(nframes):
+            frame = wave_in.readframes(1)
+            wave_out.writeframesraw(frame)  # L
+            wave_out.writeframesraw(frame)  # R
+        data = stream.getvalue()
     return data
 
 
