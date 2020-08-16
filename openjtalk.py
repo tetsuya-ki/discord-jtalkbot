@@ -8,24 +8,34 @@ import wave
 
 
 OPEN_JTALK = '/opt/local/bin/open_jtalk'
-DIR = '/opt/local/lib/open_jtalk/dic'
+DICT = '/opt/local/lib/open_jtalk/dic'
 VOICE = '/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice'
 
 
-def run(text: str):
-    with tempfile.TemporaryDirectory() as tempdir:
-        outname = os.path.join(tempdir, 'a.wav')
-        args = [OPEN_JTALK, '-x', DIR, '-m', VOICE, '-ow', outname]
-        cp = subprocess.run(args, input=text, capture_output=True, encoding='utf-8')
-        if cp.returncode == 0:
-            data = mono_to_stereo(outname)
-    return data
+class OpenJTalk(object):
+
+    def __init__(self, path=None, dictdir=None, voice=None):
+        """Constructor. """
+        self.path = path if path else OPEN_JTALK
+        self.dictdir = dictdir if dictdir else DICT
+        self.voice = voice if voice else VOICE
+
+    def exec(self, text):
+        with tempfile.TemporaryDirectory() as tempdir:
+            outname = os.path.join(tempdir, 'a.wav')
+            args = [self.path, '-x', self.dictdir,
+                    '-m', self.voice, '-ow', outname]
+            cp = subprocess.run(
+                args, input=text, capture_output=True, encoding='utf-8')
+            if cp.returncode == 0:
+                data = mono_to_stereo(outname)
+        return data
 
 
-def mono_to_stereo(file_in):
+def mono_to_stereo(filename):
 
     with io.BytesIO() as stream, \
-          wave.open(file_in, 'rb') as wave_in, \
+          wave.open(filename, 'rb') as wave_in, \
            wave.open(stream, 'wb') as wave_out:
         wave_out.setnchannels(2)
         wave_out.setsampwidth(wave_in.getsampwidth())
@@ -41,7 +51,8 @@ def mono_to_stereo(file_in):
 
 
 def main():
-    data = run('こんにちは')
+    agent = OpenJTalk()
+    data = agent.exec('はじめまして。')
     with open('a.wav', mode='wb') as f:
         f.write(data)
 
