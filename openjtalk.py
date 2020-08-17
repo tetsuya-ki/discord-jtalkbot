@@ -12,7 +12,7 @@ DICT = '/opt/local/lib/open_jtalk/dic'
 VOICE = '/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice'
 
 
-async def exec(text):
+async def exec(text: str) -> bytes:
 
     with tempfile.TemporaryDirectory() as tempdir:
         outname = os.path.join(tempdir, 'a.wav')
@@ -26,7 +26,7 @@ async def exec(text):
     return None
 
 
-def mono_to_stereo(file):
+def mono_to_stereo(file: str) -> bytes:
 
     with io.BytesIO() as stream, \
       wave.open(file, 'rb') as wi, \
