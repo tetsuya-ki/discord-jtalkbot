@@ -36,7 +36,6 @@ async def talk(voice_client: discord.VoiceClient, text: str):
     voice_client.play(audio, after=lambda e: stream.close())
 
 
-
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user}.')
