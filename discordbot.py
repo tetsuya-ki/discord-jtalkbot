@@ -31,7 +31,7 @@ async def talk(voice_client: discord.VoiceClient, text: str):
     data = await openjtalk.exec(text)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
-    while not voice_client.is_connected() or voice_client.is_playing():
+    while voice_client.is_playing():
         await asyncio.sleep(0.1)
     voice_client.play(audio, after=lambda e: stream.close())
 
@@ -68,14 +68,20 @@ async def on_voice_state_update(member: discord.Member,
         if member == vch.guild.owner:
             print(f'The guild owner {member} connected v:{vch.guild}/{vch}.')
             voice_client = await vch.connect()
-            await talk(voice_client, CONFIG['voice.hello'])
+            if voice_client:
+                for _ in range(10):
+                    if voice_client.is_connected():
+                        break
+                    await asyncio.sleep(0.1)
+                await talk(voice_client, CONFIG['voice.hello'])
 
     elif before.channel and not after.channel:
         vch = before.channel
         if member == vch.guild.owner:
             print(f'The guild owner {member} disconnected v:{vch.guild}/{vch}.')
             voice_client = find_voice_client(vch)
-            await voice_client.disconnect()
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
 
 
 if __name__ == "__main__":
