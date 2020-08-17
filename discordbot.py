@@ -27,7 +27,7 @@ def find_voice_client(voice_channel):
 
 @client.event
 async def on_ready():
-    print('Logged in as {0.user}'.format(client))
+    print(f'Logged in as {client.user}')
 
     voice_channels = []
     for channel in client.get_all_channels():
@@ -38,8 +38,10 @@ async def on_ready():
 
 @client.event
 async def on_message(msg):
+
     tch = msg.channel
     print(f'{msg.author} wrote on {tch.guild}/{tch}')
+
     voice_client = None
     for vcl in client.voice_clients:
         if vcl.channel.guild == tch.guild \

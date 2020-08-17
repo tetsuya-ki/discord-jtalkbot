@@ -3,7 +3,6 @@
 import asyncio
 import io
 import os.path
-import subprocess
 import tempfile
 import wave
 
@@ -27,20 +26,18 @@ async def exec(text):
     return None
 
 
-def mono_to_stereo(filename):
+def mono_to_stereo(file):
 
     with io.BytesIO() as stream, \
-      wave.open(filename, 'rb') as wave_in, \
-      wave.open(stream, 'wb') as wave_out:
-        wave_out.setnchannels(2)
-        wave_out.setsampwidth(wave_in.getsampwidth())
-        wave_out.setframerate(wave_in.getframerate())
-        nframes = wave_in.getnframes()
-        wave_out.setnframes(nframes)
-        for _ in range(nframes):
-            frame = wave_in.readframes(1)
-            wave_out.writeframesraw(frame)  # L
-            wave_out.writeframesraw(frame)  # R
+      wave.open(file, 'rb') as wi, \
+      wave.open(stream, 'wb') as wo:
+        wo.setnchannels(2)
+        wo.setsampwidth(wi.getsampwidth())
+        wo.setframerate(wi.getframerate())
+        nframes = wi.getnframes()
+        wo.setnframes(nframes)
+        gen_frames = (wi.readframes(1) for _ in range(nframes))
+        [wo.writeframesraw(f * 2) for f in gen_frames]
         return stream.getvalue()
 
 
