@@ -1,4 +1,4 @@
-# A Discord talking bot
+"""A discord bot talking Japanese """
 
 import asyncio
 import io
@@ -9,7 +9,7 @@ import discord
 import openjtalk
 
 
-with open('discordbot-config.json') as f:
+with open('jtalkbot-config.json') as f:
     CONFIG = json.load(f)
 
 
