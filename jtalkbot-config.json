@@ -1,9 +1,0 @@
-{
-    "token": "NzQ0NDM1MjQ1NDQwMzAzMTU0.XzjLWQ.7fCnEh8_4eMT8RFjK3BNcZJadNo",
-    "libopus": "/opt/local/lib/libopus.dylib",
-    "open_jtalk": "/opt/local/bin/open_jtalk",
-    "open_jtalk/dic": "/opt/local/lib/open_jtalk/dic",
-    "open_jtalk/voice": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
-    "connect_after": 5,
-    "voice.hello": "みなさんこんにちは"
-}
