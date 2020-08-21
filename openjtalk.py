@@ -1,4 +1,8 @@
-"""Open JTalk wrapper """
+"""Open JTalk wrapper.
+
+Open JTalk:
+    http://open-jtalk.sourceforge.net
+"""
 
 import asyncio
 import io

@@ -1,4 +1,4 @@
-"""A discord bot talking Japanese """
+"""A discord bot talking Japanese. """
 
 import asyncio
 import io
@@ -87,5 +87,9 @@ async def on_voice_state_update(member: discord.Member,
             print(f'{member} disconnected v:{vch.guild}/{vch}.')
 
 
-if __name__ == "__main__":
+def main():
     client.run(CONFIG['token'])
+
+
+if __name__ == "__main__":
+    main()
