@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# A Discord talking bot
 
 import asyncio
 import io
@@ -19,21 +19,22 @@ if discord.opus.is_loaded():
 client = discord.Client()
 
 
-def find_voice_client(voice_channel: discord.VoiceChannel) -> discord.VoiceClient:
+def find_voice_client(vch: discord.VoiceChannel) -> discord.VoiceClient:
 
-    for voice_client in client.voice_clients:
-        if voice_client.channel == voice_channel:
-            return voice_client
+    for vcl in client.voice_clients:
+        if vcl.channel == vch:
+            return vcl
+    return None
 
 
-async def talk(voice_client: discord.VoiceClient, text: str):
+async def talk(vcl: discord.VoiceClient, text: str):
 
-    data = await openjtalk.exec(text)
+    data = await openjtalk.async_talk(text)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
-    while voice_client.is_playing():
+    while not vcl.is_connected() or vcl.is_playing():
         await asyncio.sleep(0.1)
-    voice_client.play(audio, after=lambda e: stream.close())
+    vcl.play(audio, after=lambda e: stream.close())
 
 
 @client.event
@@ -45,16 +46,14 @@ async def on_ready():
 async def on_message(msg: discord.Message):
 
     tch = msg.channel
-
-    voice_client = None
+    vcl = None
     for vcl in client.voice_clients:
         if vcl.channel.guild == tch.guild and vcl.channel.name == tch.name:
-            voice_client = vcl
+            vcl = vcl
             break
-
-    if voice_client:
+    if vcl:
         print(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
-        await talk(msg.content)
+        await talk(vcl, msg.content)
 
 
 @client.event
@@ -63,24 +62,29 @@ async def on_voice_state_update(member: discord.Member,
                                 after: discord.VoiceState):
 
     if not before.channel and after.channel:
+        # someone connected the voice channel.
         vch = after.channel
         if member == vch.guild.owner:
             print(f'The guild owner {member} connected v:{vch.guild}/{vch}.')
-            voice_client = await vch.connect()
-            if voice_client:
-                for _ in range(10):
-                    if voice_client.is_connected():
-                        break
-                    await asyncio.sleep(0.1)
-                await talk(voice_client, CONFIG['voice.hello'])
+            vcl = await vch.connect()
+        elif member == client.user:
+            print(f'{member} connected v:{vch.guild}/{vch}.')
+            vcl = find_voice_client(vch)
+            await talk(vcl, CONFIG['voice.hello'])
+        else:
+            print(f'{member} connected v:{vch.guild}/{vch}.')
+
 
     elif before.channel and not after.channel:
+        # someone disconnected the voice channel.
         vch = before.channel
         if member == vch.guild.owner:
             print(f'The guild owner {member} disconnected v:{vch.guild}/{vch}.')
-            voice_client = find_voice_client(vch)
-            if voice_client and voice_client.is_connected():
-                await voice_client.disconnect()
+            vcl = find_voice_client(vch)
+            if vcl and vcl.is_connected():
+                await vcl.disconnect()
+        else:
+            print(f'{member} disconnected v:{vch.guild}/{vch}.')
 
 
 if __name__ == "__main__":
