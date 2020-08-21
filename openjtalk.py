@@ -1,4 +1,4 @@
-# openjtalk.py - Open JTalk wrapper
+"""Open JTalk wrapper """
 
 import asyncio
 import io
@@ -19,6 +19,7 @@ VOICE = '/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice'
 
 
 class Agent(object):
+    """Open JTalk command line option wrapper. """
 
     def __init__(self, command: str, dic: str, voice: str, output: str,
                  trace: str = None,
@@ -35,6 +36,7 @@ class Agent(object):
                  buffersize: float = 0,
                  infile: str = None):
         """Constructor. """
+
         self._command = command
         self._output = output
         self._trace = trace
@@ -292,6 +294,7 @@ class Agent(object):
                          volume: float = None,
                          buffersize: float = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
+
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, 'a.wav')
             args = self.build_args(
@@ -326,6 +329,8 @@ def build_args(command: str, x: str, m: str, ow: str,
                g: float = None,
                z: int = None,
                infile: str = None) -> List[str]:
+    """Build open_jtalk command line args. """
+
     args = [command, '-x', x, '-m', m, '-ow', ow]
     if ot is not None:
         args += ['-ot', ot]
@@ -383,6 +388,7 @@ async def async_talk(text: str,
 
 
 def mono_to_stereo(file: str) -> bytes:
+    """Return stereo converted wave data from a monaural wave file. """
 
     with io.BytesIO() as stream, \
       wave.open(file, 'rb') as wi, \
