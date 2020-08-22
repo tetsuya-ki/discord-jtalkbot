@@ -100,7 +100,7 @@ async def on_voice_state_update(member: discord.Member,
         elif member == client.user:
             print(f'{member} connected v:{vch.guild}/{vch}.')
             vcl = find_voice_client(vch)
-            await talk(vcl, CONFIG['voice.hello'])
+            await talk(vcl, CONFIG['voice/hello'])
         else:
             print(f'{member} connected v:{vch.guild}/{vch}.')
 
