@@ -1,0 +1,9 @@
+{
+    "NOTE": "Rename this file to 'jtalk-config.json and edit it for your environment.",
+    "token": "__ENTER_YOUR_TOKEN_HERE__",
+    "libopus": "/opt/local/lib/libopus.dylib",
+    "open_jtalk": "/opt/local/bin/open_jtalk",
+    "open_jtalk/dic": "/opt/local/lib/open_jtalk/dic",
+    "open_jtalk/voice": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "voice.hello": "みなさんこんにちは"
+}
