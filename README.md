@@ -10,7 +10,7 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 以下のプログラム／ライブラリが正常に動作しているシステムが必要です。
 
 - Python 3.8
-- `open_jtalk` コマンド
+- Open JTalk（`open_jtalk` コマンド）
 - Opus ライブラリ（discord.py の音声機能に必要）
 
 

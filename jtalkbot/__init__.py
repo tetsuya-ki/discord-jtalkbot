@@ -8,7 +8,7 @@ import sys
 
 import discord
 
-import openjtalk
+import jtalkbot.openjtalk
 
 
 def load_config() -> dict:
@@ -28,7 +28,7 @@ def load_config() -> dict:
         config_name,
         os.path.expanduser(f'~/{config_name}'),
         os.path.expanduser(f'~/.local/{config_name}'),
-        #os.path.join(__path__, config_name),
+        os.path.join(os.path.dirname(__file__), config_name),
         os.environ.get('JTALKBOT_CONFIG')
     ]
     for filename in paths:
