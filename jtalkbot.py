@@ -3,14 +3,44 @@
 import asyncio
 import io
 import json
+import os.path
+import sys
 
 import discord
 
 import openjtalk
 
 
-with open('jtalkbot-config.json') as f:
-    CONFIG = json.load(f)
+def load_config() -> dict:
+    """Search config file and return its config dict object.
+
+    The configuration file will be found in such order bellow:
+
+    1. ./jtalkbot-config.json
+    2. ~/jtalkbot-config.json
+    2. ~/.local/jtalkbot-config.json
+    3. {module directory}/jtalkbot-config.json
+    4. The file specified in JTALKBOT_CONFIG environment value.
+    """
+    global __config__
+    config_name = 'jtalkbot-config.json'
+    paths = [
+        config_name,
+        os.path.expanduser(f'~/{config_name}'),
+        os.path.expanduser(f'~/.local/{config_name}'),
+        #os.path.join(__path__, config_name),
+        os.environ.get('JTALKBOT_CONFIG')
+    ]
+    for filename in paths:
+        if filename and os.path.exists(filename):
+            __config__ = os.path.abspath(filename)
+            print(f'config file: {__config__}', file=sys.stderr)
+            with open(filename) as f:
+                return json.load(f)
+    print(f'{config_name} not found.', file=sys.stderr)
+    sys.exit(1)
+
+CONFIG = load_config()
 
 
 discord.opus.load_opus(CONFIG['libopus'])
