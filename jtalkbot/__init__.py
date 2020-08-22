@@ -59,7 +59,7 @@ def find_voice_client(vch: discord.VoiceChannel) -> discord.VoiceClient:
 
 async def talk(vcl: discord.VoiceClient, text: str):
 
-    data = await openjtalk.async_talk(text)
+    data = await openjtalk.async_talk(text, speedrate=0.8)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
     while not vcl.is_connected() or vcl.is_playing():
@@ -74,6 +74,9 @@ async def on_ready():
 
 @client.event
 async def on_message(msg: discord.Message):
+
+    if msg.author == client.user:
+        return
 
     tch = msg.channel
     vcl = None
@@ -101,6 +104,10 @@ async def on_voice_state_update(member: discord.Member,
             print(f'{member} connected v:{vch.guild}/{vch}.')
             vcl = find_voice_client(vch)
             await talk(vcl, CONFIG['voice/hello'])
+            for tch in vch.guild.text_channels:
+                if vch.name == tch.name:
+                    await tch.send(CONFIG['text/start'])
+                    break
         else:
             print(f'{member} connected v:{vch.guild}/{vch}.')
 
@@ -113,6 +120,10 @@ async def on_voice_state_update(member: discord.Member,
             vcl = find_voice_client(vch)
             if vcl and vcl.is_connected():
                 await vcl.disconnect()
+            for tch in vch.guild.text_channels:
+                if vch.name == tch.name:
+                    await tch.send(CONFIG['text/end'])
+                    break
         else:
             print(f'{member} disconnected v:{vch.guild}/{vch}.')
 
