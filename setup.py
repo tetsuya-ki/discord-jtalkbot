@@ -1,11 +1,12 @@
 import setuptools
 
+
 with open('README.md') as f:
     long_description = f.read()
 
 setuptools.setup(
     name="jtalkbot-mshibata",
-    version="0.1",
+    version="0.1.0",
     author="Masaaki Shibata",
     author_email="mshibata@emptypage.jp",
     description="A discord bot talking Japanese.",
@@ -19,7 +20,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    keywords='discord japanese',
+    keywords='discord',
     install_requires=['discord.py'],
     entry_points={
         'console_scripts': [
