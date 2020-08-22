@@ -24,7 +24,7 @@ setuptools.setup(
         'Operating System :: OS Independent',
     ],
     keywords='discord',
-    install_requires=['discord.py'],
+    install_requires=['discord.py', 'PyNaCl'],
     entry_points={
         'console_scripts': [
             'jtalkbot=jtalkbot:main'
