@@ -1,12 +1,16 @@
 import setuptools
+from ast import literal_eval
 
+
+with open('jtalkbot/version.py') as f:
+    version = literal_eval(f.read())
 
 with open('README.md') as f:
     long_description = f.read()
 
 setuptools.setup(
     name='jtalkbot-mshibata',
-    version='0.1.0',
+    version=version,
     author='Masaaki Shibata',
     author_email='mshibata@emptypage.jp',
     description='A discord bot talking Japanese.',
