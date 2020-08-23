@@ -31,7 +31,7 @@ setuptools.setup(
     install_requires=['discord.py', 'PyNaCl'],
     entry_points={
         'console_scripts': [
-            'jtalkbot=jtalkbot:main'
+            'jtalkbot=jtalkbot.__main__:main'
         ]
     }
 )
