@@ -1,4 +1,4 @@
-"""A discord bot talking Japanese. """
+"""main entry point """
 
 import argparse
 import asyncio
@@ -9,11 +9,8 @@ import sys
 
 import discord
 
+from . import VERSION
 from . import openjtalk
-from . import version
-
-
-VERSION = version.__doc__
 
 
 def load_config() -> dict:
