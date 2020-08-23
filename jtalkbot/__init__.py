@@ -1,5 +1,6 @@
 """A discord bot talking Japanese. """
 
+import argparse
 import asyncio
 import io
 import json
@@ -9,6 +10,10 @@ import sys
 import discord
 
 import jtalkbot.openjtalk
+import jtalkbot.version
+
+
+VERSION = version.__doc__
 
 
 def load_config() -> dict:
@@ -129,6 +134,17 @@ async def on_voice_state_update(member: discord.Member,
 
 
 def main():
+    """Main entry point. """
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-V', '--version', action='store_true',
+                        help='print the version number and exit')
+    args = parser.parse_args()
+
+    if args.version:
+        print(VERSION)
+        sys.exit()
+
     client.run(CONFIG['token'])
 
 
