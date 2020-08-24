@@ -17,7 +17,6 @@ from . import openjtalk
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def load_config() -> dict:
@@ -52,9 +51,6 @@ def load_config() -> dict:
 CONFIG = load_config()
 
 
-discord.opus.load_opus(CONFIG['libopus'])
-if discord.opus.is_loaded():
-    logger.info('Opus library is loaded.')
 client = discord.Client()
 
 
@@ -148,9 +144,13 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print(VERSION)
+        print(__package__, VERSION)
         sys.exit()
 
+    logger.setLevel(logging.INFO)
+    discord.opus.load_opus(CONFIG['libopus'])
+    if discord.opus.is_loaded():
+        logger.info('Opus library is loaded.')
     client.run(CONFIG['token'])
 
 
