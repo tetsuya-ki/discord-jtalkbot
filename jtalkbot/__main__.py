@@ -62,9 +62,9 @@ def find_voice_client(vch: discord.VoiceChannel) -> discord.VoiceClient:
     return None
 
 
-async def talk(vcl: discord.VoiceClient, text: str):
+async def talk(vcl: discord.VoiceClient, text: str, speedrate=1.0):
 
-    data = await openjtalk.async_talk(text, speedrate=0.8)
+    data = await openjtalk.async_talk(text, speedrate=speedrate)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
     while not vcl.is_connected() or vcl.is_playing():
