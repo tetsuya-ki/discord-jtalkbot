@@ -67,9 +67,15 @@ async def talk(vcl: discord.VoiceClient, text: str, speedrate=1.0):
     data = await openjtalk.async_talk(text, speedrate=speedrate)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
-    while not vcl.is_connected() or vcl.is_playing():
+    sleeptime = 0.1
+    timeout = 6.0
+    while vcl.is_playing():
         await asyncio.sleep(0.1)
-    vcl.play(audio, after=lambda e: stream.close())
+    for _ in range(int(timeout / sleeptime)):
+        if vcl.is_connected():
+            vcl.play(audio, after=lambda e: stream.close())
+            break
+        await asyncio.sleep(0.1)
 
 
 @client.event
