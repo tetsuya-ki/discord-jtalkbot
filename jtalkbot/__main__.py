@@ -14,7 +14,10 @@ from . import VERSION
 from . import openjtalk
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def load_config() -> dict:
@@ -40,10 +43,10 @@ def load_config() -> dict:
     for filename in paths:
         if filename and os.path.exists(filename):
             __config__ = os.path.abspath(filename)
-            logging.info(f'config file: {__config__}')
+            logger.info(f'config file: {__config__}')
             with open(filename) as f:
                 return json.load(f)
-    logging.error(f'{config_name} not found.')
+    logger.error(f'{config_name} not found.')
     sys.exit(1)
 
 CONFIG = load_config()
@@ -51,7 +54,7 @@ CONFIG = load_config()
 
 discord.opus.load_opus(CONFIG['libopus'])
 if discord.opus.is_loaded():
-    logging.info('Opus library is loaded.')
+    logger.info('Opus library is loaded.')
 client = discord.Client()
 
 
@@ -75,7 +78,7 @@ async def talk(vcl: discord.VoiceClient, text: str):
 
 @client.event
 async def on_ready():
-    logging.info(f'Logged in as {client.user}.')
+    logger.info(f'Logged in as {client.user}.')
 
 
 @client.event
@@ -91,7 +94,7 @@ async def on_message(msg: discord.Message):
             vcl = vcl
             break
     if vcl:
-        logging.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
+        logger.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
         await talk(vcl, msg.content)
 
 
@@ -104,11 +107,11 @@ async def on_voice_state_update(member: discord.Member,
         # someone connected the voice channel.
         vch = after.channel
         if member == vch.guild.owner:
-            logging.info(
+            logger.info(
                 f'The guild owner {member} connected v:{vch.guild}/{vch}.')
             vcl = await vch.connect()
         elif member == client.user:
-            logging.info(f'{member} connected v:{vch.guild}/{vch}.')
+            logger.info(f'{member} connected v:{vch.guild}/{vch}.')
             vcl = find_voice_client(vch)
             await talk(vcl, CONFIG['voice/hello'])
             for tch in vch.guild.text_channels:
@@ -116,14 +119,14 @@ async def on_voice_state_update(member: discord.Member,
                     await tch.send(CONFIG['text/start'])
                     break
         else:
-            logging.info(f'{member} connected v:{vch.guild}/{vch}.')
+            logger.info(f'{member} connected v:{vch.guild}/{vch}.')
 
 
     elif before.channel and not after.channel:
         # someone disconnected the voice channel.
         vch = before.channel
         if member == vch.guild.owner:
-            logging.info(
+            logger.info(
                 f'The guild owner {member} disconnected v:{vch.guild}/{vch}.')
             vcl = find_voice_client(vch)
             if vcl and vcl.is_connected():
@@ -133,7 +136,7 @@ async def on_voice_state_update(member: discord.Member,
                     await tch.send(CONFIG['text/end'])
                     break
         else:
-            logging.info(f'{member} disconnected v:{vch.guild}/{vch}.')
+            logger.info(f'{member} disconnected v:{vch.guild}/{vch}.')
 
 
 def main():
