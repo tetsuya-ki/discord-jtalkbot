@@ -149,11 +149,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='store_true',
                         help='print the version number and exit')
+    parser.add_argument('-t', '--token',
+                        help='override the Discord bot token')
     args = parser.parse_args()
 
     if args.version:
         print(__package__, VERSION)
         sys.exit()
+    if args.token:
+        CONFIG['token'] = args.token
 
     logger.setLevel(logging.INFO)
     discord.opus.load_opus(CONFIG['libopus'])
