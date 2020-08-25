@@ -1,3 +1,3 @@
 # NOTE: This file must not contain anything but the string literal of the
 # software version!
-'0.2.0'
+'0.3.0'
