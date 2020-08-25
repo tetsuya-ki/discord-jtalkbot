@@ -64,7 +64,12 @@ def find_voice_client(vch: discord.VoiceChannel) -> discord.VoiceClient:
 
 async def talk(vcl: discord.VoiceClient, text: str, speedrate=1.0):
 
-    data = await openjtalk.async_talk(text, speedrate=speedrate)
+    data = await openjtalk.async_talk(
+        text,
+        command=CONFIG['open_jtalk'],
+        dic=CONFIG['open_jtalk/dic'],
+        voice=CONFIG['open_jtalk/voice'],
+        speedrate=speedrate)
     stream = io.BytesIO(data)
     audio = discord.PCMAudio(stream)
     sleeptime = 0.1
