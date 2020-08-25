@@ -69,13 +69,15 @@ async def talk(vcl: discord.VoiceClient, text: str, speedrate=1.0):
     audio = discord.PCMAudio(stream)
     sleeptime = 0.1
     timeout = 6.0
-    while vcl.is_playing():
-        await asyncio.sleep(0.1)
     for _ in range(int(timeout / sleeptime)):
         if vcl.is_connected():
-            vcl.play(audio, after=lambda e: stream.close())
             break
         await asyncio.sleep(0.1)
+    else:
+        return
+    while vcl.is_playing():
+        await asyncio.sleep(0.1)
+    vcl.play(audio, after=lambda e: stream.close())
 
 
 @client.event
