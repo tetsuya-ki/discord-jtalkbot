@@ -17,7 +17,7 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 ## 導入
 
-`pip install jtalkbot-mshibata` します。
+`pip install jtalkbot` します。
 
 依存関係が設定されているのでプログラムの実行に必要なモジュールはあわせて自動的にインストールされます。
 
@@ -89,13 +89,23 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 ### ボットの実行
 
-パッケージと一緒にインストールされる `jtalkbot` コマンドを実行します。ボットを停止するときは Ctrl+C を押します。
+パッケージと一緒にインストールされる `jtalkbot` コマンドを実行します。このとき次の順で設定ファイルを探し、最初に見つかったものを読みこみます。
+
+1. `./jtalkbot-config.json`
+2. `~/jtalkbot-config.json`
+2. `~/.local/jtalkbot-config.json`
+3. `{パッケージのインストール先ディレクトリ}/jtalkbot-config.json`
+4. 環境変数 `JTALKBOT_CONFIG` で指定されたファイル
+
+起動するとログを表示しながら待機し続けます。
 
 ```
 ~/app % jtalkbot
 2020-08-25 19:25:57 INFO Opus library is loaded.
 2020-08-25 19:26:00 INFO Logged in as MyBot#0123.
 ```
+
+ボットを停止するときは Ctrl+C を押します。
 
 ### ボットの動作
 

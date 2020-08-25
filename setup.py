@@ -9,7 +9,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='jtalkbot-mshibata',
+    name='jtalkbot',
     version=version,
     author='Masaaki Shibata',
     author_email='mshibata@emptypage.jp',
