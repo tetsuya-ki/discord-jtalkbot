@@ -47,8 +47,8 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
     "token": "__ENTER_YOUR_TOKEN_HERE__",
     "libopus": "/opt/local/lib/libopus.dylib",
     "open_jtalk": "/opt/local/bin/open_jtalk",
-    "open_jtalk/dic": "/opt/local/lib/open_jtalk/dic",
-    "open_jtalk/voice": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "open_jtalk/x": "/opt/local/lib/open_jtalk/dic",
+    "open_jtalk/m": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
     "voice/hello": "みなさんこんにちは。",
     "text/start": "読み上げを始めます。",
     "text/end": "読み上げを終わります。"
@@ -67,11 +67,11 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 文字列型。`open_jtalk` コマンドの場所をフルパスで記述します。あらかじめコマンドを実行してみて適切に動作することを確認しておいてください。
 
-#### `open_jtalk/dic`
+#### `open_jtalk/x`
 
 文字列型。`open_jtalk` コマンドの `-x` オプションに渡す辞書ディレクトリの場所をフルパスで記述します。
 
-#### `open_jtalk/voice`
+#### `open_jtalk/m`
 
 文字列型。`open_jtalk` コマンドの `-m` オプションに渡す HTS 音声ファイルの場所をフルパスで記述します。
 
