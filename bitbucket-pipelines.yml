@@ -1,9 +1,11 @@
 image: python:3.8
 
 pipelines:
-  branches:
-    master:
+  tags:
+    rel-*:
       - step:
+          name: Upload to PyPI
+          deployment: production
           caches:
             - pip
           script:
