@@ -14,6 +14,6 @@ pipelines:
               PYPI_USERNAME: '<string>'
               PYPI_PASSWORD: '<string>'
               # REPOSITORY: '<string>' # Optional.
-              DISTRIBUTIONS: 'sdist bdist_wheel' # Optional.
+              # DISTRIBUTIONS: '<string>' # Optional.
               # FOLDER: '<string>' # Optional.
               # DEBUG: '<boolean>' # Optional.
