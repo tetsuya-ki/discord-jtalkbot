@@ -156,6 +156,32 @@ def main():
                         help='print the version number and exit')
     parser.add_argument('-t', '--token',
                         help='override the Discord bot token')
+    parser.add_argument('--open-jtalk-x',
+                        help='open_jtalk dictionary directory')
+    parser.add_argument('--open-jtalk-m',
+                        help='open_jtalk HTS voice file')
+    parser.add_argument('--open-jtalk-s', type=int,
+                        help='open_jtalk sampling frequency')
+    parser.add_argument('--open-jtalk-p', type=int,
+                        help='open_jtalk frame period (point)')
+    parser.add_argument('--open-jtalk-a', type=float,
+                        help='open_jtalk all-pass constant')
+    parser.add_argument('--open-jtalk-b', type=float,
+                        help='open_jtalk postfiltering coefficient')
+    parser.add_argument('--open-jtalk-r', type=float,
+                        help='open_jtalk speech speed rate')
+    parser.add_argument('--open-jtalk-fm', type=float,
+                        help='open_jtalk additional half-tone')
+    parser.add_argument('--open-jtalk-u', type=float,
+                        help='open_jtalk voiced/unvoiced threshold')
+    parser.add_argument('--open-jtalk-jm', type=float,
+                        help='open_jtalk weight of GV for spectrum')
+    parser.add_argument('--open-jtalk-jf', type=float,
+                        help='open_jtalk weight of GV for log F0')
+    parser.add_argument('--open-jtalk-g', type=float,
+                        help='open_jtalk volume (dB)')
+    parser.add_argument('--open-jtalk-z', type=int,
+                        help='open_jtalk audio buffer size (if i==0, turn off)')
     args = parser.parse_args()
 
     if args.version:
