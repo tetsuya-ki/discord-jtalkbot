@@ -1,15 +1,17 @@
-image: python:3.8
+image: python:latest
 
 pipelines:
   branches:
     master:
       - step:
+          caches:
+            - pip
           script:
-            - pipe: atlassian/pypi-publish:0.3.0
+            - pipe: atlassian/pypi-publish:latest
               variables:
                 PYPI_USERNAME: $PYPI_USERNAME
                 PYPI_PASSWORD: $PYPI_PASSWORD
                 # REPOSITORY: '<string>' # Optional.
-                # DISTRIBUTIONS: '<string>' # Optional.
+                DISTRIBUTIONS: 'sdist bdist_wheel' # Optional.
                 # FOLDER: '<string>' # Optional.
                 # DEBUG: '<boolean>' # Optional.
