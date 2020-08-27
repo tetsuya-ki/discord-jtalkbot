@@ -9,3 +9,7 @@ dist:
 .PHONY: upload
 upload: dist
 	$(TWINE) upload dist/*
+
+.PHONY: upload
+clean:
+	rm -r build dist *.egg-info
