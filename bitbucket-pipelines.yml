@@ -1,4 +1,4 @@
-image: python:latest
+image: python:3.8
 
 pipelines:
   branches:
@@ -7,7 +7,7 @@ pipelines:
           caches:
             - pip
           script:
-            - pipe: atlassian/pypi-publish:latest
+            - pipe: atlassian/pypi-publish:0.3.0
               variables:
                 PYPI_USERNAME: $PYPI_USERNAME
                 PYPI_PASSWORD: $PYPI_PASSWORD
