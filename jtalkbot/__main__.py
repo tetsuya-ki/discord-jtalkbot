@@ -109,7 +109,7 @@ async def talk(vcl: discord.VoiceClient,
         buffersize = CONFIG.get('open_jtalk/z')
 
     data = await openjtalk.async_talk(
-        text, command=command, dic=dic, voice=voice, trace=trace,
+        text, command=command, dic=dic, voice=voice,
         sampling=sampling, frameperiod=frameperiod, allpass=allpass,
         postfilter=postfilter, speedrate=speedrate, halftone=halftone,
         threshold=threshold, spectrum=spectrum, logf0=logf0, volume=volume,
