@@ -7,6 +7,7 @@ import json
 import logging
 import os.path
 import sys
+from ctypes.util import find_library
 
 import discord
 
@@ -263,7 +264,7 @@ def main():
         CONFIG['open_jtalk/z'] = args.open_jtalk_z
 
     logger.setLevel(logging.INFO)
-    discord.opus.load_opus(CONFIG['libopus'])
+    discord.opus.load_opus(find_library('opus'))
     if discord.opus.is_loaded():
         logger.info('Opus library is loaded.')
     client.run(CONFIG['token'])
