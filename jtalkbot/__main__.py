@@ -5,7 +5,7 @@ import asyncio
 import io
 import json
 import logging
-import os.path
+import os
 import sys
 from ctypes.util import find_library
 
