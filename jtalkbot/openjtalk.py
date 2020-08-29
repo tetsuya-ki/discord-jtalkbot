@@ -6,7 +6,7 @@ Open JTalk:
 
 import asyncio
 import io
-import os.path
+import os
 import sys
 import tempfile
 import wave
@@ -20,6 +20,25 @@ ENCODING = sys.getfilesystemencoding()
 OPEN_JTALK = '/usr/local/bin/open_jtalk'
 DICT = '/usr/local/lib/open_jtalk/dic'
 VOICE = '/usr/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
+
+
+def find_command(command: str) -> str:
+    """Search PATH and return full path for the given command. """
+
+    if os.path.isabs(command):
+        return command
+
+    if os.path.dirname(command):
+        raise ValueError(
+            """command must be a absolute path or a simple name without
+            path separators """)
+
+    for dirname in os.get_exec_path():
+        full = os.path.join(dirname, command)
+        if os.path.exists(full):
+            return full
+
+    return None
 
 
 class Agent(object):
