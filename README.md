@@ -29,10 +29,10 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
     ~/app % cd jtalkbot
     ~/app/jtalkbot % python3 -m venv .venv
     ~/app/jtalkbot % source .venv/bin/activate
-    (.venv) ~/app/jtalkbot % pip install jtalkbot-mshibata
+    (.venv) ~/app/jtalkbot % pip install jtalkbot
     ...
     (.venv) ~/app/jtalkbot % jtalkbot --version
-    jtalkbot 0.1.0
+    jtalkbot X.Y.Z
 
 ## 使いかた
 
