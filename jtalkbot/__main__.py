@@ -18,6 +18,7 @@ from . import openjtalk
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.INFO)
+LOG.info(f'jtalkbot {VERSION}')
 
 
 class Bot(discord.Client):
