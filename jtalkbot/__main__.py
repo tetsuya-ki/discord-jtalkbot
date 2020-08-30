@@ -42,9 +42,8 @@ class Bot(discord.Client):
             return
 
         tch = msg.channel
-        vcl = discord.utils.find(
-            lambda x: x.channel.guild == tch.guild and x.channel.name == tch.name,
-            self.voice_clients)
+        vcl = discord.utils.get(
+            self.voice_clients, channel__guild=tch.guild, channel__name=tch.name)
         if vcl:
             LOG.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
             await talk(vcl, msg.content)
@@ -59,40 +58,38 @@ class Bot(discord.Client):
         if not before.channel and after.channel:
             # someone connected the voice channel.
             vch = after.channel
+            guild = vch.guild
             if member == vch.guild.owner:
                 LOG.info(
-                    f'Guild owner {member} connected v:{vch.guild}/{vch}.')
+                    f'Guild owner {member} connected v:{guild}/{vch}.')
                 vcl = await vch.connect()
             elif member == self.user:
-                LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
-                vcl = discord.utils.find(lambda x: x.channel == vch,
-                                         self.voice_clients)
+                LOG.info(f'{member} connected v:{guild}/{vch}.')
+                vcl = discord.utils.get(self.voice_clients, channel=vch)
                 if vcl:
                     await talk(vcl, CONFIG['voice_hello'])
-                tch = discord.utils.find(lambda x: x.name == vch.name,
-                                         vch.guild.text_channels)
+                tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
                     await tch.send(CONFIG['text_start'])
             else:
-                LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
+                LOG.info(f'{member} connected v:{guild}/{vch}.')
 
 
         elif before.channel and not after.channel:
             # someone disconnected the voice channel.
             vch = before.channel
+            guild = vch.guild
             if member == vch.guild.owner:
                 LOG.info(
-                    f'Guild owner {member} disconnected v:{vch.guild}/{vch}.')
-                vcl = discord.utils.find(lambda x: x.channel == vch,
-                                         self.voice_clients)
+                    f'Guild owner {member} disconnected v:{guild}/{vch}.')
+                vcl = discord.utils.get(self.voice_clients, channel=vch)
                 if vcl and vcl.is_connected():
                     await vcl.disconnect()
-                tch = discord.utils.find(lambda x: x.name == vch.name,
-                                         vch.guild.text_channels)
+                tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
                     await tch.send(CONFIG['text_end'])
             else:
-                LOG.info(f'{member} disconnected v:{vch.guild}/{vch}.')
+                LOG.info(f'{member} disconnected v:{guild}/{vch}.')
 
 
 
