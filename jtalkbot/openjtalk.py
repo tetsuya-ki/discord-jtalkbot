@@ -7,19 +7,28 @@ Open JTalk:
 import asyncio
 import io
 import os
+import subprocess
 import sys
 import tempfile
 import wave
 from typing import List
 
 
-__all__ = ['Agent', 'async_talk']
+__all__ = [
+    'FREQ_44100', 'FREQ_48000',
+    'Agent', 'talk', 'async_talk'
+]
 
 
 ENCODING = sys.getfilesystemencoding()
 OPEN_JTALK = 'open_jtalk'
-DICT = '/usr/local/lib/open_jtalk/dic'
-VOICE = '/usr/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
+DICT = '/opt/local/lib/open_jtalk/dic'
+VOICE = '/opt/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
+
+
+# pre-defined sampling frequency
+FREQ_44100 = 44100
+FREQ_48000 = 48000
 
 
 def find_command(command: str) -> str:
@@ -44,7 +53,7 @@ def find_command(command: str) -> str:
 class Agent(object):
     """Open JTalk command line option wrapper. """
 
-    def __init__(self, command: str, dic: str, voice: str, output: str,
+    def __init__(self, command: str, dic: str, voice: str, output: str, *,
                  trace: str = None,
                  sampling: int = None,
                  frameperiod: int = None,
@@ -229,7 +238,7 @@ class Agent(object):
     def infile(self, value: str):
         self._infile = value
 
-    def build_args(self,
+    def build_args(self, *,
                    command: str = None,
                    dic: str = None,
                    voice: str = None,
@@ -270,7 +279,69 @@ class Agent(object):
             cmd, x, m, ow, ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm,
             jf=jf, g=g, z=z, infile=infile)
 
-    async def async_exec(self,
+    def exec(self, *,
+             command: str = None,
+             dic: str = None,
+             voice: str = None,
+             output: str = None,
+             trace: str = None,
+             sampling: int = None,
+             frameperiod: int = None,
+             allpass: float = None,
+             postfilter: float = None,
+             speedrate: float = None,
+             halftone: float = None,
+             threshold: float = None,
+             spectrum: float = None,
+             logf0: float = None,
+             volume: float = None,
+             buffersize: float = None,
+             infile: str = None) -> int:
+        """Exec `open_jtalk` command with given options and return its
+        return code """
+
+        args = self.build_args(
+            command=command, dic=dic, voice=voice, output=output,
+            trace=trace, sampling=sampling, frameperiod=frameperiod,
+            allpass=allpass, postfilter=postfilter, speedrate=speedrate,
+            halftone=halftone, threshold=threshold, spectrum=spectrum,
+            logf0=logf0, volume=volume, buffersize=buffersize, infile=infile)
+        proc = subprocess.run(args)
+        return proc.returncode
+
+    def talk(self, text: str, *,
+             command: str = None,
+             dic: str = None,
+             voice: str = None,
+             trace: str = None,
+             sampling: int = None,
+             frameperiod: int = None,
+             allpass: float = None,
+             postfilter: float = None,
+             speedrate: float = None,
+             halftone: float = None,
+             threshold: float = None,
+             spectrum: float = None,
+             logf0: float = None,
+             volume: float = None,
+             buffersize: float = None) -> bytes:
+        """Generate wave data bytes for given text """
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            output = os.path.join(tempdir, 'a.wav')
+            args = self.build_args(
+                command=command, dic=dic, voice=voice, output=output,
+                trace=trace, sampling=sampling, frameperiod=frameperiod,
+                allpass=allpass, postfilter=postfilter, speedrate=speedrate,
+                halftone=halftone, threshold=threshold, spectrum=spectrum,
+                logf0=logf0, volume=volume, buffersize=buffersize)
+            proc = subprocess.run(args, input=text.encode(ENCODING))
+            print(proc)
+            if proc.returncode == 0:
+                return mono_to_stereo(output)
+        return None
+
+    async def async_exec(self, *,
                          command: str = None,
                          dic: str = None,
                          voice: str = None,
@@ -288,7 +359,8 @@ class Agent(object):
                          volume: float = None,
                          buffersize: float = None,
                          infile: str = None) -> int:
-        """[Coroutine] Exec open_jtalk command with given args """
+        """[Coroutine] Exec `open_jtalk` command with given options and
+        return its return code """
 
         args = self.build_args(
             command=command, dic=dic, voice=voice, output=output,
@@ -297,10 +369,10 @@ class Agent(object):
             halftone=halftone, threshold=threshold, spectrum=spectrum,
             logf0=logf0, volume=volume, buffersize=buffersize, infile=infile)
         proc = await asyncio.create_subprocess_exec(*args)
-        await proc.communicate(text.encode(ENCODING))
+        await proc.communicate()
         return proc.returncode
 
-    async def async_talk(self, text: str,
+    async def async_talk(self, text: str, *,
                          command: str = None,
                          dic: str = None,
                          voice: str = None,
@@ -327,8 +399,7 @@ class Agent(object):
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
                 logf0=logf0, volume=volume, buffersize=buffersize)
             proc = await asyncio.create_subprocess_exec(
-                *args,
-                stdin=asyncio.subprocess.PIPE)
+                *args, stdin=asyncio.subprocess.PIPE)
             await proc.communicate(text.encode(ENCODING))
             if proc.returncode == 0:
                 return mono_to_stereo(output)
@@ -338,7 +409,7 @@ class Agent(object):
 default_agent = Agent(OPEN_JTALK, DICT, VOICE, 'a.wav')
 
 
-def build_args(command: str, x: str, m: str, ow: str,
+def build_args(command: str, x: str, m: str, ow: str, *,
                ot: str = None,
                s: int = None,
                p: int = None,
@@ -384,7 +455,33 @@ def build_args(command: str, x: str, m: str, ow: str,
     return args
 
 
-async def async_talk(text: str,
+def talk(text: str, *,
+         command: str = None,
+         dic: str = None,
+         voice: str = None,
+         trace: str = None,
+         sampling: int = None,
+         frameperiod: int = None,
+         allpass: float = None,
+         postfilter: float = None,
+         speedrate: float = None,
+         halftone: float = None,
+         threshold: float = None,
+         spectrum: float = None,
+         logf0: float = None,
+         volume: float = None,
+         buffersize: float = None) -> bytes:
+    """Generate wave data bytes for given text """
+
+    return default_agent.talk(
+        text, command=command, dic=dic, voice=voice,
+        trace=trace, sampling=sampling, frameperiod=frameperiod,
+        allpass=allpass, postfilter=postfilter, speedrate=speedrate,
+        halftone=halftone, threshold=threshold, spectrum=spectrum,
+        logf0=logf0, volume=volume, buffersize=buffersize)
+
+
+async def async_talk(text: str, *,
                      command: str = None,
                      dic: str = None,
                      voice: str = None,
@@ -426,11 +523,11 @@ def mono_to_stereo(file: str) -> bytes:
         return stream.getvalue()
 
 
-async def main():
-    data = await async_talk('おやすみなさい')
+def main():
+    data = talk('おやすみなさい')
     with open('a.wav', 'wb') as f:
         f.write(data)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
