@@ -90,7 +90,7 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 起動するとログを表示しながら待機し続けます。
 
 ```
-~/app % jtalkbot
+~/app/jtalkbot % jtalkbot
 INFO:jtalkbot.__main__:config file: /Users/xxxx/jtalkbot-config.json
 INFO:jtalkbot.__main__:Opus library is loaded.
 INFO:jtalkbot.__main__:Logged in as MyBot#nnnn.
