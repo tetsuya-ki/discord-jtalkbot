@@ -45,10 +45,9 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 ```JSON
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "libopus": "/opt/local/lib/libopus.dylib",
-    "open_jtalk": "/opt/local/bin/open_jtalk",
-    "open_jtalk/x": "/opt/local/lib/open_jtalk/dic",
-    "open_jtalk/m": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "open_jtalk": "/usr/local/bin/open_jtalk",
+    "open_jtalk/x": "/usr/local/lib/open_jtalk/dic",
+    "open_jtalk/m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
     "voice/hello": "みなさんこんにちは。",
     "text/start": "読み上げを始めます。",
     "text/end": "読み上げを終わります。"
@@ -58,10 +57,6 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 #### `token`
 
 文字列型。Discord によって発行されたボットアカウントのトークンを記述します。
-
-#### `libopus`
-
-文字列型。Opus ライブラリの場所をフルパスで記述します。ファイル名は macOS では `libopus.dylib`、Linux では `libopus.so`、Windows では `libopus.dll` などになっていることが多いでしょう。
 
 #### `open_jtalk`
 
@@ -105,7 +100,7 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 2020-08-25 19:26:00 INFO Logged in as MyBot#0123.
 ```
 
-ボットを停止するときは Ctrl+C を押します。
+ボットを停止するときは `Ctrl+C` を押します。
 
 ### ボットの動作
 

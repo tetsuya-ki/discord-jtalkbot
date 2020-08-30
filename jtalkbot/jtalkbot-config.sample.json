@@ -1,9 +1,8 @@
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "libopus": "/opt/local/lib/libopus.dylib",
-    "open_jtalk": "/opt/local/bin/open_jtalk",
-    "open_jtalk/x": "/opt/local/lib/open_jtalk/dic",
-    "open_jtalk/m": "/opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "open_jtalk": "/usr/local/bin/open_jtalk",
+    "open_jtalk/x": "/usr/local/lib/open_jtalk/dic",
+    "open_jtalk/m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
     "voice/hello": "みなさんこんにちは。",
     "text/start": "読み上げを始めます。",
     "text/end": "読み上げを終わります。"
