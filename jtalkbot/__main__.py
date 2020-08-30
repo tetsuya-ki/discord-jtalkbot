@@ -42,11 +42,9 @@ class Bot(discord.Client):
             return
 
         tch = msg.channel
-        vcl = None
-        for vcl in self.voice_clients:
-            if vcl.channel.guild == tch.guild and vcl.channel.name == tch.name:
-                vcl = vcl
-                break
+        vcl = discord.utils.find(
+            lambda x: x.channel.guild == tch.guild and x.channel.name == tch.name,
+            self.voice_clients)
         if vcl:
             LOG.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
             await talk(vcl, msg.content)
@@ -69,11 +67,12 @@ class Bot(discord.Client):
                 LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
                 vcl = discord.utils.find(lambda x: x.channel == vch,
                                          self.voice_clients)
-                await talk(vcl, CONFIG['voice_hello'])
-                for tch in vch.guild.text_channels:
-                    if vch.name == tch.name:
-                        await tch.send(CONFIG['text_start'])
-                        break
+                if vcl:
+                    await talk(vcl, CONFIG['voice_hello'])
+                tch = discord.utils.find(lambda x: x.name == vch.name,
+                                         vch.guild.text_channels)
+                if tch:
+                    await tch.send(CONFIG['text_start'])
             else:
                 LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
 
@@ -88,10 +87,10 @@ class Bot(discord.Client):
                                          self.voice_clients)
                 if vcl and vcl.is_connected():
                     await vcl.disconnect()
-                for tch in vch.guild.text_channels:
-                    if vch.name == tch.name:
-                        await tch.send(CONFIG['text_end'])
-                        break
+                tch = discord.utils.find(lambda x: x.name == vch.name,
+                                         vch.guild.text_channels)
+                if tch:
+                    await tch.send(CONFIG['text_end'])
             else:
                 LOG.info(f'{member} disconnected v:{vch.guild}/{vch}.')
 
