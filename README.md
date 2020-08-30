@@ -91,8 +91,9 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 ```
 ~/app % jtalkbot
-2020-08-25 19:25:57 INFO Opus library is loaded.
-2020-08-25 19:26:00 INFO Logged in as MyBot#0123.
+INFO:jtalkbot.__main__:config file: /Users/xxxx/jtalkbot-config.json
+INFO:jtalkbot.__main__:Opus library is loaded.
+INFO:jtalkbot.__main__:Logged in as MyBot#nnnn.
 ```
 
 ボットを停止するときは `Ctrl+C` を押します。
