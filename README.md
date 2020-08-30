@@ -40,6 +40,8 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 はじめに `jtalkbot-config.json` ファイルを編集します。ライブラリ内にサンプルファイルが `jtalkbot-config-sample.json` として入っていますので、これをコピー、リネームして使ってください。
 
+__NOTE__: バージョン 0.5.0 で設定ファイルの項目名を変更しました。
+
 #### `jtalk-config.json` ファイルの例
 
 ```JSON
