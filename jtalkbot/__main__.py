@@ -15,9 +15,9 @@ from . import VERSION
 from . import openjtalk
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig()
 LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.INFO)
 
 
 class Bot(discord.Client):
@@ -234,36 +234,9 @@ def main():
         print(__package__, VERSION)
         sys.exit()
 
-    if args.token is not None:
-        CONFIG['token'] = args.token
-    if args.open_jtalk_x is not None:
-        CONFIG['open_jtalk_x'] = args.open_jtalk_x
-    if args.open_jtalk_m is not None:
-        CONFIG['open_jtalk_m'] = args.open_jtalk_m
-    if args.open_jtalk_s is not None:
-        CONFIG['open_jtalk_s'] = args.open_jtalk_s
-    if args.open_jtalk_p is not None:
-        CONFIG['open_jtalk_p'] = args.open_jtalk_p
-    if args.open_jtalk_a is not None:
-        CONFIG['open_jtalk_a'] = args.open_jtalk_a
-    if args.open_jtalk_b is not None:
-        CONFIG['open_jtalk_b'] = args.open_jtalk_b
-    if args.open_jtalk_r is not None:
-        CONFIG['open_jtalk_r'] = args.open_jtalk_r
-    if args.open_jtalk_fm is not None:
-        CONFIG['open_jtalk_fm'] = args.open_jtalk_fm
-    if args.open_jtalk_u is not None:
-        CONFIG['open_jtalk_u'] = args.open_jtalk_u
-    if args.open_jtalk_jm is not None:
-        CONFIG['open_jtalk_jm'] = args.open_jtalk_jm
-    if args.open_jtalk_jf is not None:
-        CONFIG['open_jtalk_jf'] = args.open_jtalk_jf
-    if args.open_jtalk_g is not None:
-        CONFIG['open_jtalk_g'] = args.open_jtalk_g
-    if args.open_jtalk_z is not None:
-        CONFIG['open_jtalk_z'] = args.open_jtalk_z
+    # Overwrite CONFIG with args parameters which are specified
+    CONFIG.update((k, v) for (k, v) in vars(args).items() if v is not None)
 
-    LOG.setLevel(logging.INFO)
     discord.opus.load_opus(find_library('opus'))
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
