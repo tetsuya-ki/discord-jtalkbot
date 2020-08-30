@@ -1,8 +1,8 @@
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk/x": "/usr/local/lib/open_jtalk/dic",
-    "open_jtalk/m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
-    "voice/hello": "みなさんこんにちは。",
-    "text/start": "読み上げを始めます。",
-    "text/end": "読み上げを終わります。"
+    "open_jtalk_x": "/usr/local/lib/open_jtalk/dic",
+    "open_jtalk_m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "voice_hello": "みなさんこんにちは。",
+    "text_start": "読み上げを始めます。",
+    "text_end": "読み上げを終わります。"
 }

@@ -69,10 +69,10 @@ class Bot(discord.Client):
                 LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
                 vcl = discord.utils.find(lambda x: x.channel == vch,
                                          self.voice_clients)
-                await talk(vcl, CONFIG['voice/hello'])
+                await talk(vcl, CONFIG['voice_hello'])
                 for tch in vch.guild.text_channels:
                     if vch.name == tch.name:
-                        await tch.send(CONFIG['text/start'])
+                        await tch.send(CONFIG['text_start'])
                         break
             else:
                 LOG.info(f'{member} connected v:{vch.guild}/{vch}.')
@@ -90,7 +90,7 @@ class Bot(discord.Client):
                     await vcl.disconnect()
                 for tch in vch.guild.text_channels:
                     if vch.name == tch.name:
-                        await tch.send(CONFIG['text/end'])
+                        await tch.send(CONFIG['text_end'])
                         break
             else:
                 LOG.info(f'{member} disconnected v:{vch.guild}/{vch}.')
@@ -147,31 +147,31 @@ async def talk(vcl: discord.VoiceClient,
                buffersize: float = None):
 
     if dic is None:
-        dic = CONFIG.get('open_jtalk/x')
+        dic = CONFIG.get('open_jtalk_x')
     if voice is None:
-        voice = CONFIG.get('open_jtalk/m')
+        voice = CONFIG.get('open_jtalk_m')
     if sampling is None:
-        sampling = CONFIG.get('open_jtalk/s')
+        sampling = CONFIG.get('open_jtalk_s')
     if frameperiod is None:
-        frameperiod = CONFIG.get('open_jtalk/p')
+        frameperiod = CONFIG.get('open_jtalk_p')
     if allpass is None:
-        allpass = CONFIG.get('open_jtalk/a')
+        allpass = CONFIG.get('open_jtalk_a')
     if postfilter is None:
-        postfilter = CONFIG.get('open_jtalk/b')
+        postfilter = CONFIG.get('open_jtalk_b')
     if speedrate is None:
-        speedrate = CONFIG.get('open_jtalk/r')
+        speedrate = CONFIG.get('open_jtalk_r')
     if halftone is None:
-        halftone = CONFIG.get('open_jtalk/fm')
+        halftone = CONFIG.get('open_jtalk_fm')
     if threshold is None:
-        threshold = CONFIG.get('open_jtalk/u')
+        threshold = CONFIG.get('open_jtalk_u')
     if spectrum is None:
-        spectrum = CONFIG.get('open_jtalk/jm')
+        spectrum = CONFIG.get('open_jtalk_jm')
     if logf0 is None:
-        logf0 = CONFIG.get('open_jtalk/jf')
+        logf0 = CONFIG.get('open_jtalk_jf')
     if volume is None:
-        volume = CONFIG.get('open_jtalk/g')
+        volume = CONFIG.get('open_jtalk_g')
     if buffersize is None:
-        buffersize = CONFIG.get('open_jtalk/z')
+        buffersize = CONFIG.get('open_jtalk_z')
 
     data = await openjtalk.async_talk(
         text, dic=dic, voice=voice,
@@ -202,65 +202,66 @@ def main():
                         help='print the version number and exit')
     parser.add_argument('-t', '--token',
                         help='override the Discord bot token')
-    parser.add_argument('--open_jtalk-x',
+    parser.add_argument('--open_jtalk_x',
                         help='open_jtalk dictionary directory')
-    parser.add_argument('--open_jtalk-m',
+    parser.add_argument('--open_jtalk_m',
                         help='open_jtalk HTS voice file')
-    parser.add_argument('--open_jtalk-s', type=int,
+    parser.add_argument('--open_jtalk_s', type=int,
                         help='open_jtalk sampling frequency')
-    parser.add_argument('--open_jtalk-p', type=int,
+    parser.add_argument('--open_jtalk_p', type=int,
                         help='open_jtalk frame period (point)')
-    parser.add_argument('--open_jtalk-a', type=float,
+    parser.add_argument('--open_jtalk_a', type=float,
                         help='open_jtalk all-pass constant')
-    parser.add_argument('--open_jtalk-b', type=float,
+    parser.add_argument('--open_jtalk_b', type=float,
                         help='open_jtalk postfiltering coefficient')
-    parser.add_argument('--open_jtalk-r', type=float,
+    parser.add_argument('--open_jtalk_r', type=float,
                         help='open_jtalk speech speed rate')
-    parser.add_argument('--open_jtalk-fm', type=float,
+    parser.add_argument('--open_jtalk_fm', type=float,
                         help='open_jtalk additional half-tone')
-    parser.add_argument('--open_jtalk-u', type=float,
+    parser.add_argument('--open_jtalk_u', type=float,
                         help='open_jtalk voiced/unvoiced threshold')
-    parser.add_argument('--open_jtalk-jm', type=float,
+    parser.add_argument('--open_jtalk_jm', type=float,
                         help='open_jtalk weight of GV for spectrum')
-    parser.add_argument('--open_jtalk-jf', type=float,
+    parser.add_argument('--open_jtalk_jf', type=float,
                         help='open_jtalk weight of GV for log F0')
-    parser.add_argument('--open_jtalk-g', type=float,
+    parser.add_argument('--open_jtalk_g', type=float,
                         help='open_jtalk volume (dB)')
-    parser.add_argument('--open_jtalk-z', type=int,
+    parser.add_argument('--open_jtalk_z', type=int,
                         help='open_jtalk audio buffer size (if i==0, turn off)')
     args = parser.parse_args()
 
     if args.version:
         print(__package__, VERSION)
         sys.exit()
+
     if args.token is not None:
         CONFIG['token'] = args.token
     if args.open_jtalk_x is not None:
-        CONFIG['open_jtalk/x'] = args.open_jtalk_x
+        CONFIG['open_jtalk_x'] = args.open_jtalk_x
     if args.open_jtalk_m is not None:
-        CONFIG['open_jtalk/m'] = args.open_jtalk_m
+        CONFIG['open_jtalk_m'] = args.open_jtalk_m
     if args.open_jtalk_s is not None:
-        CONFIG['open_jtalk/s'] = args.open_jtalk_s
+        CONFIG['open_jtalk_s'] = args.open_jtalk_s
     if args.open_jtalk_p is not None:
-        CONFIG['open_jtalk/p'] = args.open_jtalk_p
+        CONFIG['open_jtalk_p'] = args.open_jtalk_p
     if args.open_jtalk_a is not None:
-        CONFIG['open_jtalk/a'] = args.open_jtalk_a
+        CONFIG['open_jtalk_a'] = args.open_jtalk_a
     if args.open_jtalk_b is not None:
-        CONFIG['open_jtalk/b'] = args.open_jtalk_b
+        CONFIG['open_jtalk_b'] = args.open_jtalk_b
     if args.open_jtalk_r is not None:
-        CONFIG['open_jtalk/r'] = args.open_jtalk_r
+        CONFIG['open_jtalk_r'] = args.open_jtalk_r
     if args.open_jtalk_fm is not None:
-        CONFIG['open_jtalk/fm'] = args.open_jtalk_fm
+        CONFIG['open_jtalk_fm'] = args.open_jtalk_fm
     if args.open_jtalk_u is not None:
-        CONFIG['open_jtalk/u'] = args.open_jtalk_u
+        CONFIG['open_jtalk_u'] = args.open_jtalk_u
     if args.open_jtalk_jm is not None:
-        CONFIG['open_jtalk/jm'] = args.open_jtalk_jm
+        CONFIG['open_jtalk_jm'] = args.open_jtalk_jm
     if args.open_jtalk_jf is not None:
-        CONFIG['open_jtalk/jf'] = args.open_jtalk_jf
+        CONFIG['open_jtalk_jf'] = args.open_jtalk_jf
     if args.open_jtalk_g is not None:
-        CONFIG['open_jtalk/g'] = args.open_jtalk_g
+        CONFIG['open_jtalk_g'] = args.open_jtalk_g
     if args.open_jtalk_z is not None:
-        CONFIG['open_jtalk/z'] = args.open_jtalk_z
+        CONFIG['open_jtalk_z'] = args.open_jtalk_z
 
     LOG.setLevel(logging.INFO)
     discord.opus.load_opus(find_library('opus'))

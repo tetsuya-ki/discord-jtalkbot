@@ -45,11 +45,11 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 ```JSON
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk/x": "/usr/local/lib/open_jtalk/dic",
-    "open_jtalk/m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
-    "voice/hello": "みなさんこんにちは。",
-    "text/start": "読み上げを始めます。",
-    "text/end": "読み上げを終わります。"
+    "open_jtalk_x": "/usr/local/lib/open_jtalk/dic",
+    "open_jtalk_m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "voice_hello": "みなさんこんにちは。",
+    "text_start": "読み上げを始めます。",
+    "text_end": "読み上げを終わります。"
 }
 ```
 
@@ -57,23 +57,23 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 文字列型。Discord によって発行されたボットアカウントのトークンを記述します。
 
-#### `open_jtalk/x`
+#### `open_jtalk_x`
 
 文字列型。`open_jtalk` コマンドの `-x` オプションに渡す辞書ディレクトリの場所をフルパスで記述します。
 
-#### `open_jtalk/m`
+#### `open_jtalk_m`
 
 文字列型。`open_jtalk` コマンドの `-m` オプションに渡す HTS 音声ファイルの場所をフルパスで記述します。
 
-#### `voice/hello`
+#### `voice_hello`
 
 文字列型。ボットが Discord の音声チャンネルに接続したとき最初に発声するあいさつを記述します。
 
-#### `text/start`
+#### `text_start`
 
 文字列型。ボットがテキストチャンネルの投稿の読み上げを開始するときにそのテキストチャンネルに投稿するメッセージを記述します。
 
-#### `text/end`
+#### `text_end`
 
 文字列型。ボットがテキストチャンネルの投稿の読み上げを停止するときにそのテキストチャンネルに投稿するメッセージを記述します。
 
