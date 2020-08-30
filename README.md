@@ -45,7 +45,6 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 ```JSON
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk": "/usr/local/bin/open_jtalk",
     "open_jtalk/x": "/usr/local/lib/open_jtalk/dic",
     "open_jtalk/m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
     "voice/hello": "みなさんこんにちは。",
@@ -57,10 +56,6 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 #### `token`
 
 文字列型。Discord によって発行されたボットアカウントのトークンを記述します。
-
-#### `open_jtalk`
-
-文字列型。`open_jtalk` コマンドの場所をフルパスで記述します。あらかじめコマンドを実行してみて適切に動作することを確認しておいてください。
 
 #### `open_jtalk/x`
 

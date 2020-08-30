@@ -132,7 +132,6 @@ CONFIG = load_config()
 
 async def talk(vcl: discord.VoiceClient,
                text: str,
-               command: str = None,
                dic: str = None,
                voice: str = None,
                sampling: int = None,
@@ -147,8 +146,6 @@ async def talk(vcl: discord.VoiceClient,
                volume: float = None,
                buffersize: float = None):
 
-    if command is None:
-        command = CONFIG.get('open_jtalk')
     if dic is None:
         dic = CONFIG.get('open_jtalk/x')
     if voice is None:
@@ -159,8 +156,8 @@ async def talk(vcl: discord.VoiceClient,
         frameperiod = CONFIG.get('open_jtalk/p')
     if allpass is None:
         allpass = CONFIG.get('open_jtalk/a')
-    if command is None:
-        command = CONFIG.get('open_jtalk/b')
+    if postfilter is None:
+        postfilter = CONFIG.get('open_jtalk/b')
     if speedrate is None:
         speedrate = CONFIG.get('open_jtalk/r')
     if halftone is None:
@@ -177,7 +174,7 @@ async def talk(vcl: discord.VoiceClient,
         buffersize = CONFIG.get('open_jtalk/z')
 
     data = await openjtalk.async_talk(
-        text, command=command, dic=dic, voice=voice,
+        text, dic=dic, voice=voice,
         sampling=sampling, frameperiod=frameperiod, allpass=allpass,
         postfilter=postfilter, speedrate=speedrate, halftone=halftone,
         threshold=threshold, spectrum=spectrum, logf0=logf0, volume=volume,
@@ -205,8 +202,6 @@ def main():
                         help='print the version number and exit')
     parser.add_argument('-t', '--token',
                         help='override the Discord bot token')
-    parser.add_argument('--open_jtalk',
-                        help='open_jtalk command')
     parser.add_argument('--open_jtalk-x',
                         help='open_jtalk dictionary directory')
     parser.add_argument('--open_jtalk-m',

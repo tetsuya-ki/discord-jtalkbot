@@ -17,7 +17,7 @@ __all__ = ['Agent', 'async_talk']
 
 
 ENCODING = sys.getfilesystemencoding()
-OPEN_JTALK = '/usr/local/bin/open_jtalk'
+OPEN_JTALK = 'open_jtalk'
 DICT = '/usr/local/lib/open_jtalk/dic'
 VOICE = '/usr/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
 
