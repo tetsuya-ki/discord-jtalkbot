@@ -130,7 +130,6 @@ async def talk(vcl: discord.VoiceClient,
                text: str,
                dic: str = None,
                voice: str = None,
-               sampling: int = None,
                frameperiod: int = None,
                allpass: float = None,
                postfilter: float = None,
@@ -146,8 +145,6 @@ async def talk(vcl: discord.VoiceClient,
         dic = CONFIG.get('open_jtalk_x')
     if voice is None:
         voice = CONFIG.get('open_jtalk_m')
-    if sampling is None:
-        sampling = CONFIG.get('open_jtalk_s')
     if frameperiod is None:
         frameperiod = CONFIG.get('open_jtalk_p')
     if allpass is None:
@@ -171,7 +168,8 @@ async def talk(vcl: discord.VoiceClient,
 
     data = await openjtalk.async_talk(
         text, dic=dic, voice=voice,
-        sampling=sampling, frameperiod=frameperiod, allpass=allpass,
+        sampling=openjtalk.FREQ_48000HZ,
+        frameperiod=frameperiod, allpass=allpass,
         postfilter=postfilter, speedrate=speedrate, halftone=halftone,
         threshold=threshold, spectrum=spectrum, logf0=logf0, volume=volume,
         buffersize=buffersize)
@@ -202,8 +200,6 @@ def main():
                         help='open_jtalk dictionary directory')
     parser.add_argument('--open_jtalk_m',
                         help='open_jtalk HTS voice file')
-    parser.add_argument('--open_jtalk_s', type=int,
-                        help='open_jtalk sampling frequency')
     parser.add_argument('--open_jtalk_p', type=int,
                         help='open_jtalk frame period (point)')
     parser.add_argument('--open_jtalk_a', type=float,

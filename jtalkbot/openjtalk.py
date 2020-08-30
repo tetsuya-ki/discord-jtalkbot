@@ -27,8 +27,8 @@ VOICE = '/opt/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
 
 
 # pre-defined sampling frequency
-FREQ_44100 = 44100
-FREQ_48000 = 48000
+FREQ_44100HZ = 44100
+FREQ_48000HZ = 48000
 
 
 def find_command(command: str) -> str:
@@ -336,7 +336,6 @@ class Agent(object):
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
                 logf0=logf0, volume=volume, buffersize=buffersize)
             proc = subprocess.run(args, input=text.encode(ENCODING))
-            print(proc)
             if proc.returncode == 0:
                 return mono_to_stereo(output)
         return None
