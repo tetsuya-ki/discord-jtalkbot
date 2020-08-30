@@ -21,6 +21,39 @@ LOG.setLevel(logging.INFO)
 LOG.info(f'jtalkbot {VERSION}')
 
 
+def load_config() -> dict:
+    """Search config file and return its config dict object.
+
+    The configuration file will be found in such order bellow:
+
+    1. ./jtalkbot-config.json
+    2. ~/jtalkbot-config.json
+    2. ~/.local/jtalkbot-config.json
+    3. {module directory}/jtalkbot-config.json
+    4. The file specified in JTALKBOT_CONFIG environment value.
+    """
+    global __config__
+    config_name = 'jtalkbot-config.json'
+    paths = [
+        config_name,
+        os.path.expanduser(f'~/{config_name}'),
+        os.path.expanduser(f'~/.local/{config_name}'),
+        os.path.join(os.path.dirname(__file__), config_name),
+        os.environ.get('JTALKBOT_CONFIG')
+    ]
+    for filename in paths:
+        if filename and os.path.exists(filename):
+            __config__ = os.path.abspath(filename)
+            LOG.info(f'config file: {__config__}')
+            with open(filename) as f:
+                return json.load(f)
+    LOG.error(f'{config_name} not found.')
+    sys.exit(1)
+
+
+CONFIG = load_config()
+
+
 class Bot(discord.Client):
     """Bot class """
 
@@ -91,40 +124,6 @@ class Bot(discord.Client):
                     await tch.send(CONFIG['text_end'])
             else:
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
-
-
-
-
-def load_config() -> dict:
-    """Search config file and return its config dict object.
-
-    The configuration file will be found in such order bellow:
-
-    1. ./jtalkbot-config.json
-    2. ~/jtalkbot-config.json
-    2. ~/.local/jtalkbot-config.json
-    3. {module directory}/jtalkbot-config.json
-    4. The file specified in JTALKBOT_CONFIG environment value.
-    """
-    global __config__
-    config_name = 'jtalkbot-config.json'
-    paths = [
-        config_name,
-        os.path.expanduser(f'~/{config_name}'),
-        os.path.expanduser(f'~/.local/{config_name}'),
-        os.path.join(os.path.dirname(__file__), config_name),
-        os.environ.get('JTALKBOT_CONFIG')
-    ]
-    for filename in paths:
-        if filename and os.path.exists(filename):
-            __config__ = os.path.abspath(filename)
-            LOG.info(f'config file: {__config__}')
-            with open(filename) as f:
-                return json.load(f)
-    LOG.error(f'{config_name} not found.')
-    sys.exit(1)
-
-CONFIG = load_config()
 
 
 async def talk(vcl: discord.VoiceClient,
