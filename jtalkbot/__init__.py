@@ -1,3 +1,12 @@
 """A discord bot talking Japanese. """
 
-from .version import __doc__ as VERSION
+from importlib import metadata
+
+
+__all__ = ['VERSION']
+
+
+try:
+    VERSION = metadata.version(__name__)
+except metadata.PackageNotFoundError:
+    pass

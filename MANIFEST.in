@@ -1,1 +1,3 @@
 include LICENSE
+exclude .gitignore
+exclude bitbucket-pipelines.yml

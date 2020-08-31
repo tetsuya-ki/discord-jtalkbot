@@ -2,15 +2,11 @@ import setuptools
 from ast import literal_eval
 
 
-with open('jtalkbot/version.py') as f:
-    version = literal_eval(f.read())
-
 with open('README.md') as f:
     long_description = f.read()
 
 setuptools.setup(
     name='jtalkbot',
-    version=version,
     author='Masaaki Shibata',
     author_email='mshibata@emptypage.jp',
     description='A discord bot talking Japanese.',
@@ -33,5 +29,7 @@ setuptools.setup(
         'console_scripts': [
             'jtalkbot=jtalkbot.__main__:main'
         ]
-    }
+    },
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True
 )
