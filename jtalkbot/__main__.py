@@ -82,9 +82,9 @@ class Bot(discord.Client):
 
 
     async def on_voice_state_update(self,
-                                    member: discord.Member,
-                                    before: discord.VoiceState,
-                                    after: discord.VoiceState):
+        member: discord.Member,
+        before: discord.VoiceState,
+        after: discord.VoiceState):
         """Called when a `Member` changes their `VoiceState`. """
 
         if not before.channel and after.channel:
@@ -92,8 +92,7 @@ class Bot(discord.Client):
             vch = after.channel
             guild = vch.guild
             if member == vch.guild.owner:
-                LOG.info(
-                    f'Guild owner {member} connected v:{guild}/{vch}.')
+                LOG.info(f'Guild owner {member} connected v:{guild}/{vch}.')
                 vcl = await vch.connect()
             elif member == self.user:
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
@@ -112,8 +111,7 @@ class Bot(discord.Client):
             vch = before.channel
             guild = vch.guild
             if member == vch.guild.owner:
-                LOG.info(
-                    f'Guild owner {member} disconnected v:{guild}/{vch}.')
+                LOG.info(f'Guild owner {member} disconnected v:{guild}/{vch}.')
                 vcl = discord.utils.get(self.voice_clients, channel=vch)
                 if vcl and vcl.is_connected():
                     await vcl.disconnect()
