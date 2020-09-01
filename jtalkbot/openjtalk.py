@@ -31,29 +31,10 @@ FREQ_44100HZ = 44100
 FREQ_48000HZ = 48000
 
 
-def find_command(command: str) -> str:
-    """Search PATH and return full path for the given command. """
-
-    if os.path.isabs(command):
-        return command
-
-    if os.path.dirname(command):
-        raise ValueError(
-            """command must be a absolute path or a simple name without
-            path separators """)
-
-    for dirname in os.get_exec_path():
-        full = os.path.join(dirname, command)
-        if os.path.exists(full):
-            return full
-
-    return None
-
-
 class Agent(object):
     """Open JTalk command line option wrapper. """
 
-    def __init__(self, command: str, dic: str, voice: str, output: str, *,
+    def __init__(self, dic: str, voice: str, output: str, *,
                  trace: str = None,
                  sampling: int = None,
                  frameperiod: int = None,
@@ -69,7 +50,6 @@ class Agent(object):
                  infile: str = None):
         """Constructor. """
 
-        self._command = command
         self._output = output
         self._trace = trace
         self._dic = dic
@@ -86,15 +66,6 @@ class Agent(object):
         self._volume = volume
         self._buffersize = buffersize
         self._infile = infile
-
-    @property
-    def command(self) -> str:
-        """Path to the open_jtalk command """
-        return self._command
-
-    @command.setter
-    def command(self, value: str):
-        self._command = value
 
     @property
     def dictionary(self) -> str:
@@ -239,7 +210,6 @@ class Agent(object):
         self._infile = value
 
     def build_args(self, *,
-                   command: str = None,
                    dic: str = None,
                    voice: str = None,
                    output: str = None,
@@ -258,7 +228,6 @@ class Agent(object):
                    infile: str = None) -> str:
         """Build command line args """
 
-        cmd = self.command if command is None else command
         x = self.dictionary if dic is None else dic
         m = self.voice if voice is None else voice
         ow = self.output if output is None else output
@@ -276,11 +245,11 @@ class Agent(object):
         z = self.buffersize if buffersize is None else buffersize
         infile = self.infile if infile is None else infile
         return build_args(
-            cmd, x, m, ow, ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm,
-            jf=jf, g=g, z=z, infile=infile)
+            OPEN_JTALK, x, m, ow,
+            ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm, jf=jf, g=g, z=z,
+            infile=infile)
 
     def exec(self, *,
-             command: str = None,
              dic: str = None,
              voice: str = None,
              output: str = None,
@@ -301,7 +270,7 @@ class Agent(object):
         return code """
 
         args = self.build_args(
-            command=command, dic=dic, voice=voice, output=output,
+            dic=dic, voice=voice, output=output,
             trace=trace, sampling=sampling, frameperiod=frameperiod,
             allpass=allpass, postfilter=postfilter, speedrate=speedrate,
             halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -310,7 +279,6 @@ class Agent(object):
         return proc.returncode
 
     def talk(self, text: str, *,
-             command: str = None,
              dic: str = None,
              voice: str = None,
              trace: str = None,
@@ -330,7 +298,7 @@ class Agent(object):
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, 'a.wav')
             args = self.build_args(
-                command=command, dic=dic, voice=voice, output=output,
+                dic=dic, voice=voice, output=output,
                 trace=trace, sampling=sampling, frameperiod=frameperiod,
                 allpass=allpass, postfilter=postfilter, speedrate=speedrate,
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -341,7 +309,6 @@ class Agent(object):
         return None
 
     async def async_exec(self, *,
-                         command: str = None,
                          dic: str = None,
                          voice: str = None,
                          output: str = None,
@@ -362,7 +329,7 @@ class Agent(object):
         return its return code """
 
         args = self.build_args(
-            command=command, dic=dic, voice=voice, output=output,
+            dic=dic, voice=voice, output=output,
             trace=trace, sampling=sampling, frameperiod=frameperiod,
             allpass=allpass, postfilter=postfilter, speedrate=speedrate,
             halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -372,7 +339,6 @@ class Agent(object):
         return proc.returncode
 
     async def async_talk(self, text: str, *,
-                         command: str = None,
                          dic: str = None,
                          voice: str = None,
                          trace: str = None,
@@ -392,7 +358,7 @@ class Agent(object):
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, 'a.wav')
             args = self.build_args(
-                command=command, dic=dic, voice=voice, output=output,
+                dic=dic, voice=voice, output=output,
                 trace=trace, sampling=sampling, frameperiod=frameperiod,
                 allpass=allpass, postfilter=postfilter, speedrate=speedrate,
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -455,7 +421,6 @@ def build_args(command: str, x: str, m: str, ow: str, *,
 
 
 def talk(text: str, *,
-         command: str = None,
          dic: str = None,
          voice: str = None,
          trace: str = None,
@@ -473,7 +438,7 @@ def talk(text: str, *,
     """Generate wave data bytes for given text """
 
     return default_agent.talk(
-        text, command=command, dic=dic, voice=voice,
+        text, dic=dic, voice=voice,
         trace=trace, sampling=sampling, frameperiod=frameperiod,
         allpass=allpass, postfilter=postfilter, speedrate=speedrate,
         halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -481,7 +446,6 @@ def talk(text: str, *,
 
 
 async def async_talk(text: str, *,
-                     command: str = None,
                      dic: str = None,
                      voice: str = None,
                      trace: str = None,
@@ -499,7 +463,7 @@ async def async_talk(text: str, *,
     """[Coroutine] Generate wave data bytes for given text """
 
     return await default_agent.async_talk(
-        text, command=command, dic=dic, voice=voice,
+        text, dic=dic, voice=voice,
         trace=trace, sampling=sampling, frameperiod=frameperiod,
         allpass=allpass, postfilter=postfilter, speedrate=speedrate,
         halftone=halftone, threshold=threshold, spectrum=spectrum,
