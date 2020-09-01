@@ -12,7 +12,7 @@ from typing import List
 
 __all__ = [
     'FREQ_44100HZ', 'FREQ_48000HZ',
-    'Agent', 'talk', 'async_talk'
+    'OpenJTalkError', 'Agent', 'talk', 'async_talk'
 ]
 
 
