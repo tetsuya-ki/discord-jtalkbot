@@ -1,8 +1,4 @@
-"""Open JTalk wrapper.
-
-Open JTalk:
-    http://open-jtalk.sourceforge.net
-"""
+"""Open JTalk command wrapper """
 
 import asyncio
 import io
@@ -31,23 +27,28 @@ FREQ_44100HZ = 44100
 FREQ_48000HZ = 48000
 
 
+class OpenJTalkError(Exception):
+    """module exception """
+    pass
+
+
 class Agent(object):
     """Open JTalk command line option wrapper. """
 
     def __init__(self, dic: str, voice: str, output: str, *,
-                 trace: str = None,
-                 sampling: int = None,
-                 frameperiod: int = None,
-                 allpass: float = None,
-                 postfilter: float = 0.0,
-                 speedrate: float = 1.0,
-                 halftone: float = 0.0,
-                 threshold: float = 0.5,
-                 spectrum: float = 1.0,
-                 logf0: float = 1.0,
-                 volume: float = 0.0,
-                 buffersize: float = 0,
-                 infile: str = None):
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = 0.0,
+        speedrate: float = 1.0,
+        halftone: float = 0.0,
+        threshold: float = 0.5,
+        spectrum: float = 1.0,
+        logf0: float = 1.0,
+        volume: float = 0.0,
+        buffersize: float = 0,
+        infile: str = None):
         """Constructor. """
 
         self._output = output
@@ -210,22 +211,22 @@ class Agent(object):
         self._infile = value
 
     def build_args(self, *,
-                   dic: str = None,
-                   voice: str = None,
-                   output: str = None,
-                   trace: str = None,
-                   sampling: int = None,
-                   frameperiod: int = None,
-                   allpass: float = None,
-                   postfilter: float = None,
-                   speedrate: float = None,
-                   halftone: float = None,
-                   threshold: float = None,
-                   spectrum: float = None,
-                   logf0: float = None,
-                   volume: float = None,
-                   buffersize: float = None,
-                   infile: str = None) -> str:
+        dic: str = None,
+        voice: str = None,
+        output: str = None,
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: float = None,
+        infile: str = None) -> str:
         """Build command line args """
 
         x = self.dictionary if dic is None else dic
@@ -250,22 +251,22 @@ class Agent(object):
             infile=infile)
 
     def exec(self, *,
-             dic: str = None,
-             voice: str = None,
-             output: str = None,
-             trace: str = None,
-             sampling: int = None,
-             frameperiod: int = None,
-             allpass: float = None,
-             postfilter: float = None,
-             speedrate: float = None,
-             halftone: float = None,
-             threshold: float = None,
-             spectrum: float = None,
-             logf0: float = None,
-             volume: float = None,
-             buffersize: float = None,
-             infile: str = None) -> int:
+        dic: str = None,
+        voice: str = None,
+        output: str = None,
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: float = None,
+        infile: str = None) -> int:
         """Exec `open_jtalk` command with given options and return its
         return code """
 
@@ -279,20 +280,20 @@ class Agent(object):
         return proc.returncode
 
     def talk(self, text: str, *,
-             dic: str = None,
-             voice: str = None,
-             trace: str = None,
-             sampling: int = None,
-             frameperiod: int = None,
-             allpass: float = None,
-             postfilter: float = None,
-             speedrate: float = None,
-             halftone: float = None,
-             threshold: float = None,
-             spectrum: float = None,
-             logf0: float = None,
-             volume: float = None,
-             buffersize: float = None) -> bytes:
+        dic: str = None,
+        voice: str = None,
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: float = None) -> bytes:
         """Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -309,22 +310,22 @@ class Agent(object):
         return None
 
     async def async_exec(self, *,
-                         dic: str = None,
-                         voice: str = None,
-                         output: str = None,
-                         trace: str = None,
-                         sampling: int = None,
-                         frameperiod: int = None,
-                         allpass: float = None,
-                         postfilter: float = None,
-                         speedrate: float = None,
-                         halftone: float = None,
-                         threshold: float = None,
-                         spectrum: float = None,
-                         logf0: float = None,
-                         volume: float = None,
-                         buffersize: float = None,
-                         infile: str = None) -> int:
+        dic: str = None,
+        voice: str = None,
+        output: str = None,
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: float = None,
+        infile: str = None) -> int:
         """[Coroutine] Exec `open_jtalk` command with given options and
         return its return code """
 
@@ -339,20 +340,20 @@ class Agent(object):
         return proc.returncode
 
     async def async_talk(self, text: str, *,
-                         dic: str = None,
-                         voice: str = None,
-                         trace: str = None,
-                         sampling: int = None,
-                         frameperiod: int = None,
-                         allpass: float = None,
-                         postfilter: float = None,
-                         speedrate: float = None,
-                         halftone: float = None,
-                         threshold: float = None,
-                         spectrum: float = None,
-                         logf0: float = None,
-                         volume: float = None,
-                         buffersize: float = None) -> bytes:
+        dic: str = None,
+        voice: str = None,
+        trace: str = None,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: float = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -371,23 +372,23 @@ class Agent(object):
         return None
 
 
-default_agent = Agent(OPEN_JTALK, DICT, VOICE, 'a.wav')
+default_agent = Agent(DICT, VOICE, 'a.wav')
 
 
 def build_args(command: str, x: str, m: str, ow: str, *,
-               ot: str = None,
-               s: int = None,
-               p: int = None,
-               a: float = None,
-               b: float = None,
-               r: float = None,
-               fm: float = None,
-               u: float = None,
-               jm: float = None,
-               jf: float = None,
-               g: float = None,
-               z: int = None,
-               infile: str = None) -> List[str]:
+    ot: str = None,
+    s: int = None,
+    p: int = None,
+    a: float = None,
+    b: float = None,
+    r: float = None,
+    fm: float = None,
+    u: float = None,
+    jm: float = None,
+    jf: float = None,
+    g: float = None,
+    z: int = None,
+    infile: str = None) -> List[str]:
     """Build open_jtalk command line args. """
 
     args = [command, '-x', x, '-m', m, '-ow', ow]
@@ -421,20 +422,20 @@ def build_args(command: str, x: str, m: str, ow: str, *,
 
 
 def talk(text: str, *,
-         dic: str = None,
-         voice: str = None,
-         trace: str = None,
-         sampling: int = None,
-         frameperiod: int = None,
-         allpass: float = None,
-         postfilter: float = None,
-         speedrate: float = None,
-         halftone: float = None,
-         threshold: float = None,
-         spectrum: float = None,
-         logf0: float = None,
-         volume: float = None,
-         buffersize: float = None) -> bytes:
+    dic: str = None,
+    voice: str = None,
+    trace: str = None,
+    sampling: int = None,
+    frameperiod: int = None,
+    allpass: float = None,
+    postfilter: float = None,
+    speedrate: float = None,
+    halftone: float = None,
+    threshold: float = None,
+    spectrum: float = None,
+    logf0: float = None,
+    volume: float = None,
+    buffersize: float = None) -> bytes:
     """Generate wave data bytes for given text """
 
     return default_agent.talk(
@@ -446,20 +447,20 @@ def talk(text: str, *,
 
 
 async def async_talk(text: str, *,
-                     dic: str = None,
-                     voice: str = None,
-                     trace: str = None,
-                     sampling: int = None,
-                     frameperiod: int = None,
-                     allpass: float = None,
-                     postfilter: float = None,
-                     speedrate: float = None,
-                     halftone: float = None,
-                     threshold: float = None,
-                     spectrum: float = None,
-                     logf0: float = None,
-                     volume: float = None,
-                     buffersize: float = None) -> bytes:
+    dic: str = None,
+    voice: str = None,
+    trace: str = None,
+    sampling: int = None,
+    frameperiod: int = None,
+    allpass: float = None,
+    postfilter: float = None,
+    speedrate: float = None,
+    halftone: float = None,
+    threshold: float = None,
+    spectrum: float = None,
+    logf0: float = None,
+    volume: float = None,
+    buffersize: float = None) -> bytes:
     """[Coroutine] Generate wave data bytes for given text """
 
     return await default_agent.async_talk(
