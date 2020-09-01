@@ -138,7 +138,7 @@ async def talk(vcl: discord.VoiceClient, text: str,
     spectrum: float = None,
     logf0: float = None,
     volume: float = None,
-    buffersize: float = None):
+    buffersize: int = None):
 
     if dic is None:
         dic = CONFIG.get('open_jtalk_x')

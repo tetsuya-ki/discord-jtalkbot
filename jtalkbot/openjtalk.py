@@ -47,14 +47,14 @@ class Agent(object):
         spectrum: float = 1.0,
         logf0: float = 1.0,
         volume: float = 0.0,
-        buffersize: float = 0,
+        buffersize: int = 0,
         infile: str = None):
         """Constructor. """
 
-        self._output = output
-        self._trace = trace
         self._dic = dic
         self._voice = voice
+        self._output = output
+        self._trace = trace
         self._sampling = sampling
         self._frameperiod = frameperiod
         self._allpass = allpass
@@ -225,7 +225,7 @@ class Agent(object):
         spectrum: float = None,
         logf0: float = None,
         volume: float = None,
-        buffersize: float = None,
+        buffersize: int = None,
         infile: str = None) -> str:
         """Build command line args """
 
@@ -293,7 +293,7 @@ class Agent(object):
         spectrum: float = None,
         logf0: float = None,
         volume: float = None,
-        buffersize: float = None) -> bytes:
+        buffersize: int = None) -> bytes:
         """Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -353,7 +353,7 @@ class Agent(object):
         spectrum: float = None,
         logf0: float = None,
         volume: float = None,
-        buffersize: float = None) -> bytes:
+        buffersize: int = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -435,7 +435,7 @@ def talk(text: str, *,
     spectrum: float = None,
     logf0: float = None,
     volume: float = None,
-    buffersize: float = None) -> bytes:
+    buffersize: int = None) -> bytes:
     """Generate wave data bytes for given text """
 
     return default_agent.talk(
@@ -460,7 +460,7 @@ async def async_talk(text: str, *,
     spectrum: float = None,
     logf0: float = None,
     volume: float = None,
-    buffersize: float = None) -> bytes:
+    buffersize: int = None) -> bytes:
     """[Coroutine] Generate wave data bytes for given text """
 
     return await default_agent.async_talk(
