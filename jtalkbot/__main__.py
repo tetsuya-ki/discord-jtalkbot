@@ -17,8 +17,6 @@ from . import openjtalk
 
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
-LOG.info(f'jtalkbot {VERSION}')
 
 
 def load_config() -> dict:
@@ -224,6 +222,10 @@ def main():
     if args.version:
         print(__package__, VERSION)
         sys.exit()
+
+    LOG.setLevel(logging.INFO)
+    LOG.info(f'jtalkbot {VERSION}')
+    LOG.info(f'config file: {__config__}')
 
     # Overwrite CONFIG with args parameters which are specified
     CONFIG.update((k, v) for (k, v) in vars(args).items() if v is not None)
