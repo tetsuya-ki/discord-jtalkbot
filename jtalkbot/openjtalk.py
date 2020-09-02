@@ -191,10 +191,7 @@ class Agent(object):
     def infile(self, value: str):
         self._infile = value
 
-    def build_args(self, *,
-        dic: str = None,
-        voice: str = None,
-        output: str = None,
+    def build_args(self, output: str, *,
         sampling: int = None,
         frameperiod: int = None,
         allpass: float = None,
@@ -205,13 +202,9 @@ class Agent(object):
         spectrum: float = None,
         logf0: float = None,
         volume: float = None,
-        buffersize: int = None,
-        infile: str = None) -> str:
+        buffersize: int = None) -> str:
         """Build command line args """
 
-        x = self.dictionary if dic is None else dic
-        m = self.voice if voice is None else voice
-        ow = output
         ot = None
         s = self.sampling if sampling is None else sampling
         p = self.frameperiod if frameperiod is None else frameperiod
@@ -224,15 +217,11 @@ class Agent(object):
         jf = self.logf0 if logf0 is None else logf0
         g = self.volume if volume is None else volume
         z = self.buffersize if buffersize is None else buffersize
-        infile = self.infile if infile is None else infile
         return build_args(
-            OPEN_JTALK, x, m, ow,
-            ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm, jf=jf, g=g, z=z,
-            infile=infile)
+            OPEN_JTALK, self.dictionary, self.voice, output,
+            ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm, jf=jf, g=g, z=z)
 
     def talk(self, text: str, *,
-        dic: str = None,
-        voice: str = None,
         sampling: int = None,
         frameperiod: int = None,
         allpass: float = None,
@@ -248,8 +237,7 @@ class Agent(object):
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = self.build_args(
-                dic=dic, voice=voice, output=output,
+            args = self.build_args(output,
                 sampling=sampling, frameperiod=frameperiod,
                 allpass=allpass, postfilter=postfilter, speedrate=speedrate,
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -260,8 +248,6 @@ class Agent(object):
         return None
 
     async def async_talk(self, text: str, *,
-        dic: str = None,
-        voice: str = None,
         sampling: int = None,
         frameperiod: int = None,
         allpass: float = None,
@@ -275,10 +261,9 @@ class Agent(object):
         buffersize: int = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
 
-        with tempfile.TemporaryDirectory() as tempdir:
+        async with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = self.build_args(
-                dic=dic, voice=voice, output=output,
+            args = self.build_args(output,
                 sampling=sampling, frameperiod=frameperiod,
                 allpass=allpass, postfilter=postfilter, speedrate=speedrate,
                 halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -341,8 +326,6 @@ def build_args(command: str, x: str, m: str, ow: str, *,
 
 
 def talk(text: str, *,
-    dic: str = None,
-    voice: str = None,
     sampling: int = None,
     frameperiod: int = None,
     allpass: float = None,
@@ -356,8 +339,7 @@ def talk(text: str, *,
     buffersize: int = None) -> bytes:
     """Generate wave data bytes for given text """
 
-    return default_agent.talk(
-        text, dic=dic, voice=voice,
+    return default_agent.talk(text,
         sampling=sampling, frameperiod=frameperiod,
         allpass=allpass, postfilter=postfilter, speedrate=speedrate,
         halftone=halftone, threshold=threshold, spectrum=spectrum,
@@ -365,8 +347,6 @@ def talk(text: str, *,
 
 
 async def async_talk(text: str, *,
-    dic: str = None,
-    voice: str = None,
     sampling: int = None,
     frameperiod: int = None,
     allpass: float = None,
@@ -380,8 +360,7 @@ async def async_talk(text: str, *,
     buffersize: int = None) -> bytes:
     """[Coroutine] Generate wave data bytes for given text """
 
-    return await default_agent.async_talk(
-        text, dic=dic, voice=voice,
+    return await default_agent.async_talk(text,
         sampling=sampling, frameperiod=frameperiod,
         allpass=allpass, postfilter=postfilter, speedrate=speedrate,
         halftone=halftone, threshold=threshold, spectrum=spectrum,
