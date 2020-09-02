@@ -21,6 +21,8 @@ OPEN_JTALK = 'open_jtalk'
 DICT = '/opt/local/lib/open_jtalk/dic'
 VOICE = '/opt/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
 
+WAVE_OUT = 'a.wav'
+TRACE_OUT = 'trace.log'
 
 # pre-defined sampling frequency
 FREQ_44100HZ = 44100
@@ -297,7 +299,7 @@ class Agent(object):
         """Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
-            output = os.path.join(tempdir, 'a.wav')
+            output = os.path.join(tempdir, WAVE_OUT)
             args = self.build_args(
                 dic=dic, voice=voice, output=output,
                 trace=trace, sampling=sampling, frameperiod=frameperiod,
@@ -357,7 +359,7 @@ class Agent(object):
         """[Coroutine] Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
-            output = os.path.join(tempdir, 'a.wav')
+            output = os.path.join(tempdir, WAVE_OUT)
             args = self.build_args(
                 dic=dic, voice=voice, output=output,
                 trace=trace, sampling=sampling, frameperiod=frameperiod,
@@ -372,7 +374,7 @@ class Agent(object):
         return None
 
 
-default_agent = Agent(DICT, VOICE, 'a.wav')
+default_agent = Agent(DICT, VOICE, WAVE_OUT)
 
 
 def build_args(command: str, x: str, m: str, ow: str, *,
@@ -489,7 +491,7 @@ def mono_to_stereo(file: str) -> bytes:
 
 def main():
     data = talk('おやすみなさい')
-    with open('a.wav', 'wb') as f:
+    with open(WAVE_OUT, 'wb') as f:
         f.write(data)
 
 
