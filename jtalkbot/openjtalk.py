@@ -37,161 +37,243 @@ class OpenJTalkError(Exception):
 class Agent(object):
     """Open JTalk command line option wrapper. """
 
-    def __init__(self, dic: str, voice: str, *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = 0.0,
-        speedrate: float = 1.0,
-        halftone: float = 0.0,
-        threshold: float = 0.5,
-        spectrum: float = 1.0,
-        logf0: float = 1.0,
-        volume: float = 0.0,
-        buffersize: int = 0):
-        """Constructor. """
-
-        self._dic = dic
-        self._voice = voice
-        self._sampling = sampling
-        self._frameperiod = frameperiod
-        self._allpass = allpass
-        self._postfilter = postfilter
-        self._speedrate = speedrate
-        self._halftone = halftone
-        self._threshold = threshold
-        self._spectrum = spectrum
-        self._logf0 = logf0
-        self._volume = volume
-        self._buffersize = buffersize
-
     @property
     def dictionary(self) -> str:
         """Path to the dictionary directory """
+
         return self._dic
 
     @dictionary.setter
     def dictionary(self, value: str):
-        self._dic = value
+
+        if not os.path.isdir(value):
+            raise ValueError(f'{value!r} is not a existing directory')
+        self._dic = str(value)
 
     @property
     def voice(self) -> str:
         """Path to the htc_voice file """
+
         return self._voice
 
     @voice.setter
     def voice(self, value: str):
-        self._voice = value
+
+        if not os.path.exists(value):
+            raise ValueError(f'{value!r} is not a existing file name')
+        self._voice = str(value)
 
     @property
     def sampling(self) -> int:
-        """Sampling frequency """
+        """Sampling frequency (`None` for auto) """
+
         return self._sampling
 
     @sampling.setter
     def sampling(self, value: int):
+
+        if value is None:
+            self._sampling = None
+            return
+
+        value = int(value)
+        if value < 1:
+            raise ValueError(f'sampling must be >= 1: {value}')
         self._sampling = value
 
     @property
     def frameperiod(self) -> int:
-        """Frame period (point) """
+        """Frame period (point) (`None` for auto) """
+
         return self._frameperiod
 
     @frameperiod.setter
     def frameperiod(self, value: int):
+
+        if value is None:
+            self._frameperiod = None
+            return
+
+        value = int(value)
+        if value < 1:
+            raise ValueError(f'frameperiod must be >= 1: {value}')
         self._frameperiod = value
 
     @property
     def allpass(self) -> float:
-        """all-pass constant """
+        """all-pass constant  (`None` for auto) """
+
         return self._allpass
 
     @allpass.setter
     def allpass(self, value: float):
+
+        if value is None:
+            self._allpass = None
+            return
+
+        value = float(value)
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f'allpass is out of range (0.0-1.0): {value!r}')
         self._allpass = value
 
     @property
     def postfilter(self) -> float:
         """Postfiltering coefficient """
+
         return self._postfilter
 
     @postfilter.setter
     def postfilter(self, value: float):
+
+        value = float(value)
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
         self._postfilter = value
 
     @property
     def speedrate(self) -> float:
         """Speech speed rate """
+
         return self._speedrate
 
     @speedrate.setter
     def speedrate(self, value: float):
+
+        value = float(value)
+        if value < 0.0:
+            raise ValueError(f'speedrate must be > 0.0: {value}')
         self._speedrate = value
 
     @property
     def halftone(self) -> float:
         """Additional half-tone """
+
         return self._halftone
 
     @halftone.setter
     def halftone(self, value: float):
+
+        value = float(value)
         self._halftone = value
 
     @property
     def threshold(self) -> float:
+        """voiced/unvoiced threshold """
+
         return self._threshold
 
     @threshold.setter
     def threshold(self, value: float):
+
+        value = float(value)
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
         self._threshold = value
 
     @property
     def spectrum(self) -> float:
         """Weight of GV for spectrum """
+
         return self._spectrum
 
     @spectrum.setter
     def spectrum(self, value: float):
+
+        value = float(value)
+        if value < 0.0:
+            raise ValueError(f'spectrum must be >= 0.0: {value}')
         self._spectrum = value
 
     @property
     def logf0(self) -> float:
         """Weight of GV for log F0 """
+
         return self._logf0
 
     @logf0.setter
     def logf0(self, value: float):
+
+        value = float(value)
+        if value < 0.0:
+            raise ValueError(f'logf0 must be >= 0.0: {value}')
         self._logf0 = value
 
     @property
     def volume(self) -> float:
+        """volume (dB) """
+
         return self._volume
 
     @volume.setter
     def volume(self, value: float):
+
+        value = float(value)
+        if value < 0.0:
+            raise ValueError(f'volume must be >= 0.0: {value}')
         self._volume = value
 
     @property
     def buffersize(self) -> int:
         """Audio buffer size (if i == 0, turn off) """
+
         return self._buffersize
 
     @buffersize.setter
     def buffersize(self, value: int):
+
+        value = int(value)
+        if value < 0:
+            raise ValueError(f'buffersize must be >= 0: {value}')
         self._buffersize = value
 
-    def build_args(self, output: str, *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None) -> str:
+    def __init__(
+            self,
+            dic: str,
+            voice: str,
+            *,
+            sampling: int = None,
+            frameperiod: int = None,
+            allpass: float = None,
+            postfilter: float = 0.0,
+            speedrate: float = 1.0,
+            halftone: float = 0.0,
+            threshold: float = 0.5,
+            spectrum: float = 1.0,
+            logf0: float = 1.0,
+            volume: float = 0.0,
+            buffersize: int = 0):
+        """Constructor. """
+
+        self.dictionary = dic
+        self.voice = voice
+        self.sampling = sampling
+        self.frameperiod = frameperiod
+        self.allpass = allpass
+        self.postfilter = postfilter
+        self.speedrate = speedrate
+        self.halftone = halftone
+        self.threshold = threshold
+        self.spectrum = spectrum
+        self.logf0 = logf0
+        self.volume = volume
+        self.buffersize = buffersize
+
+    def build_args(
+            self,
+            output: str,
+            *,
+            sampling: int = None,
+            frameperiod: int = None,
+            allpass: float = None,
+            postfilter: float = None,
+            speedrate: float = None,
+            halftone: float = None,
+            threshold: float = None,
+            spectrum: float = None,
+            logf0: float = None,
+            volume: float = None,
+            buffersize: int = None) -> str:
         """Build command line args """
 
         ot = None
@@ -210,18 +292,21 @@ class Agent(object):
             OPEN_JTALK, self.dictionary, self.voice, output,
             ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm, jf=jf, g=g, z=z)
 
-    def talk(self, text: str, *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None) -> bytes:
+    def talk(
+            self,
+            text: str,
+            *,
+            sampling: int = None,
+            frameperiod: int = None,
+            allpass: float = None,
+            postfilter: float = None,
+            speedrate: float = None,
+            halftone: float = None,
+            threshold: float = None,
+            spectrum: float = None,
+            logf0: float = None,
+            volume: float = None,
+            buffersize: int = None) -> bytes:
         """Generate wave data bytes for given text """
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -236,18 +321,21 @@ class Agent(object):
                 return mono_to_stereo(output)
         return None
 
-    async def async_talk(self, text: str, *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None) -> bytes:
+    async def async_talk(
+            self,
+            text: str,
+            *,
+            sampling: int = None,
+            frameperiod: int = None,
+            allpass: float = None,
+            postfilter: float = None,
+            speedrate: float = None,
+            halftone: float = None,
+            threshold: float = None,
+            spectrum: float = None,
+            logf0: float = None,
+            volume: float = None,
+            buffersize: int = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
 
         async with tempfile.TemporaryDirectory() as tempdir:
@@ -268,20 +356,25 @@ class Agent(object):
 default_agent = Agent(DICT, VOICE)
 
 
-def build_args(command: str, x: str, m: str, ow: str, *,
-    ot: str = None,
-    s: int = None,
-    p: int = None,
-    a: float = None,
-    b: float = None,
-    r: float = None,
-    fm: float = None,
-    u: float = None,
-    jm: float = None,
-    jf: float = None,
-    g: float = None,
-    z: int = None,
-    infile: str = None) -> List[str]:
+def build_args(
+        command: str,
+        x: str,
+        m: str,
+        ow: str,
+        *,
+        ot: str = None,
+        s: int = None,
+        p: int = None,
+        a: float = None,
+        b: float = None,
+        r: float = None,
+        fm: float = None,
+        u: float = None,
+        jm: float = None,
+        jf: float = None,
+        g: float = None,
+        z: int = None,
+        infile: str = None) -> List[str]:
     """Build open_jtalk command line args. """
 
     args = [command, '-x', x, '-m', m, '-ow', ow]
@@ -314,18 +407,20 @@ def build_args(command: str, x: str, m: str, ow: str, *,
     return args
 
 
-def talk(text: str, *,
-    sampling: int = None,
-    frameperiod: int = None,
-    allpass: float = None,
-    postfilter: float = None,
-    speedrate: float = None,
-    halftone: float = None,
-    threshold: float = None,
-    spectrum: float = None,
-    logf0: float = None,
-    volume: float = None,
-    buffersize: int = None) -> bytes:
+def talk(
+        text: str,
+        *,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: int = None) -> bytes:
     """Generate wave data bytes for given text """
 
     return default_agent.talk(text,
@@ -335,18 +430,20 @@ def talk(text: str, *,
         logf0=logf0, volume=volume, buffersize=buffersize)
 
 
-async def async_talk(text: str, *,
-    sampling: int = None,
-    frameperiod: int = None,
-    allpass: float = None,
-    postfilter: float = None,
-    speedrate: float = None,
-    halftone: float = None,
-    threshold: float = None,
-    spectrum: float = None,
-    logf0: float = None,
-    volume: float = None,
-    buffersize: int = None) -> bytes:
+async def async_talk(
+        text: str,
+        *,
+        sampling: int = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: int = None) -> bytes:
     """[Coroutine] Generate wave data bytes for given text """
 
     return await default_agent.async_talk(text,
