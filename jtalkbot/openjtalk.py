@@ -182,15 +182,6 @@ class Agent(object):
     def buffersize(self, value: int):
         self._buffersize = value
 
-    @property
-    def infile(self) -> str:
-        """Input text file """
-        return self._infile
-
-    @infile.setter
-    def infile(self, value: str):
-        self._infile = value
-
     def build_args(self, output: str, *,
         sampling: int = None,
         frameperiod: int = None,
