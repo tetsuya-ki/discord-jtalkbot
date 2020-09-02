@@ -35,7 +35,7 @@ class OpenJTalkError(Exception):
 
 
 class Agent(object):
-    """Open JTalk command line option wrapper. """
+    """Open JTalk command line option set """
 
     @property
     def dictionary(self) -> str:
@@ -62,6 +62,17 @@ class Agent(object):
         if not os.path.exists(value):
             raise ValueError(f'{value!r} is not a existing file name')
         self._voice = str(value)
+
+    @property
+    def name(self) -> str:
+        """Name of the agent """
+
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+
+        self._name = str(value)
 
     @property
     def sampling(self) -> int:
@@ -229,8 +240,9 @@ class Agent(object):
 
     def __init__(
             self,
-            dic: str,
+            dictionary: str,
             voice: str,
+            name: str = None,
             *,
             sampling: int = None,
             frameperiod: int = None,
@@ -245,8 +257,9 @@ class Agent(object):
             buffersize: int = 0):
         """Constructor. """
 
-        self.dictionary = dic
+        self.dictionary = dictionary
         self.voice = voice
+        self.name = name if name is not None else '<unnamed>'
         self.sampling = sampling
         self.frameperiod = frameperiod
         self.allpass = allpass
@@ -353,7 +366,7 @@ class Agent(object):
         return None
 
 
-default_agent = Agent(DICT, VOICE)
+default_agent = Agent(DICT, VOICE, '<default>')
 
 
 def build_args(
