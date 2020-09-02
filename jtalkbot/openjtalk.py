@@ -48,8 +48,7 @@ class Agent(object):
         spectrum: float = 1.0,
         logf0: float = 1.0,
         volume: float = 0.0,
-        buffersize: int = 0,
-        infile: str = None):
+        buffersize: int = 0):
         """Constructor. """
 
         self._dic = dic
@@ -65,7 +64,6 @@ class Agent(object):
         self._logf0 = logf0
         self._volume = volume
         self._buffersize = buffersize
-        self._infile = infile
 
     @property
     def dictionary(self) -> str:
