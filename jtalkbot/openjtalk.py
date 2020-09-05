@@ -41,14 +41,14 @@ class Agent(object):
     def dictionary(self) -> str:
         """Path to the dictionary directory """
 
-        return self._dic
+        return self._dictionary
 
     @dictionary.setter
     def dictionary(self, value: str):
 
         if not os.path.isdir(value):
             raise ValueError(f'{value!r} is not a existing directory')
-        self._dic = str(value)
+        self._dictionary = str(value)
 
     @property
     def voice(self) -> str:
