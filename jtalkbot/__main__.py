@@ -2,7 +2,6 @@
 
 import argparse
 import asyncio
-import io
 import json
 import logging
 import os
@@ -13,7 +12,6 @@ import discord
 from discord.ext import commands
 
 from . import VERSION
-from . import openjtalk
 
 
 logging.basicConfig()
@@ -36,124 +34,6 @@ class MyBot(commands.Bot):
         from Discord. """
 
         LOG.info(f'Logged in as {self.user}.')
-
-    async def on_message(self, msg: discord.Message):
-        """Called when a `Message` is created and sent. """
-
-        if msg.author == self.user:
-            return
-
-        tch = msg.channel
-        vcl = discord.utils.get(
-            self.voice_clients, channel__guild=tch.guild, channel__name=tch.name)
-        if vcl:
-            LOG.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
-            await talk(vcl, msg.content)
-            return
-
-        await self.process_commands(msg)
-
-
-    async def on_voice_state_update(self,
-        member: discord.Member,
-        before: discord.VoiceState,
-        after: discord.VoiceState):
-        """Called when a `Member` changes their `VoiceState`. """
-
-        if not before.channel and after.channel:
-            # someone connected the voice channel.
-            vch = after.channel
-            guild = vch.guild
-            if member == vch.guild.owner:
-                LOG.info(f'Guild owner {member} connected v:{guild}/{vch}.')
-                vcl = await vch.connect()
-            elif member == self.user:
-                LOG.info(f'{member} connected v:{guild}/{vch}.')
-                vcl = discord.utils.get(self.voice_clients, channel=vch)
-                if vcl:
-                    await talk(vcl, CONFIG['voice_hello'])
-                tch = discord.utils.get(guild.text_channels, name=vch.name)
-                if tch:
-                    await tch.send(CONFIG['text_start'])
-            else:
-                LOG.info(f'{member} connected v:{guild}/{vch}.')
-
-
-        elif before.channel and not after.channel:
-            # someone disconnected the voice channel.
-            vch = before.channel
-            guild = vch.guild
-            if member == vch.guild.owner:
-                LOG.info(f'Guild owner {member} disconnected v:{guild}/{vch}.')
-                vcl = discord.utils.get(self.voice_clients, channel=vch)
-                if vcl and vcl.is_connected():
-                    await vcl.disconnect()
-                tch = discord.utils.get(guild.text_channels, name=vch.name)
-                if tch:
-                    await tch.send(CONFIG['text_end'])
-            else:
-                LOG.info(f'{member} disconnected v:{guild}/{vch}.')
-
-
-async def talk(vcl: discord.VoiceClient, text: str,
-    dic: str = None,
-    voice: str = None,
-    frameperiod: int = None,
-    allpass: float = None,
-    postfilter: float = None,
-    speedrate: float = None,
-    halftone: float = None,
-    threshold: float = None,
-    spectrum: float = None,
-    logf0: float = None,
-    volume: float = None,
-    buffersize: int = None):
-
-    if dic is None:
-        dic = CONFIG.get('open_jtalk_x')
-    if voice is None:
-        voice = CONFIG.get('open_jtalk_m')
-    if frameperiod is None:
-        frameperiod = CONFIG.get('open_jtalk_p')
-    if allpass is None:
-        allpass = CONFIG.get('open_jtalk_a')
-    if postfilter is None:
-        postfilter = CONFIG.get('open_jtalk_b')
-    if speedrate is None:
-        speedrate = CONFIG.get('open_jtalk_r')
-    if halftone is None:
-        halftone = CONFIG.get('open_jtalk_fm')
-    if threshold is None:
-        threshold = CONFIG.get('open_jtalk_u')
-    if spectrum is None:
-        spectrum = CONFIG.get('open_jtalk_jm')
-    if logf0 is None:
-        logf0 = CONFIG.get('open_jtalk_jf')
-    if volume is None:
-        volume = CONFIG.get('open_jtalk_g')
-    if buffersize is None:
-        buffersize = CONFIG.get('open_jtalk_z')
-
-    data = await openjtalk.async_talk(
-        text, dic=dic, voice=voice,
-        sampling=openjtalk.FREQ_48000HZ,
-        frameperiod=frameperiod, allpass=allpass,
-        postfilter=postfilter, speedrate=speedrate, halftone=halftone,
-        threshold=threshold, spectrum=spectrum, logf0=logf0, volume=volume,
-        buffersize=buffersize)
-    stream = io.BytesIO(data)
-    audio = discord.PCMAudio(stream)
-    sleeptime = 0.1
-    timeout = 6.0
-    for _ in range(int(timeout / sleeptime)):
-        if vcl.is_connected():
-            break
-        await asyncio.sleep(0.1)
-    else:
-        return
-    while vcl.is_playing():
-        await asyncio.sleep(0.1)
-    vcl.play(audio, after=lambda e: stream.close())
 
 
 def load_config():
@@ -238,6 +118,8 @@ def main():
         LOG.info('Opus library is loaded.')
 
     bot = MyBot(command_prefix='$')
+    bot.config = CONFIG
+    bot.load_extension('jtalkbot.autoreader')
     bot.run(CONFIG['token'])
 
 

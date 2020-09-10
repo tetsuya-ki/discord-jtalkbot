@@ -351,7 +351,7 @@ class Agent(object):
             buffersize: int = None) -> bytes:
         """[Coroutine] Generate wave data bytes for given text """
 
-        async with tempfile.TemporaryDirectory() as tempdir:
+        with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
             args = self.build_args(output,
                 sampling=sampling, frameperiod=frameperiod,
