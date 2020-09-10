@@ -10,6 +10,7 @@ import sys
 from ctypes.util import find_library
 
 import discord
+from discord.ext import commands
 
 from . import VERSION
 from . import openjtalk
@@ -22,7 +23,7 @@ __config__ = None
 CONFIG = {}
 
 
-class Bot(discord.Client):
+class MyBot(commands.Bot):
     """Bot class """
 
     def __init__(self, *args, **kwds):
@@ -36,7 +37,6 @@ class Bot(discord.Client):
 
         LOG.info(f'Logged in as {self.user}.')
 
-
     async def on_message(self, msg: discord.Message):
         """Called when a `Message` is created and sent. """
 
@@ -49,6 +49,9 @@ class Bot(discord.Client):
         if vcl:
             LOG.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
             await talk(vcl, msg.content)
+            return
+
+        await self.process_commands(msg)
 
 
     async def on_voice_state_update(self,
@@ -234,7 +237,7 @@ def main():
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
 
-    bot = Bot()
+    bot = MyBot(command_prefix='$')
     bot.run(CONFIG['token'])
 
 
