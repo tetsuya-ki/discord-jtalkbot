@@ -1,6 +1,5 @@
 """Open JTalk command wrapper """
 
-import argparse
 import asyncio
 import io
 import os
@@ -9,7 +8,8 @@ import subprocess
 import sys
 import tempfile
 import wave
-from typing import List, Sequence
+from argparse import ArgumentParser
+from typing import Any, List, Sequence
 
 
 __all__ = [
@@ -34,6 +34,42 @@ FREQ_48000HZ = 48000
 class OpenJTalkError(Exception):
     """module exception """
     pass
+
+
+class _OptionMapping(object):
+    """(internal) mapping entry between a command line option and a
+    argument name and its type """
+
+    __slots__ = ['option', 'name', 'type']
+
+    def __init__(self, *, option: str, name: str, type: type):
+        """constructor """
+
+        self.option = option
+        self.name = name
+        self.type = type
+
+
+OPTION_MAPPINGS = [
+    _OptionMapping(option='-x', name='dictionary', type=str),
+    _OptionMapping(option='-m', name='voice', type=str),
+    _OptionMapping(option='-ow', name='_outwave', type=str),
+    _OptionMapping(option='-ot', name='_outtrace', type=str),
+    _OptionMapping(option='-s', name='sampling', type=int),
+    _OptionMapping(option='-p', name='frameperiod', type=int),
+    _OptionMapping(option='-a', name='allpass', type=float),
+    _OptionMapping(option='-b', name='postfilter', type=float),
+    _OptionMapping(option='-r', name='speedrate', type=float),
+    _OptionMapping(option='-fm', name='halftone', type=float),
+    _OptionMapping(option='-u', name='threshold', type=float),
+    _OptionMapping(option='-jm', name='spectrum', type=float),
+    _OptionMapping(option='-jf', name='logf0', type=float),
+    _OptionMapping(option='-g', name='volume', type=float),
+    _OptionMapping(option='-z', name='buffersize', type=int),
+    _OptionMapping(option='infile', name='_infile', type=str),
+]
+ARGUMENT_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
+OPTIONS_DICT = {m.option: m for m in OPTION_MAPPINGS}
 
 
 class Agent(object):
@@ -261,7 +297,7 @@ class Agent(object):
 
         self.dictionary = dictionary
         self.voice = voice
-        self.name = name if name is not None else '<unnamed>'
+        self.name = name if name else '<unnamed>'
         self.sampling = sampling
         self.frameperiod = frameperiod
         self.allpass = allpass
@@ -274,198 +310,52 @@ class Agent(object):
         self.volume = volume
         self.buffersize = buffersize
 
-    def build_args(
-            self,
-            output: str,
-            *,
-            sampling: int = None,
-            frameperiod: int = None,
-            allpass: float = None,
-            postfilter: float = None,
-            speedrate: float = None,
-            halftone: float = None,
-            threshold: float = None,
-            spectrum: float = None,
-            logf0: float = None,
-            volume: float = None,
-            buffersize: int = None) -> str:
-        """Build command line args """
+    def talk(self, text: str, **kwds) -> bytes:
+        """Retrun wave data bytes for given text """
 
-        ot = None
-        s = self.sampling if sampling is None else sampling
-        p = self.frameperiod if frameperiod is None else frameperiod
-        a = self.allpass if allpass is None else allpass
-        b = self.postfilter if postfilter is None else postfilter
-        r = self.speedrate if speedrate is None else speedrate
-        fm = self.halftone if halftone is None else halftone
-        u = self.threshold if threshold is None else threshold
-        jm = self.spectrum if spectrum is None else spectrum
-        jf = self.logf0 if logf0 is None else logf0
-        g = self.volume if volume is None else volume
-        z = self.buffersize if buffersize is None else buffersize
-        return build_args(
-            OPEN_JTALK, self.dictionary, self.voice, output,
-            ot=ot, s=s, p=p, a=a, b=b, r=r, fm=fm, u=u, jm=jm, jf=jf, g=g, z=z)
-
-    def talk(
-            self,
-            text: str,
-            *,
-            sampling: int = None,
-            frameperiod: int = None,
-            allpass: float = None,
-            postfilter: float = None,
-            speedrate: float = None,
-            halftone: float = None,
-            threshold: float = None,
-            spectrum: float = None,
-            logf0: float = None,
-            volume: float = None,
-            buffersize: int = None) -> bytes:
-        """Generate wave data bytes for given text """
+        for k in kwds:
+            if k not in ARGUMENT_NAMES_DICT or k.startswith('_'):
+                raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = self.build_args(output,
-                sampling=sampling, frameperiod=frameperiod,
-                allpass=allpass, postfilter=postfilter, speedrate=speedrate,
-                halftone=halftone, threshold=threshold, spectrum=spectrum,
-                logf0=logf0, volume=volume, buffersize=buffersize)
+            args = [OPEN_JTALK] + build_options(self, _outwave=output, **kwds)
             proc = subprocess.run(args, input=text.encode(ENCODING))
             if proc.returncode == 0:
                 return mono_to_stereo(output)
-        return None
+        return b''
 
-    async def async_talk(
-            self,
-            text: str,
-            *,
-            sampling: int = None,
-            frameperiod: int = None,
-            allpass: float = None,
-            postfilter: float = None,
-            speedrate: float = None,
-            halftone: float = None,
-            threshold: float = None,
-            spectrum: float = None,
-            logf0: float = None,
-            volume: float = None,
-            buffersize: int = None) -> bytes:
-        """[Coroutine] Generate wave data bytes for given text """
+    async def async_talk(self, text: str, **kwds) -> bytes:
+        """[Coroutine] Retrun wave data bytes for given text """
+
+        for k in kwds:
+            if k not in ARGUMENT_NAMES_DICT or k.startswith('_'):
+                raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = self.build_args(output,
-                sampling=sampling, frameperiod=frameperiod,
-                allpass=allpass, postfilter=postfilter, speedrate=speedrate,
-                halftone=halftone, threshold=threshold, spectrum=spectrum,
-                logf0=logf0, volume=volume, buffersize=buffersize)
+            args = [OPEN_JTALK] + build_options(self, _outwave=output, **kwds)
             proc = await asyncio.create_subprocess_exec(
                 *args, stdin=asyncio.subprocess.PIPE)
             await proc.communicate(text.encode(ENCODING))
             if proc.returncode == 0:
                 return mono_to_stereo(output)
-        return None
+        return b''
 
 
 default_agent = Agent(DICT, VOICE, '<default>')
 
 
-def build_args(
-        command: str,
-        x: str,
-        m: str,
-        ow: str,
-        *,
-        ot: str = None,
-        s: int = None,
-        p: int = None,
-        a: float = None,
-        b: float = None,
-        r: float = None,
-        fm: float = None,
-        u: float = None,
-        jm: float = None,
-        jf: float = None,
-        g: float = None,
-        z: int = None,
-        infile: str = None) -> List[str]:
-    """Build open_jtalk command line args. """
-
-    args = [command, '-x', x, '-m', m, '-ow', ow]
-    if ot is not None:
-        args += ['-ot', ot]
-    if s is not None:
-        args += ['-s', str(s)]
-    if p is not None:
-        args += ['-p', str(p)]
-    if a is not None:
-        args += ['-a', str(a)]
-    if b is not None:
-        args += ['-b', str(b)]
-    if r is not None:
-        args += ['-r', str(r)]
-    if fm is not None:
-        args += ['-fm', str(fm)]
-    if u is not None:
-        args += ['-u', str(u)]
-    if jm is not None:
-        args += ['-jm', str(jm)]
-    if jf is not None:
-        args += ['-jf', str(jf)]
-    if g is not None:
-        args += ['-g', str(g)]
-    if z is not None:
-        args += ['-z', str(z)]
-    if infile is not None:
-        args.append(infile)
-    return args
-
-
-def talk(
-        text: str,
-        *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None) -> bytes:
+def talk(text: str, **kwds) -> bytes:
     """Generate wave data bytes for given text """
 
-    return default_agent.talk(text,
-        sampling=sampling, frameperiod=frameperiod,
-        allpass=allpass, postfilter=postfilter, speedrate=speedrate,
-        halftone=halftone, threshold=threshold, spectrum=spectrum,
-        logf0=logf0, volume=volume, buffersize=buffersize)
+    return default_agent.talk(text, **kwds)
 
 
-async def async_talk(
-        text: str,
-        *,
-        sampling: int = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None) -> bytes:
+async def async_talk(text: str, **kwds) -> bytes:
     """[Coroutine] Generate wave data bytes for given text """
 
-    return await default_agent.async_talk(text,
-        sampling=sampling, frameperiod=frameperiod,
-        allpass=allpass, postfilter=postfilter, speedrate=speedrate,
-        halftone=halftone, threshold=threshold, spectrum=spectrum,
-        logf0=logf0, volume=volume, buffersize=buffersize)
+    return await default_agent.async_talk(text, **kwds)
 
 
 def mono_to_stereo(file: str) -> bytes:
@@ -484,40 +374,49 @@ def mono_to_stereo(file: str) -> bytes:
         return stream.getvalue()
 
 
-def vars_from_args(args: Sequence[str]) -> dict:
+def build_options(agent: Agent = None, **kwds) -> List[str]:
+    """build `open_jtalk` command line options and return them as a `list` """
+
+    d = props(agent)
+    d.update(kwds)
+
+    opts = []
+    for name, value in d.items():
+        if name not in ARGUMENT_NAMES_DICT or value is None:
+            continue
+        opt = ARGUMENT_NAMES_DICT[name].option
+        if opt.startswith('-'):
+            opts.append(opt)
+        opts.append(str(value))
+    return opts
+
+
+def parse_args(args: Sequence[str]) -> dict:
     """parse `open_jtalk` command args and return them as a `dict` """
 
     global _parser
-
     if '_parser' not in globals():
-        _parser = argparse.Argument_Parser()
-        _parser.add_argument('-x', dest='dictionary')
-        _parser.add_argument('-m', dest='voice')
-        _parser.add_argument('-ow', dest='outfile')
-        _parser.add_argument('-ot', dest='trace')
-        _parser.add_argument('-s', dest='sampling', type=int)
-        _parser.add_argument('-p', dest='frameperiod', type=int)
-        _parser.add_argument('-a', dest='allpass', type=float)
-        _parser.add_argument('-b', dest='postfilter', type=float)
-        _parser.add_argument('-r', dest='speedrate', type=float)
-        _parser.add_argument('-fm', dest='halftone', type=float)
-        _parser.add_argument('-u', dest='threshold', type=float)
-        _parser.add_argument('-jm', dest='spectrum', type=float)
-        _parser.add_argument('-jf', dest='logf0', type=float)
-        _parser.add_argument('-g', dest='volume', type=float)
-        _parser.add_argument('-z', dest='buffersize', type=int)
-        _parser.add_argument('infile')
+        _parser = ArgumentParser()
+        for m in OPTION_MAPPINGS:
+            _parser.add_argument(m.opt, dest=m.name, type=m.type)
 
     opts = _parser.parse_args(args)
-    return vars(opts)
+    return dict((k, v) for (k, v) in vars(opts).items() if v is not None)
 
 
-def vars_from_flags(flags: str) -> dict:
+def parse_flags(flags: str) -> dict:
     """parse flags as `open_jtalk` command line options and return them
     as a `dict` """
 
     args = shlex.split(flags)
     return vars_from_args(args)
+
+
+def props(o: Any):
+    """return all properties of a given object as a `dict` """
+
+    return {k: getattr(o, k) for k in dir(o.__class__)
+            if isinstance(getattr(o.__class__, k), property)}
 
 
 def main():
