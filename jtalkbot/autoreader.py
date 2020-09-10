@@ -81,19 +81,21 @@ class AutoReaderCog(commands.Cog):
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
 
 
-async def talk(vcl: discord.VoiceClient, text: str,
-               dic: str = None,
-               voice: str = None,
-               frameperiod: int = None,
-               allpass: float = None,
-               postfilter: float = None,
-               speedrate: float = None,
-               halftone: float = None,
-               threshold: float = None,
-               spectrum: float = None,
-               logf0: float = None,
-               volume: float = None,
-               buffersize: int = None):
+async def talk(
+        vcl: discord.VoiceClient,
+        text: str,
+        dic: str = None,
+        voice: str = None,
+        frameperiod: int = None,
+        allpass: float = None,
+        postfilter: float = None,
+        speedrate: float = None,
+        halftone: float = None,
+        threshold: float = None,
+        spectrum: float = None,
+        logf0: float = None,
+        volume: float = None,
+        buffersize: int = None):
 
     if dic is None:
         dic = CONFIG.get('open_jtalk_x')

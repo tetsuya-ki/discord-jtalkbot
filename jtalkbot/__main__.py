@@ -21,21 +21,6 @@ __config__ = None
 CONFIG = {}
 
 
-class MyBot(commands.Bot):
-    """Bot class """
-
-    def __init__(self, *args, **kwds):
-        """Constructor. """
-
-        super().__init__(*args, **kwds)
-
-    async def on_ready(self):
-        """Called when the client is done preparing the data received
-        from Discord. """
-
-        LOG.info(f'Logged in as {self.user}.')
-
-
 def load_config():
     """Search config file and store its data into `CONFIG`.
 
@@ -117,7 +102,7 @@ def main():
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
 
-    bot = MyBot(command_prefix='$')
+    bot = commands.Bot(command_prefix='$')
     bot.config = CONFIG
     bot.load_extension('jtalkbot.autoreader')
     bot.run(CONFIG['token'])
