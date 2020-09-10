@@ -1,13 +1,15 @@
 """Open JTalk command wrapper """
 
+import argparse
 import asyncio
 import io
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
 import wave
-from typing import List
+from typing import List, Sequence
 
 
 __all__ = [
@@ -480,6 +482,42 @@ def mono_to_stereo(file: str) -> bytes:
         gen_frames = (wi.readframes(1) for _ in range(nframes))
         [wo.writeframesraw(f * 2) for f in gen_frames]
         return stream.getvalue()
+
+
+def vars_from_args(args: Sequence[str]) -> dict:
+    """parse `open_jtalk` command args and return them as a `dict` """
+
+    global _parser
+
+    if '_parser' not in globals():
+        _parser = argparse.Argument_Parser()
+        _parser.add_argument('-x', dest='dictionary')
+        _parser.add_argument('-m', dest='voice')
+        _parser.add_argument('-ow', dest='outfile')
+        _parser.add_argument('-ot', dest='trace')
+        _parser.add_argument('-s', dest='sampling', type=int)
+        _parser.add_argument('-p', dest='frameperiod', type=int)
+        _parser.add_argument('-a', dest='allpass', type=float)
+        _parser.add_argument('-b', dest='postfilter', type=float)
+        _parser.add_argument('-r', dest='speedrate', type=float)
+        _parser.add_argument('-fm', dest='halftone', type=float)
+        _parser.add_argument('-u', dest='threshold', type=float)
+        _parser.add_argument('-jm', dest='spectrum', type=float)
+        _parser.add_argument('-jf', dest='logf0', type=float)
+        _parser.add_argument('-g', dest='volume', type=float)
+        _parser.add_argument('-z', dest='buffersize', type=int)
+        _parser.add_argument('infile')
+
+    opts = _parser.parse_args(args)
+    return vars(opts)
+
+
+def vars_from_flags(flags: str) -> dict:
+    """parse flags as `open_jtalk` command line options and return them
+    as a `dict` """
+
+    args = shlex.split(flags)
+    return vars_from_args(args)
 
 
 def main():
