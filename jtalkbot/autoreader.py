@@ -106,4 +106,5 @@ class AutoReaderCog(commands.Cog):
 def setup(bot: commands.Bot):
     global CONFIG
     CONFIG = bot.config
+    LOG.setLevel(logging.INFO)
     bot.add_cog(AutoReaderCog(bot))
