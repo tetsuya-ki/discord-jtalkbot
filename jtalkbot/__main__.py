@@ -58,6 +58,8 @@ def main():
         help='print the version number and exit')
     parser.add_argument('-t', '--token',
         help='override the Discord bot token')
+    parser.add_argument('-p', '--prefix', default='$',
+        help='command prefix to control the bot')
     parser.add_argument('-J', '--open_jtalk_flags',
         help='open_jtalk command line options')
     args = parser.parse_args()
@@ -79,7 +81,7 @@ def main():
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
 
-    bot = commands.Bot(command_prefix='$')
+    bot = commands.Bot(command_prefix=args.prefix)
     bot.config = CONFIG
     bot.load_extension('jtalkbot.autoreader')
     bot.run(CONFIG['token'])
