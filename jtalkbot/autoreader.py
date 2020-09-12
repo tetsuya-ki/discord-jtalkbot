@@ -20,6 +20,9 @@ class AutoReaderCog(commands.Cog):
         """constructor """
 
         self.bot = bot
+        flags = CONFIG['open_jtalk_flags']
+        self.agent = openjtalk.Agent.from_option_flags(flags)
+        self.agent.sampling = openjtalk.FREQ_48000HZ
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
@@ -34,7 +37,7 @@ class AutoReaderCog(commands.Cog):
             bot.voice_clients, channel__guild=tch.guild, channel__name=tch.name)
         if vcl:
             LOG.info(f'Reading {msg.author}\'s post on t:{tch.guild}/{tch}.')
-            await talk(vcl, msg.content)
+            await self.talk(vcl, msg.content)
 
     @commands.Cog.listener()
     async def on_voice_state_update(
@@ -57,7 +60,7 @@ class AutoReaderCog(commands.Cog):
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl:
-                    await talk(vcl, CONFIG['voice_hello'])
+                    await self.talk(vcl, CONFIG['voice_hello'])
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
                     await tch.send(CONFIG['text_start'])
@@ -80,68 +83,24 @@ class AutoReaderCog(commands.Cog):
             else:
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
 
+    async def talk(self, vcl: discord.VoiceClient, text: str):
 
-async def talk(
-        vcl: discord.VoiceClient,
-        text: str,
-        dic: str = None,
-        voice: str = None,
-        frameperiod: int = None,
-        allpass: float = None,
-        postfilter: float = None,
-        speedrate: float = None,
-        halftone: float = None,
-        threshold: float = None,
-        spectrum: float = None,
-        logf0: float = None,
-        volume: float = None,
-        buffersize: int = None):
+        agent = self.agent
 
-    if dic is None:
-        dic = CONFIG.get('open_jtalk_x')
-    if voice is None:
-        voice = CONFIG.get('open_jtalk_m')
-    if frameperiod is None:
-        frameperiod = CONFIG.get('open_jtalk_p')
-    if allpass is None:
-        allpass = CONFIG.get('open_jtalk_a')
-    if postfilter is None:
-        postfilter = CONFIG.get('open_jtalk_b')
-    if speedrate is None:
-        speedrate = CONFIG.get('open_jtalk_r')
-    if halftone is None:
-        halftone = CONFIG.get('open_jtalk_fm')
-    if threshold is None:
-        threshold = CONFIG.get('open_jtalk_u')
-    if spectrum is None:
-        spectrum = CONFIG.get('open_jtalk_jm')
-    if logf0 is None:
-        logf0 = CONFIG.get('open_jtalk_jf')
-    if volume is None:
-        volume = CONFIG.get('open_jtalk_g')
-    if buffersize is None:
-        buffersize = CONFIG.get('open_jtalk_z')
-
-    data = await openjtalk.async_talk(
-        text,
-        sampling=openjtalk.FREQ_48000HZ,
-        frameperiod=frameperiod, allpass=allpass,
-        postfilter=postfilter, speedrate=speedrate, halftone=halftone,
-        threshold=threshold, spectrum=spectrum, logf0=logf0, volume=volume,
-        buffersize=buffersize)
-    stream = io.BytesIO(data)
-    audio = discord.PCMAudio(stream)
-    sleeptime = 0.1
-    timeout = 6.0
-    for _ in range(int(timeout / sleeptime)):
-        if vcl.is_connected():
-            break
-        await asyncio.sleep(0.1)
-    else:
-        return
-    while vcl.is_playing():
-        await asyncio.sleep(0.1)
-    vcl.play(audio, after=lambda e: stream.close())
+        data = await agent.async_talk(text)
+        stream = io.BytesIO(data)
+        audio = discord.PCMAudio(stream)
+        sleeptime = 0.1
+        timeout = 6.0
+        for _ in range(int(timeout / sleeptime)):
+            if vcl.is_connected():
+                break
+            await asyncio.sleep(sleeptime)
+        else:
+            return
+        while vcl.is_playing():
+            await asyncio.sleep(0.1)
+        vcl.play(audio, after=lambda e: stream.close())
 
 
 def setup(bot: commands.Bot):
