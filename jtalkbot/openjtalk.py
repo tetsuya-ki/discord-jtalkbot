@@ -68,7 +68,7 @@ OPTION_MAPPINGS = [
     _OptionMapping(option='-z', name='buffersize', type=int),
     _OptionMapping(option='infile', name='_infile', type=str),
 ]
-ARGUMENT_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
+PROP_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
 OPTIONS_DICT = {m.option: m for m in OPTION_MAPPINGS}
 
 
@@ -310,16 +310,34 @@ class Agent(object):
         self.volume = volume
         self.buffersize = buffersize
 
+    def build_command_line_args(self, **kwds) -> List[str]:
+        """return a list of command line args for `open_jtalk` command """
+
+        d = props(self)
+        d.update(kwds)
+
+        opts = []
+        for prop_name, value in d.items():
+            if prop_name not in PROP_NAMES_DICT or value is None:
+                continue
+            opt = PROP_NAMES_DICT[prop_name].option
+            if opt.startswith('-'):
+                opts.append(opt)
+            opts.append(str(value))
+        return opts
+
+
     def talk(self, text: str, **kwds) -> bytes:
         """Retrun wave data bytes for given text """
 
         for k in kwds:
-            if k not in ARGUMENT_NAMES_DICT or k.startswith('_'):
+            if k not in PROP_NAMES_DICT or k.startswith('_'):
                 raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = [OPEN_JTALK] + build_options(self, _outwave=output, **kwds)
+            args = [OPEN_JTALK] \
+                 + self.build_command_line_args(_outwave=output, **kwds)
             proc = subprocess.run(args, input=text.encode(ENCODING))
             if proc.returncode == 0:
                 return mono_to_stereo(output)
@@ -329,12 +347,13 @@ class Agent(object):
         """[Coroutine] Retrun wave data bytes for given text """
 
         for k in kwds:
-            if k not in ARGUMENT_NAMES_DICT or k.startswith('_'):
+            if k not in PROP_NAMES_DICT or k.startswith('_'):
                 raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
-            args = [OPEN_JTALK] + build_options(self, _outwave=output, **kwds)
+            args = [OPEN_JTALK] \
+                 + self.build_command_line_args(_outwave=output, **kwds)
             proc = await asyncio.create_subprocess_exec(
                 *args, stdin=asyncio.subprocess.PIPE)
             await proc.communicate(text.encode(ENCODING))
@@ -347,13 +366,14 @@ default_agent = Agent(DICT, VOICE, '<default>')
 
 
 def talk(text: str, **kwds) -> bytes:
-    """Generate wave data bytes for given text """
+    """Generate wave data bytes for given text with default voice """
 
     return default_agent.talk(text, **kwds)
 
 
 async def async_talk(text: str, **kwds) -> bytes:
-    """[Coroutine] Generate wave data bytes for given text """
+    """[Coroutine] Generate wave data bytes for given text with default
+    voice"""
 
     return await default_agent.async_talk(text, **kwds)
 
@@ -372,23 +392,6 @@ def mono_to_stereo(file: str) -> bytes:
         gen_frames = (wi.readframes(1) for _ in range(nframes))
         [wo.writeframesraw(f * 2) for f in gen_frames]
         return stream.getvalue()
-
-
-def build_options(agent: Agent = None, **kwds) -> List[str]:
-    """build `open_jtalk` command line options and return them as a `list` """
-
-    d = props(agent)
-    d.update(kwds)
-
-    opts = []
-    for name, value in d.items():
-        if name not in ARGUMENT_NAMES_DICT or value is None:
-            continue
-        opt = ARGUMENT_NAMES_DICT[name].option
-        if opt.startswith('-'):
-            opts.append(opt)
-        opts.append(str(value))
-    return opts
 
 
 def parse_args(args: Sequence[str]) -> dict:
