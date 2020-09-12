@@ -9,7 +9,7 @@ import sys
 import tempfile
 import wave
 from argparse import ArgumentParser
-from typing import Any, List, Sequence
+from typing import Any, List, Optional, Sequence
 
 
 __all__ = [
@@ -122,13 +122,13 @@ class Agent(object):
         self._name = str(value)
 
     @property
-    def sampling(self) -> int:
+    def sampling(self) -> Optional[int]:
         """Sampling frequency (`None` for auto) """
 
         return self._sampling
 
     @sampling.setter
-    def sampling(self, value: int):
+    def sampling(self, value: Optional[int]):
 
         if value is None:
             self._sampling = None
@@ -140,13 +140,13 @@ class Agent(object):
         self._sampling = value
 
     @property
-    def frameperiod(self) -> int:
+    def frameperiod(self) -> Optional[int]:
         """Frame period (point) (`None` for auto) """
 
         return self._frameperiod
 
     @frameperiod.setter
-    def frameperiod(self, value: int):
+    def frameperiod(self, value: Optional[int]):
 
         if value is None:
             self._frameperiod = None
@@ -158,13 +158,13 @@ class Agent(object):
         self._frameperiod = value
 
     @property
-    def allpass(self) -> float:
+    def allpass(self) -> Optional[float]:
         """all-pass constant  (`None` for auto) """
 
         return self._allpass
 
     @allpass.setter
-    def allpass(self, value: float):
+    def allpass(self, value: Optional[float]):
 
         if value is None:
             self._allpass = None
@@ -176,13 +176,13 @@ class Agent(object):
         self._allpass = value
 
     @property
-    def postfilter(self) -> float:
+    def postfilter(self) -> Optional[float]:
         """Postfiltering coefficient """
 
         return self._postfilter
 
     @postfilter.setter
-    def postfilter(self, value: float):
+    def postfilter(self, value: Optional[float]):
 
         if value is None:
             self._postfilter = None
@@ -194,13 +194,13 @@ class Agent(object):
         self._postfilter = value
 
     @property
-    def speedrate(self) -> float:
+    def speedrate(self) -> Optional[float]:
         """Speech speed rate """
 
         return self._speedrate
 
     @speedrate.setter
-    def speedrate(self, value: float):
+    def speedrate(self, value: Optional[float]):
 
         if value is None:
             self._speedrate = None
@@ -212,13 +212,13 @@ class Agent(object):
         self._speedrate = value
 
     @property
-    def halftone(self) -> float:
+    def halftone(self) -> Optional[float]:
         """Additional half-tone """
 
         return self._halftone
 
     @halftone.setter
-    def halftone(self, value: float):
+    def halftone(self, value: Optional[float]):
 
         if value is None:
             self._halftone = None
@@ -228,13 +228,13 @@ class Agent(object):
         self._halftone = value
 
     @property
-    def threshold(self) -> float:
+    def threshold(self) -> Optional[float]:
         """voiced/unvoiced threshold """
 
         return self._threshold
 
     @threshold.setter
-    def threshold(self, value: float):
+    def threshold(self, value: Optional[float]):
 
         if value is None:
             self._threshold = None
@@ -246,13 +246,13 @@ class Agent(object):
         self._threshold = value
 
     @property
-    def spectrum(self) -> float:
+    def spectrum(self) -> Optional[float]:
         """Weight of GV for spectrum """
 
         return self._spectrum
 
     @spectrum.setter
-    def spectrum(self, value: float):
+    def spectrum(self, value: Optional[float]):
 
         if value is None:
             self._spectrum = None
@@ -264,13 +264,13 @@ class Agent(object):
         self._spectrum = value
 
     @property
-    def logf0(self) -> float:
+    def logf0(self) -> Optional[float]:
         """Weight of GV for log F0 """
 
         return self._logf0
 
     @logf0.setter
-    def logf0(self, value: float):
+    def logf0(self, value: Optional[float]):
 
         if value is None:
             self._logf0 = None
@@ -282,13 +282,13 @@ class Agent(object):
         self._logf0 = value
 
     @property
-    def volume(self) -> float:
+    def volume(self) -> Optional[float]:
         """volume (dB) """
 
         return self._volume
 
     @volume.setter
-    def volume(self, value: float):
+    def volume(self, value: Optional[float]):
 
         if value is None:
             self._volume = None
@@ -300,13 +300,13 @@ class Agent(object):
         self._volume = value
 
     @property
-    def buffersize(self) -> int:
+    def buffersize(self) -> Optional[int]:
         """Audio buffer size (if i == 0, turn off) """
 
         return self._buffersize
 
     @buffersize.setter
-    def buffersize(self, value: int):
+    def buffersize(self, value: Optional[int]):
 
         if value is None:
             self._buffersize = None
