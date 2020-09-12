@@ -36,6 +36,18 @@ class OpenJTalkError(Exception):
     pass
 
 
+class OpenJTalkArgumentParserError(OpenJTalkError):
+    """error on parsing `open_jtalk` args """
+    pass
+
+
+class _OpenJTalkArgumentParser(ArgumentParser):
+
+    def exit(self, status=0, message=None):
+        if status:
+            raise OpenJTalkArgumentParserError(message)
+
+
 class _OptionMapping(object):
     """(internal) mapping entry between a command line option and a
     argument name and its type """
@@ -66,7 +78,6 @@ OPTION_MAPPINGS = [
     _OptionMapping(option='-jf', name='logf0', type=float),
     _OptionMapping(option='-g', name='volume', type=float),
     _OptionMapping(option='-z', name='buffersize', type=int),
-    _OptionMapping(option='infile', name='_infile', type=str),
 ]
 PROP_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
 OPTIONS_DICT = {m.option: m for m in OPTION_MAPPINGS}
@@ -84,8 +95,6 @@ class Agent(object):
     @dictionary.setter
     def dictionary(self, value: str):
 
-        if not os.path.isdir(value):
-            raise ValueError(f'{value!r} is not a existing directory')
         self._dictionary = str(value)
 
     @property
@@ -97,8 +106,6 @@ class Agent(object):
     @voice.setter
     def voice(self, value: str):
 
-        if not os.path.exists(value):
-            raise ValueError(f'{value!r} is not a existing file name')
         self._voice = str(value)
 
     @property
@@ -175,6 +182,10 @@ class Agent(object):
     @postfilter.setter
     def postfilter(self, value: float):
 
+        if value is None:
+            self._postfilter = None
+            return
+
         value = float(value)
         if not 0.0 <= value <= 1.0:
             raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
@@ -188,6 +199,10 @@ class Agent(object):
 
     @speedrate.setter
     def speedrate(self, value: float):
+
+        if value is None:
+            self._speedrate = None
+            return
 
         value = float(value)
         if value < 0.0:
@@ -203,6 +218,10 @@ class Agent(object):
     @halftone.setter
     def halftone(self, value: float):
 
+        if value is None:
+            self._halftone = None
+            return
+
         value = float(value)
         self._halftone = value
 
@@ -214,6 +233,10 @@ class Agent(object):
 
     @threshold.setter
     def threshold(self, value: float):
+
+        if value is None:
+            self._threshold = None
+            return
 
         value = float(value)
         if not 0.0 <= value <= 1.0:
@@ -229,6 +252,10 @@ class Agent(object):
     @spectrum.setter
     def spectrum(self, value: float):
 
+        if value is None:
+            self._spectrum = None
+            return
+
         value = float(value)
         if value < 0.0:
             raise ValueError(f'spectrum must be >= 0.0: {value}')
@@ -242,6 +269,10 @@ class Agent(object):
 
     @logf0.setter
     def logf0(self, value: float):
+
+        if value is None:
+            self._logf0 = None
+            return
 
         value = float(value)
         if value < 0.0:
@@ -257,6 +288,10 @@ class Agent(object):
     @volume.setter
     def volume(self, value: float):
 
+        if value is None:
+            self._volume = None
+            return
+
         value = float(value)
         if value < 0.0:
             raise ValueError(f'volume must be >= 0.0: {value}')
@@ -270,6 +305,10 @@ class Agent(object):
 
     @buffersize.setter
     def buffersize(self, value: int):
+
+        if value is None:
+            self._buffersize = None
+            return
 
         value = int(value)
         if value < 0:
@@ -285,14 +324,14 @@ class Agent(object):
             sampling: int = None,
             frameperiod: int = None,
             allpass: float = None,
-            postfilter: float = 0.0,
-            speedrate: float = 1.0,
-            halftone: float = 0.0,
-            threshold: float = 0.5,
-            spectrum: float = 1.0,
-            logf0: float = 1.0,
-            volume: float = 0.0,
-            buffersize: int = 0):
+            postfilter: float = None,
+            speedrate: float = None,
+            halftone: float = None,
+            threshold: float = None,
+            spectrum: float = None,
+            logf0: float = None,
+            volume: float = None,
+            buffersize: int = None):
         """Constructor. """
 
         self.dictionary = dictionary
@@ -310,6 +349,12 @@ class Agent(object):
         self.volume = volume
         self.buffersize = buffersize
 
+    def __repr__(self) -> str:
+        """return `repr(self)` """
+
+        return f'<{__name__}.{__class__.__name__} at {hex(id(self))}' \
+               + f' "{self.name}" [{self.build_command_line_flags()}]>'
+
     def build_command_line_args(self, **kwds) -> List[str]:
         """return a list of command line args for `open_jtalk` command """
 
@@ -326,6 +371,11 @@ class Agent(object):
             opts.append(str(value))
         return opts
 
+    def build_command_line_flags(self, **kwds) -> str:
+        """return option flags string for `open_jtalk` command """
+
+        opts = self.build_command_line_args(**kwds)
+        return shlex.join(opts)
 
     def talk(self, text: str, **kwds) -> bytes:
         """Retrun wave data bytes for given text """
@@ -361,6 +411,26 @@ class Agent(object):
                 return mono_to_stereo(output)
         return b''
 
+    @classmethod
+    def from_option_args(cls, args: Sequence[str]) -> 'Agent':
+        """return `Agent` instance initialized with `args` as
+        `open_jtalk` option args """
+
+        kwds = parse_args(args)
+        dictinary = kwds.pop('dictionary', DICT)
+        voice = kwds.pop('voice', VOICE)
+        name = kwds.pop('dictionary', None)
+        return cls(dictinary, voice, name, **kwds)
+
+    @classmethod
+    def from_option_flags(cls, flags: str) -> 'Agent':
+        """return `Agent` instance initialized with `flags` as a
+        `open_jtalk` option flags string """
+
+        args = shlex.split(flags)
+        return cls.from_option_args(args)
+
+
 
 default_agent = Agent(DICT, VOICE, '<default>')
 
@@ -394,14 +464,16 @@ def mono_to_stereo(file: str) -> bytes:
         return stream.getvalue()
 
 
+_parser = None
+
 def parse_args(args: Sequence[str]) -> dict:
     """parse `open_jtalk` command args and return them as a `dict` """
 
     global _parser
-    if '_parser' not in globals():
-        _parser = ArgumentParser()
+    if '_parser' not in globals() or _parser is None:
+        _parser = _OpenJTalkArgumentParser(add_help=False)
         for m in OPTION_MAPPINGS:
-            _parser.add_argument(m.opt, dest=m.name, type=m.type)
+            _parser.add_argument(m.option, dest=m.name, type=m.type)
 
     opts = _parser.parse_args(args)
     return dict((k, v) for (k, v) in vars(opts).items() if v is not None)
