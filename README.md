@@ -40,6 +40,7 @@ Discord のテキストチャンネルに投稿されたメッセージを同名
 
 はじめに `jtalkbot-config.json` ファイルを編集します。ライブラリ内にサンプルファイルが `jtalkbot-config-sample.json` として入っていますので、これをコピー、リネームして使ってください。
 
+__NOTE__: バージョン 0.6.0 で設定ファイルの項目名を変更しました。
 __NOTE__: バージョン 0.5.0 で設定ファイルの項目名を変更しました。
 
 #### `jtalk-config.json` ファイルの例
@@ -47,8 +48,7 @@ __NOTE__: バージョン 0.5.0 で設定ファイルの項目名を変更しま
 ```JSON
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk_x": "/usr/local/lib/open_jtalk/dic",
-    "open_jtalk_m": "/usr/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "open_jtalk_flags": "-x /opt/local/lib/open_jtalk/dic -m /opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。"
@@ -59,13 +59,9 @@ __NOTE__: バージョン 0.5.0 で設定ファイルの項目名を変更しま
 
 文字列型。Discord によって発行されたボットアカウントのトークンを記述します。
 
-#### `open_jtalk_x`
+#### `open_jtalk_flags`
 
-文字列型。`open_jtalk` コマンドの `-x` オプションに渡す辞書ディレクトリの場所をフルパスで記述します。
-
-#### `open_jtalk_m`
-
-文字列型。`open_jtalk` コマンドの `-m` オプションに渡す HTS 音声ファイルの場所をフルパスで記述します。
+文字列型。`open_jtalk` コマンドに渡すコマンドラインオブションを記述します。読み上げに使用されます。
 
 #### `voice_hello`
 
