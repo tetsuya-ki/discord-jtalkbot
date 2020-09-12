@@ -14,7 +14,9 @@ from typing import Any, List, Sequence
 
 __all__ = [
     'FREQ_44100HZ', 'FREQ_48000HZ',
-    'OpenJTalkError', 'Agent', 'talk', 'async_talk'
+    'OpenJTalkError', 'OpenJTalkArgumentParserError',
+    'Agent',
+    'talk', 'async_talk',
 ]
 
 
