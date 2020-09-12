@@ -44,6 +44,7 @@ class OpenJTalkArgumentParserError(OpenJTalkError):
 
 
 class _OpenJTalkArgumentParser(ArgumentParser):
+    """(internal) option parser for `open_jtalk` command """
 
     def exit(self, status=0, message=None):
         if status:
@@ -130,13 +131,10 @@ class Agent(object):
     @sampling.setter
     def sampling(self, value: Optional[int]):
 
-        if value is None:
-            self._sampling = None
-            return
-
-        value = int(value)
-        if value < 1:
-            raise ValueError(f'sampling must be >= 1: {value}')
+        if value is not None:
+            value = int(value)
+            if value < 1:
+                raise ValueError(f'sampling must be >= 1: {value}')
         self._sampling = value
 
     @property
@@ -148,13 +146,10 @@ class Agent(object):
     @frameperiod.setter
     def frameperiod(self, value: Optional[int]):
 
-        if value is None:
-            self._frameperiod = None
-            return
-
-        value = int(value)
-        if value < 1:
-            raise ValueError(f'frameperiod must be >= 1: {value}')
+        if value is not None:
+            value = int(value)
+            if value < 1:
+                raise ValueError(f'frameperiod must be >= 1: {value}')
         self._frameperiod = value
 
     @property
@@ -166,13 +161,10 @@ class Agent(object):
     @allpass.setter
     def allpass(self, value: Optional[float]):
 
-        if value is None:
-            self._allpass = None
-            return
-
-        value = float(value)
-        if not 0.0 <= value <= 1.0:
-            raise ValueError(f'allpass is out of range (0.0-1.0): {value!r}')
+        if value is not None:
+            value = float(value)
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(f'allpass is out of range (0.0-1.0): {value!r}')
         self._allpass = value
 
     @property
@@ -184,13 +176,10 @@ class Agent(object):
     @postfilter.setter
     def postfilter(self, value: Optional[float]):
 
-        if value is None:
-            self._postfilter = None
-            return
-
-        value = float(value)
-        if not 0.0 <= value <= 1.0:
-            raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
+        if value is not None:
+            value = float(value)
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
         self._postfilter = value
 
     @property
@@ -202,13 +191,10 @@ class Agent(object):
     @speedrate.setter
     def speedrate(self, value: Optional[float]):
 
-        if value is None:
-            self._speedrate = None
-            return
-
-        value = float(value)
-        if value < 0.0:
-            raise ValueError(f'speedrate must be > 0.0: {value}')
+        if value is not None:
+            value = float(value)
+            if value < 0.0:
+                raise ValueError(f'speedrate must be > 0.0: {value}')
         self._speedrate = value
 
     @property
@@ -220,11 +206,8 @@ class Agent(object):
     @halftone.setter
     def halftone(self, value: Optional[float]):
 
-        if value is None:
-            self._halftone = None
-            return
-
-        value = float(value)
+        if value is not None:
+            value = float(value)
         self._halftone = value
 
     @property
@@ -236,13 +219,10 @@ class Agent(object):
     @threshold.setter
     def threshold(self, value: Optional[float]):
 
-        if value is None:
-            self._threshold = None
-            return
-
-        value = float(value)
-        if not 0.0 <= value <= 1.0:
-            raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
+        if value is not None:
+            value = float(value)
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(f'postfilter is out of range (0.0-1.0): {value}')
         self._threshold = value
 
     @property
@@ -254,13 +234,10 @@ class Agent(object):
     @spectrum.setter
     def spectrum(self, value: Optional[float]):
 
-        if value is None:
-            self._spectrum = None
-            return
-
-        value = float(value)
-        if value < 0.0:
-            raise ValueError(f'spectrum must be >= 0.0: {value}')
+        if value is not None:
+            value = float(value)
+            if value < 0.0:
+                raise ValueError(f'spectrum must be >= 0.0: {value}')
         self._spectrum = value
 
     @property
@@ -272,13 +249,10 @@ class Agent(object):
     @logf0.setter
     def logf0(self, value: Optional[float]):
 
-        if value is None:
-            self._logf0 = None
-            return
-
-        value = float(value)
-        if value < 0.0:
-            raise ValueError(f'logf0 must be >= 0.0: {value}')
+        if value is not None:
+            value = float(value)
+            if value < 0.0:
+                raise ValueError(f'logf0 must be >= 0.0: {value}')
         self._logf0 = value
 
     @property
@@ -290,13 +264,10 @@ class Agent(object):
     @volume.setter
     def volume(self, value: Optional[float]):
 
-        if value is None:
-            self._volume = None
-            return
-
-        value = float(value)
-        if value < 0.0:
-            raise ValueError(f'volume must be >= 0.0: {value}')
+        if value is not None:
+            value = float(value)
+            if value < 0.0:
+                raise ValueError(f'volume must be >= 0.0: {value}')
         self._volume = value
 
     @property
@@ -308,13 +279,10 @@ class Agent(object):
     @buffersize.setter
     def buffersize(self, value: Optional[int]):
 
-        if value is None:
-            self._buffersize = None
-            return
-
-        value = int(value)
-        if value < 0:
-            raise ValueError(f'buffersize must be >= 0: {value}')
+        if value is not None:
+            value = int(value)
+            if value < 0:
+                raise ValueError(f'buffersize must be >= 0: {value}')
         self._buffersize = value
 
     def __init__(
