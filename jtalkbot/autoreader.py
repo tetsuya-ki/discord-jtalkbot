@@ -21,7 +21,7 @@ class AutoReaderCog(commands.Cog):
 
         self.bot = bot
         flags = CONFIG['open_jtalk_flags']
-        self.agent = openjtalk.Agent.from_option_flags(flags)
+        self.agent = openjtalk.Agent.from_flags(flags)
         self.agent.sampling = openjtalk.FREQ_48000HZ
 
     @commands.Cog.listener()
@@ -85,9 +85,7 @@ class AutoReaderCog(commands.Cog):
 
     async def talk(self, vcl: discord.VoiceClient, text: str):
 
-        agent = self.agent
-
-        data = await agent.async_talk(text)
+        data = await self.agent.async_talk(text)
         stream = io.BytesIO(data)
         audio = discord.PCMAudio(stream)
         sleeptime = 0.1

@@ -14,15 +14,15 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('-t', '--text')
     for m in openjtalk.OPTION_MAPPINGS:
-        parser.add_argument(m.option, type=str)
-    args = parser.parse_args()
+        parser.add_argument(m.option, type=str, help=m.help)
+    ns_args = parser.parse_args()
 
-    dict_args = vars(args)
-    text = dict_args.pop('text')
-    agent_argv = chain.from_iterable(
-        ('-' + k, v) for k, v in dict_args.items() if v is not None)
-    agent = openjtalk.Agent.from_option_args(agent_argv)
-
+    d_args = vars(ns_args)
+    text = d_args.pop('text')
+    agent_args = chain.from_iterable(
+        ('-' + k, v) for k, v in d_args.items() if v is not None)
+    agent = openjtalk.Agent.from_args(agent_args)
+    print(agent)
     pa = pyaudio.PyAudio()
     try:
         wave_bytes = agent.talk(text)

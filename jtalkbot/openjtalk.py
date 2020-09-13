@@ -55,32 +55,44 @@ class _OptionMapping(object):
     """(internal) mapping entry between a command line option and a
     argument name and its type """
 
-    __slots__ = ['option', 'name', 'type']
+    __slots__ = ['option', 'name', 'type', 'help']
 
-    def __init__(self, *, option: str, name: str, type: type):
+    def __init__(self, *, option: str, name: str, type: type, help: str):
         """constructor """
 
         self.option = option
         self.name = name
         self.type = type
+        self.help = help
 
 
 OPTION_MAPPINGS = [
-    _OptionMapping(option='-x', name='dictionary', type=str),
-    _OptionMapping(option='-m', name='voice', type=str),
-    _OptionMapping(option='-ow', name='_outwave', type=str),
-    _OptionMapping(option='-ot', name='_outtrace', type=str),
-    _OptionMapping(option='-s', name='sampling', type=int),
-    _OptionMapping(option='-p', name='frameperiod', type=int),
-    _OptionMapping(option='-a', name='allpass', type=float),
-    _OptionMapping(option='-b', name='postfilter', type=float),
-    _OptionMapping(option='-r', name='speedrate', type=float),
-    _OptionMapping(option='-fm', name='halftone', type=float),
-    _OptionMapping(option='-u', name='threshold', type=float),
-    _OptionMapping(option='-jm', name='spectrum', type=float),
-    _OptionMapping(option='-jf', name='logf0', type=float),
-    _OptionMapping(option='-g', name='volume', type=float),
-    _OptionMapping(option='-z', name='buffersize', type=int),
+    _OptionMapping(option='-x', name='dictionary', type=str,
+                   help='dictionary directory'),
+    _OptionMapping(option='-m', name='voice', type=str,
+                   help='HTS voice files'),
+    _OptionMapping(option='-s', name='sampling', type=int,
+                   help='sampling frequency'),
+    _OptionMapping(option='-p', name='frameperiod', type=int,
+                   help='frame period (point)'),
+    _OptionMapping(option='-a', name='allpass', type=float,
+                   help='all-pass constant'),
+    _OptionMapping(option='-b', name='postfilter', type=float,
+                   help='postfiltering coefficient'),
+    _OptionMapping(option='-r', name='speedrate', type=float,
+                   help='speech speed rate'),
+    _OptionMapping(option='-fm', name='halftone', type=float,
+                   help='additional half-tone'),
+    _OptionMapping(option='-u', name='threshold', type=float,
+                   help='voiced/unvoiced threshold'),
+    _OptionMapping(option='-jm', name='spectrum', type=float,
+                   help='weight of GV for spectrum'),
+    _OptionMapping(option='-jf', name='logf0', type=float,
+                   help='weight of GV for log F0'),
+    _OptionMapping(option='-g', name='volume', type=float,
+                   help='volume (dB)'),
+    _OptionMapping(option='-z', name='buffersize', type=int,
+                   help='audio buffer size (if i==0, turn off)'),
 ]
 PROP_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
 OPTIONS_DICT = {m.option: m for m in OPTION_MAPPINGS}
@@ -323,42 +335,49 @@ class Agent(object):
         """return `repr(self)` """
 
         return f'<{__name__}.{__class__.__name__} at {hex(id(self))}' \
-               + f' "{self.name}" [{self.build_command_line_flags()}]>'
+               + f' "{self.name}" [{self.build_flags()}]>'
 
-    def build_command_line_args(self, **kwds) -> List[str]:
+    def build_args(self, *, outwave: str = None, outtrace: str = None,
+                   infile: str = None, **kwds) -> List[str]:
         """return a list of command line args for `open_jtalk` command """
 
-        d = {k: getattr(self, k) for k in PROP_NAMES_DICT
-             if not k.startswith('_')}
+        d = {k: getattr(self, k) for k in PROP_NAMES_DICT}
         d.update(kwds)
 
-        opts = []
+        args = []
         for prop_name, value in d.items():
-            if prop_name not in PROP_NAMES_DICT or value is None:
+            if value is None or prop_name not in PROP_NAMES_DICT:
                 continue
             opt = PROP_NAMES_DICT[prop_name].option
-            if opt.startswith('-'):
-                opts.append(opt)
-            opts.append(str(value))
-        return opts
+            args.append(opt)
+            args.append(str(value))
+        if outwave is not None:
+            args.append('-ow')
+            args.append(outwave)
+        if outtrace is not None:
+            args.append('-ot')
+            args.append(outtrace)
+        if infile is not None:
+            args.append(infile)
+        return args
 
-    def build_command_line_flags(self, **kwds) -> str:
+    def build_flags(self, **kwds) -> str:
         """return option flags string for `open_jtalk` command """
 
-        opts = self.build_command_line_args(**kwds)
-        return shlex.join(opts)
+        args = self.build_args(**kwds)
+        return shlex.join(args)
 
     def talk(self, text: str, **kwds) -> bytes:
         """Retrun wave data bytes for given text """
 
         for k in kwds:
-            if k not in PROP_NAMES_DICT or k.startswith('_'):
+            if k not in PROP_NAMES_DICT:
                 raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
             args = [OPEN_JTALK] \
-                 + self.build_command_line_args(_outwave=output, **kwds)
+                 + self.build_args(outwave=output, **kwds)
             proc = subprocess.run(args, input=text.encode(ENCODING))
             if proc.returncode == 0:
                 return mono_to_stereo(output)
@@ -368,13 +387,13 @@ class Agent(object):
         """[Coroutine] Retrun wave data bytes for given text """
 
         for k in kwds:
-            if k not in PROP_NAMES_DICT or k.startswith('_'):
+            if k not in PROP_NAMES_DICT:
                 raise ValueError(f'{k!r} is not a valid keyword')
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = os.path.join(tempdir, WAVE_OUT)
             args = [OPEN_JTALK] \
-                 + self.build_command_line_args(_outwave=output, **kwds)
+                 + self.build_args(outwave=output, **kwds)
             proc = await asyncio.create_subprocess_exec(
                 *args, stdin=asyncio.subprocess.PIPE)
             await proc.communicate(text.encode(ENCODING))
@@ -383,23 +402,22 @@ class Agent(object):
         return b''
 
     @classmethod
-    def from_option_args(cls, args: Sequence[str]) -> 'Agent':
-        """return `Agent` instance initialized with `args` as
-        `open_jtalk` option args """
+    def from_args(cls, args: Sequence[str]) -> 'Agent':
+        """return `Agent` instance initialized with `argv` as
+        `open_jtalk` option arguments """
 
         kwds = parse_args(args)
         dictinary = kwds.pop('dictionary', DICT)
         voice = kwds.pop('voice', VOICE)
-        name = kwds.pop('dictionary', None)
-        return cls(dictinary, voice, name, **kwds)
+        return cls(dictinary, voice, **kwds)
 
     @classmethod
-    def from_option_flags(cls, flags: str) -> 'Agent':
+    def from_flags(cls, flags: str) -> 'Agent':
         """return `Agent` instance initialized with `flags` as a
         `open_jtalk` option flags string """
 
         args = shlex.split(flags)
-        return cls.from_option_args(args)
+        return cls.from_args(args)
 
 
 
@@ -446,23 +464,8 @@ def parse_args(args: Sequence[str]) -> dict:
         for m in OPTION_MAPPINGS:
             _parser.add_argument(m.option, dest=m.name, type=m.type)
 
-    opts = _parser.parse_args(args)
-    return dict((k, v) for (k, v) in vars(opts).items() if v is not None)
-
-
-def parse_flags(flags: str) -> dict:
-    """parse flags as `open_jtalk` command line options and return them
-    as a `dict` """
-
-    args = shlex.split(flags)
-    return vars_from_args(args)
-
-
-def props(o: Any):
-    """return all properties of a given object as a `dict` """
-
-    return {k: getattr(o, k) for k in dir(o.__class__)
-            if isinstance(getattr(o.__class__, k), property)}
+    ns_args = _parser.parse_args(args)
+    return dict((k, v) for (k, v) in vars(ns_args).items() if v is not None)
 
 
 def main():
