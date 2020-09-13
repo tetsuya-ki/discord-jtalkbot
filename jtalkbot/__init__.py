@@ -48,7 +48,7 @@ def load_settings() -> None:
         with open(filename, encoding='utf-8') as f:
             json_s = f.read()
         d_settings.update(setting_schema.parse_json(json_s))
-    d_settings.update(setting_schema.parse_args()
+    d_settings.update(setting_schema.parse_args())
 
     global __settings__
     __settings__ = Namespace(**d_settings)

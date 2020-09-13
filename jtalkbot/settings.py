@@ -79,7 +79,7 @@ class SettingSchema(object):
             parser.add_argument('--' + name, type=field.type,
                                 default=field.default, help=field.help)
         namespace = parser.parse_args(args)
-        return vars(namespace)
+        return {k: v for k, v in vars(namespace).items() if v is not None}
 
     def parse_env(self, env: Optional[Dict[str, str]] = None
                   ) -> Dict[str, Any]:
