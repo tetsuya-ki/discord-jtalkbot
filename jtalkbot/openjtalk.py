@@ -328,7 +328,8 @@ class Agent(object):
     def build_command_line_args(self, **kwds) -> List[str]:
         """return a list of command line args for `open_jtalk` command """
 
-        d = props(self)
+        d = {k: getattr(self, k) for k in PROP_NAMES_DICT
+             if not k.startswith('_')}
         d.update(kwds)
 
         opts = []
