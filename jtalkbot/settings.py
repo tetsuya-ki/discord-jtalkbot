@@ -1,10 +1,10 @@
 """reginster / load / save settings """
 
 
-import argparse
 import json
 import os
-from typing import Any, Dict, Optional, Sequence
+from argparse import ArgumentParser
+from typing import Any, Dict, Optional, Sequence, Union
 
 
 class SettingField(object):
@@ -12,8 +12,10 @@ class SettingField(object):
 
     __slots__ = ['name', 'type', 'default', 'help']
 
-    def __init__(self, name, *,
-                 type: type = str, default: Any = None, help: str = None):
+    def __init__(self, name: str, *,
+                 type: type = str,
+                 default: Union[str, int, float] = None,
+                 help: Optional[str] = None):
         """constructor """
 
         self.name = name
@@ -22,8 +24,8 @@ class SettingField(object):
         self.help = help
 
 
-class Settings(object):
-    """store settings """
+class SettingSchema(object):
+    """setting definition """
 
     def __init__(self, prefix: str):
         """constructor """
@@ -32,7 +34,9 @@ class Settings(object):
         self.fields = {}
 
     def register(self, name: str, *,
-                 type: type = str, default: Any = None, help: str = None):
+                 type: type = str,
+                 default: Union[str, int, float] = None,
+                 help: Optional[str] = None):
         """register a setting option """
 
         field = SettingField(name, type=type, default=default, help=help)
@@ -41,11 +45,11 @@ class Settings(object):
     def parse_json(self, json_str: str) -> Dict[str, Any]:
         """parse given json string and return settings dict
 
-        >>> settings = Settings('test')
-        >>> settings.register('a', type=int)
-        >>> settings.register('b')
+        >>> setting_schema = SettingSchema('test')
+        >>> setting_schema.register('a', type=int)
+        >>> setting_schema.register('b')
         >>> s = '{ "a": 1, "b": "two" }'
-        >>> settings.parse_json(s)
+        >>> setting_schema.parse_json(s)
         {'a': 1, 'b': 'two'}
         """
 
@@ -62,15 +66,15 @@ class Settings(object):
                    ) -> Dict[str, Any]:
         """parse args and return settings dict
 
-        >>> settings = Settings('test')
-        >>> settings.register('a', type=int)
-        >>> settings.register('b')
+        >>> setting_schema = SettingSchema('test')
+        >>> setting_schema.register('a', type=int)
+        >>> setting_schema.register('b')
         >>> a = ['--a', '1', '--b', 'two']
-        >>> settings.parse_args(a)
+        >>> setting_schema.parse_args(a)
         {'a': 1, 'b': 'two'}
         """
 
-        parser = argparse.ArgumentParser()
+        parser = ArgumentParser()
         for name, field in self.fields.items():
             parser.add_argument('--' + name, type=field.type,
                                 default=field.default, help=field.help)
@@ -81,11 +85,11 @@ class Settings(object):
                   ) -> Dict[str, Any]:
         """parse environment value and return settings namespace
 
-        >>> settings = Settings('test')
-        >>> settings.register('a', type=int)
-        >>> settings.register('b')
+        >>> setting_schema = SettingSchema('test')
+        >>> setting_schema.register('a', type=int)
+        >>> setting_schema.register('b')
         >>> env = {'TEST_A': '1', 'TEST_B': 'two'}
-        >>> settings.parse_env(env)
+        >>> setting_schema.parse_env(env)
         {'a': 1, 'b': 'two'}
         """
 
