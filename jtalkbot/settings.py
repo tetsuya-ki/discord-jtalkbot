@@ -125,18 +125,22 @@ def get_settings() -> Optional[Namespace]:
     return __settings__
 
 
-def load_settings() -> None:
+def load_settings(args: Optional[Sequence[str]] = None,
+                  filename: Optional[str] = None,
+                  env: Optional[Dict[str, str]] = None) -> None:
     """load settings in specific order and return global namespace object """
 
     setting_schema = get_setting_schema()
 
-    d_settings = setting_schema.parse_env()
-    filename = 'jtalkbot-config.json'
-    if os.path.exists(filename):
-        with open(filename, encoding='utf-8') as f:
-            json_s = f.read()
-        d_settings.update(setting_schema.parse_json(json_s))
-    d_settings.update(setting_schema.parse_args())
+    d_settings = setting_schema.parse_env(env)
+
+    if filename:
+        if os.path.exists(filename):
+            with open(filename, encoding='utf-8') as f:
+                json_s = f.read()
+            d_settings.update(setting_schema.parse_json(json_s))
+
+    d_settings.update(setting_schema.parse_args(args))
 
     global __settings__
     __settings__ = Namespace(**d_settings)
