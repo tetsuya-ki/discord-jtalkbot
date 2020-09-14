@@ -3,7 +3,8 @@
 
 import json
 import os
-from argparse import ArgumentParser
+import sys
+from argparse import ArgumentParser, Namespace
 from typing import Any, Dict, Optional, Sequence, Union
 
 
@@ -103,6 +104,42 @@ class SettingSchema(object):
                 value = field.type(value)
             d[name] = value
         return d
+
+
+__setting_schema__ = None
+__settings__ = None
+
+
+def get_setting_schema() -> SettingSchema:
+    """retrun global `SettingSchema` object """
+
+    global __setting_schema__
+    if __setting_schema__ is None:
+        __setting_schema__ = SettingSchema('jtalkbot')
+    return __setting_schema__
+
+
+def get_settings() -> Optional[Namespace]:
+    """return global settings namespace object """
+
+    return __settings__
+
+
+def load_settings() -> None:
+    """load settings in specific order and return global namespace object """
+
+    setting_schema = get_setting_schema()
+
+    d_settings = setting_schema.parse_env()
+    filename = 'jtalkbot-config.json'
+    if os.path.exists(filename):
+        with open(filename, encoding='utf-8') as f:
+            json_s = f.read()
+        d_settings.update(setting_schema.parse_json(json_s))
+    d_settings.update(setting_schema.parse_args())
+
+    global __settings__
+    __settings__ = Namespace(**d_settings)
 
 
 if __name__ == "__main__":
