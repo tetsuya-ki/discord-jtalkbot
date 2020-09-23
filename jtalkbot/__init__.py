@@ -3,7 +3,7 @@
 from importlib import metadata
 
 
-__all__ = ['VERSION', 'get_setting_schema', 'get_settings', 'load_settings']
+__all__ = ['VERSION']
 
 
 try:

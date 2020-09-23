@@ -11,7 +11,7 @@ import discord
 from discord.ext import commands
 
 from . import VERSION
-from . import settings
+from . import environ
 
 
 logging.basicConfig()
@@ -21,24 +21,35 @@ LOG = logging.getLogger(__name__)
 def main():
     """Main entry point. """
 
+    bot = commands.Bot()
+    bot.load_extension('jtalkbot.autoreader')
+
+    appenv = environ.get_appenv()
+    appenv.add_field('prefix', default='$', help='command prefix')
+    appenv.add_field('token', help='bot token')
+
+    # environment variables
+    appenv.load_env(prefix='jtalkbot')
+    # setting file
+    filename = 'jtalkbot-config.json'
+    if os.path.exists(filename):
+        appenv.load_json(filename)
+    # command line args
+    parser = ArgumentParser()
+    parser.add_argument('-V', '--version', action='version',
+                        version='%(prog)s '+VERSION)
+    appenv.load_args(parser=parser)
+
+    bot.com
+
     LOG.setLevel(logging.INFO)
     LOG.info(f'jtalkbot {VERSION}')
-
-    setting_schema = settings.get_setting_schema()
-    setting_schema.register('prefix', default='$', help='command prefix')
-    setting_schema.register('token', help='bot token')
-
-    settings.load_settings(args, 'jtalkbot-config.json', os.environ)
-    config = settings.get_settings()
-    print(config)
 
     discord.opus.load_opus(find_library('opus'))
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
 
-    bot = commands.Bot(command_prefix=config.prefix)
-    bot.load_extension('jtalkbot.autoreader')
-    bot.run(config.token)
+    bot.run(appenv['token'])
 
 
 if __name__ == "__main__":

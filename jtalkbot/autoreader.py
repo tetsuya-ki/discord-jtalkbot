@@ -7,6 +7,7 @@ import logging
 import discord
 from discord.ext import commands
 
+from . import environ
 from . import openjtalk
 
 
@@ -20,7 +21,8 @@ class AutoReaderCog(commands.Cog):
         """constructor """
 
         self.bot = bot
-        flags = CONFIG['open_jtalk_flags']
+        appenv = environ.get_appenv()
+        flags = appenv.get('open_jtalk_flags', '')
         self.agent = openjtalk.Agent.from_flags(flags)
         self.agent.sampling = openjtalk.FREQ_48000HZ
 
@@ -102,7 +104,5 @@ class AutoReaderCog(commands.Cog):
 
 
 def setup(bot: commands.Bot):
-    global CONFIG
-    CONFIG = bot.config
     LOG.setLevel(logging.INFO)
     bot.add_cog(AutoReaderCog(bot))
