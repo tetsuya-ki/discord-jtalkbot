@@ -21,7 +21,7 @@ LOG = logging.getLogger(__name__)
 def main():
     """Main entry point. """
 
-    bot = commands.Bot()
+    bot = commands.Bot('$')
     bot.load_extension('jtalkbot.autoreader')
 
     appenv = environ.get_appenv()
@@ -40,8 +40,6 @@ def main():
                         version='%(prog)s '+VERSION)
     appenv.load_args(parser=parser)
 
-    bot.com
-
     LOG.setLevel(logging.INFO)
     LOG.info(f'jtalkbot {VERSION}')
 
@@ -49,6 +47,7 @@ def main():
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
 
+    bot.command_prefix = appenv.get('prefix', '$')
     bot.run(appenv['token'])
 
 

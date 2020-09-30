@@ -27,6 +27,19 @@ class AutoReaderCog(commands.Cog):
         self.agent.sampling = openjtalk.FREQ_48000HZ
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        """called when the bot is ready """
+
+        bot = self.bot
+        appenv = environ.get_appenv()
+
+        # register commands
+        bot.add_command(commands.Command(
+            self.connect_vch, name=appenv['cmd_connect_vch']))
+        bot.add_command(commands.Command(
+            self.disconnect_vch, name=appenv['cmd_disconnect_vch']))
+
+    @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
         """Called when a `Message` is created and sent. """
 
@@ -50,6 +63,7 @@ class AutoReaderCog(commands.Cog):
         """Called when a `Member` changes their `VoiceState`. """
 
         bot = self.bot
+        appenv = environ.get_appenv()
 
         if not before.channel and after.channel:
             # someone connected the voice channel.
@@ -62,10 +76,10 @@ class AutoReaderCog(commands.Cog):
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl:
-                    await self.talk(vcl, CONFIG['voice_hello'])
+                    await self.talk(vcl, appenv['voice_hello'])
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
-                    await tch.send(CONFIG['text_start'])
+                    await tch.send(appenv['text_start'])
             else:
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
 
@@ -81,7 +95,7 @@ class AutoReaderCog(commands.Cog):
                     await vcl.disconnect()
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
-                    await tch.send(CONFIG['text_end'])
+                    await tch.send(appenv['text_end'])
             else:
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
 
@@ -102,7 +116,33 @@ class AutoReaderCog(commands.Cog):
             await asyncio.sleep(0.1)
         vcl.play(audio, after=lambda e: stream.close())
 
+    async def connect_vch(self, ctx: commands.Context):
+        """connect to the voice channel the name of which is the same as
+        the text channel (if not connected yet) """
+
+        tch = ctx.channel
+        vch = discord.utils.get(tch.guild.voice_channels, name=tch.name)
+        if vch:
+            await vch.connect()
+
+    async def disconnect_vch(self, ctx: commands.Context):
+        """disconnect from the voice channel that the name of which is
+        the same as the text channel (if already connected to) """
+
+        tch = ctx.channel
+        vcl = tch.guild.voice_client
+        if vcl and vcl.channel.name == tch.name and vcl.is_connected():
+            await vcl.disconnect()
+
 
 def setup(bot: commands.Bot):
     LOG.setLevel(logging.INFO)
+
+    appenv = environ.get_appenv()
+    appenv.add_field('voice_hello')
+    appenv.add_field('text_start')
+    appenv.add_field('text_end')
+    appenv.add_field('cmd_connect_vch', default='connect')
+    appenv.add_field('cmd_disconnect_vch', default='disconnect')
+
     bot.add_cog(AutoReaderCog(bot))
