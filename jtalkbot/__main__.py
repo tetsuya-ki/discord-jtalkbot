@@ -25,7 +25,7 @@ def main():
     bot.load_extension('jtalkbot.autoreader')
 
     appenv = environ.get_appenv()
-    appenv.add_field('prefix', default='$', help='command prefix')
+    appenv.add_field('prefix', default='$', help='command prefix (%(default)s)')
     appenv.add_field('token', help='bot token')
 
     # environment variables

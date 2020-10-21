@@ -35,9 +35,9 @@ class AutoReaderCog(commands.Cog):
 
         # register commands
         bot.add_command(commands.Command(
-            self.connect_vch, name=appenv['cmd_connect_vch']))
+            self.cmd_connect, name=appenv['cmd_connect']))
         bot.add_command(commands.Command(
-            self.disconnect_vch, name=appenv['cmd_disconnect_vch']))
+            self.cmd_disconnect, name=appenv['cmd_disconnect']))
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
@@ -116,7 +116,7 @@ class AutoReaderCog(commands.Cog):
             await asyncio.sleep(0.1)
         vcl.play(audio, after=lambda e: stream.close())
 
-    async def connect_vch(self, ctx: commands.Context):
+    async def cmd_connect(self, ctx: commands.Context):
         """connect to the voice channel the name of which is the same as
         the text channel (if not connected yet) """
 
@@ -125,7 +125,7 @@ class AutoReaderCog(commands.Cog):
         if vch:
             await vch.connect()
 
-    async def disconnect_vch(self, ctx: commands.Context):
+    async def cmd_disconnect(self, ctx: commands.Context):
         """disconnect from the voice channel that the name of which is
         the same as the text channel (if already connected to) """
 
@@ -140,9 +140,13 @@ def setup(bot: commands.Bot):
 
     appenv = environ.get_appenv()
     appenv.add_field('voice_hello')
-    appenv.add_field('text_start')
-    appenv.add_field('text_end')
-    appenv.add_field('cmd_connect_vch', default='connect')
-    appenv.add_field('cmd_disconnect_vch', default='disconnect')
+    appenv.add_field('text_start',
+                     help='text on start speaking  (%(default)s)')
+    appenv.add_field('text_end',
+                     help='text on stop speaking  (%(default)s)')
+    appenv.add_field('cmd_connect', default='connect',
+                     help='command to connect to the voice channel (%(default)s)')
+    appenv.add_field('cmd_disconnect', default='disconnect',
+                     help='command to disconnect from the voice channel (%(default)s)')
 
     bot.add_cog(AutoReaderCog(bot))

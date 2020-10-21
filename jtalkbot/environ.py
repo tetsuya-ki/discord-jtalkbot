@@ -98,9 +98,11 @@ class ApplicationEnvironment(object):
 
         with open(filename, encoding='utf-8') as fp:
             result = json.load(fp)
+
         d = {}
         for name, field in self.fields.items():
-            value = result.get(name, field.default)
+            default = self._dict.get(name, field.default)
+            value = result.get(name, default)
             if value is not None:
                 value = field.type(value)
             d[name] = value
@@ -127,8 +129,11 @@ class ApplicationEnvironment(object):
             parser = ArgumentParser()
 
         for name, field in self.fields.items():
-            parser.add_argument('--' + name, type=field.type,
-                                default=field.default, help=field.help)
+            default = self._dict.get(name, field.default)
+            parser.add_argument('--' + name,
+                                type=field.type,
+                                default=default,
+                                help=field.help)
         namespace = parser.parse_args(args)
         d = {k: v for k, v in vars(namespace).items() if v is not None}
         self._dict.update(d)
@@ -154,9 +159,10 @@ class ApplicationEnvironment(object):
         d = {}
         for name, field in self.fields.items():
             key = name.upper()
+            default = self._dict.get(name, field.default)
             if prefix:
                 key = prefix.upper() + '_' + key
-            value = env.get(key, field.default)
+            value = env.get(key, default)
             if value is not None:
                 value = field.type(value)
             d[name] = value
