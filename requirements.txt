@@ -1,0 +1,2 @@
+discord.py[voice]==1.5.1
+PyAudio==0.2.11

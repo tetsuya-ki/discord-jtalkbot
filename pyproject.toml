@@ -1,4 +1,0 @@
-[build-system]
-requires = ["setuptools", "wheel", "setuptools_scm[toml]"]
-
-[tool.setuptools_scm]

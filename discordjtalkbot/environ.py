@@ -18,9 +18,9 @@ class EnvField(object):
     __slots__ = ['name', 'type', 'default', 'help']
 
     def __init__(self, name: str, *,
-                 type: type = str,
-                 default: Optional[FieldValue] = None,
-                 help: Optional[str] = None):
+                type: type = str,
+                default: Optional[FieldValue] = None,
+                help: Optional[str] = None):
         """constructor """
 
         self.name = name
@@ -60,9 +60,9 @@ class ApplicationEnvironment(object):
         return self._dict.get(key, default)
 
     def add_field(self, name: str, *,
-                  type: type = str,
-                  default: Optional[FieldValue] = None,
-                  help: Optional[str] = None):
+                type: type = str,
+                default: Optional[FieldValue] = None,
+                help: Optional[str] = None):
         """add new environment field """
 
         field = EnvField(name, type=type, default=default, help=help)
@@ -84,8 +84,8 @@ class ApplicationEnvironment(object):
         return self._dict.items()
 
     def load_json(self,
-                  filename: str
-                  ) -> Dict[str, Optional[FieldValue]]:
+                filename: str
+                ) -> Dict[str, Optional[FieldValue]]:
         """parse given json string, update settings and return result dict
 
         >>> appenv = ApplicationEnvironment()
@@ -110,9 +110,9 @@ class ApplicationEnvironment(object):
         return d
 
     def load_args(self,
-                  args: Optional[Sequence[str]] = None,
-                  parser: Optional[ArgumentParser] = None
-                  ) -> Dict[str, Optional[FieldValue]]:
+                args: Optional[Sequence[str]] = None,
+                parser: Optional[ArgumentParser] = None
+                ) -> Dict[str, Optional[FieldValue]]:
         """parse args, update settings and return result dict
 
         >>> appenv = ApplicationEnvironment()
@@ -140,9 +140,9 @@ class ApplicationEnvironment(object):
         return d
 
     def load_env(self,
-                 env: Optional[Dict[str, str]] = None,
-                 prefix: str = '',
-                 ) -> Dict[str, Optional[FieldValue]]:
+                env: Optional[Dict[str, str]] = None,
+                prefix: str = '',
+                ) -> Dict[str, Optional[FieldValue]]:
         """parse environment value, update settings and return result dict
 
         >>> appenv = ApplicationEnvironment()

@@ -1,6 +1,6 @@
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk_flags": "-x /opt/local/lib/open_jtalk/dic -m /opt/local/lib/open_jtalk/voice/mei/mei_normal.htsvoice",
+    "open_jtalk_flags": "-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。"

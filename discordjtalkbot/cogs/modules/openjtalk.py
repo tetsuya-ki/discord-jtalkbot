@@ -8,9 +8,12 @@ import subprocess
 import sys
 import tempfile
 import wave
+import logging
 from argparse import ArgumentParser
 from typing import Any, List, Optional, Sequence
 
+logging.basicConfig()
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     'FREQ_44100HZ', 'FREQ_48000HZ',
@@ -22,8 +25,8 @@ __all__ = [
 
 ENCODING = sys.getfilesystemencoding()
 OPEN_JTALK = 'open_jtalk'
-DICT = '/opt/local/lib/open_jtalk/dic'
-VOICE = '/opt/local/lib/open_jtalk/voice/nitech/nitech_jp_atr503_m001.htsvoice'
+DICT = '/usr/local/opt/open-jtalk/dic' # YOUR_DICT_DIRECTORY
+VOICE = '/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice' # YOUR_VOICE
 
 WAVE_OUT = 'a.wav'
 TRACE_OUT = 'trace.log'
@@ -68,31 +71,31 @@ class _OptionMapping(object):
 
 OPTION_MAPPINGS = [
     _OptionMapping(option='-x', name='dictionary', type=str,
-                   help='dictionary directory'),
+                help='dictionary directory'),
     _OptionMapping(option='-m', name='voice', type=str,
-                   help='HTS voice files'),
+                help='HTS voice files'),
     _OptionMapping(option='-s', name='sampling', type=int,
-                   help='sampling frequency'),
+                help='sampling frequency'),
     _OptionMapping(option='-p', name='frameperiod', type=int,
-                   help='frame period (point)'),
+                help='frame period (point)'),
     _OptionMapping(option='-a', name='allpass', type=float,
-                   help='all-pass constant'),
+                help='all-pass constant'),
     _OptionMapping(option='-b', name='postfilter', type=float,
-                   help='postfiltering coefficient'),
+                help='postfiltering coefficient'),
     _OptionMapping(option='-r', name='speedrate', type=float,
-                   help='speech speed rate'),
+                help='speech speed rate'),
     _OptionMapping(option='-fm', name='halftone', type=float,
-                   help='additional half-tone'),
+                help='additional half-tone'),
     _OptionMapping(option='-u', name='threshold', type=float,
-                   help='voiced/unvoiced threshold'),
+                help='voiced/unvoiced threshold'),
     _OptionMapping(option='-jm', name='spectrum', type=float,
-                   help='weight of GV for spectrum'),
+                help='weight of GV for spectrum'),
     _OptionMapping(option='-jf', name='logf0', type=float,
-                   help='weight of GV for log F0'),
+                help='weight of GV for log F0'),
     _OptionMapping(option='-g', name='volume', type=float,
-                   help='volume (dB)'),
+                help='volume (dB)'),
     _OptionMapping(option='-z', name='buffersize', type=int,
-                   help='audio buffer size (if i==0, turn off)'),
+                help='audio buffer size (if i==0, turn off)'),
 ]
 PROP_NAMES_DICT = {m.name: m for m in OPTION_MAPPINGS}
 OPTIONS_DICT = {m.option: m for m in OPTION_MAPPINGS}
@@ -335,7 +338,7 @@ class Agent(object):
         """return `repr(self)` """
 
         return f'<{__name__}.{__class__.__name__} at {hex(id(self))}' \
-               + f' "{self.name}" [{self.build_flags()}]>'
+            + f' "{self.name}" [{self.build_flags()}]>'
 
     def build_args(self, *, outwave: str = None, outtrace: str = None,
                    infile: str = None, **kwds) -> List[str]:
@@ -369,6 +372,7 @@ class Agent(object):
 
     def talk(self, text: str, **kwds) -> bytes:
         """Retrun wave data bytes for given text """
+        LOG.info('talk')
 
         for k in kwds:
             if k not in PROP_NAMES_DICT:
@@ -441,8 +445,8 @@ def mono_to_stereo(file: str) -> bytes:
     """Return stereo converted wave data from a monaural wave file. """
 
     with io.BytesIO() as stream, \
-      wave.open(file, 'rb') as wi, \
-      wave.open(stream, 'wb') as wo:
+    wave.open(file, 'rb') as wi, \
+    wave.open(stream, 'wb') as wo:
         wo.setnchannels(2)
         wo.setsampwidth(wi.getsampwidth())
         wo.setframerate(wi.getframerate())
