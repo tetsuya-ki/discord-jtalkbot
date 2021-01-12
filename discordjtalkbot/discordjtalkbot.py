@@ -35,6 +35,24 @@ def main():
 
     LOG.setLevel(logging.INFO)
 
+    # dcoker envrionment support
+    env_list = []
+    if os.getenv('IS_DOCKER'):
+        LOG.info('docker mode.')
+        if os.getenv('TOKEN'):
+            env_list.extend(['--token', os.getenv('TOKEN')])
+        if os.getenv('VOICE_HELLO'):
+            env_list.extend(['--voice_hello', os.getenv('VOICE_HELLO')])
+        if os.getenv('TEXT_START'):
+            env_list.extend(['--text_start', os.getenv('TEXT_START')])
+        if os.getenv('TEXT_END'):
+            env_list.extend(['--text_end', os.getenv('TEXT_END')])
+        if os.getenv('OPEN_JTALK_FLAGS'):
+            env_list.extend(['--open_jtalk_flags', os.getenv('OPEN_JTALK_FLAGS')])
+        if env_list:
+            LOG.info(env_list)
+            appenv.load_args(env_list)
+
     discord.opus.load_opus(find_library('opus'))
     if discord.opus.is_loaded():
         LOG.info('Opus library is loaded.')
