@@ -201,6 +201,8 @@ def setup(bot: commands.Bot):
                     help='command to connect to the voice channel (%(default)s)')
     appenv.add_field('cmd_disconnect', default='disconnect',
                     help='command to disconnect from the voice channel (%(default)s)')
+    appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+                    help='open jtalk settings  (%(default)s)')
     # environment variables
     appenv.load_env(prefix=BOT_NAME)
     # setting file
