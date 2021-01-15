@@ -63,7 +63,7 @@ class AutoReaderCog(commands.Cog):
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
                 LOG.info(f'nya-n')
-                message = re.sub('http(s)?://(\w+\.)+\w+(/[\w ./?%&=~-]*)?','URL省略', msg.clean_content)
+                message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()
