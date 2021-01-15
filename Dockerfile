@@ -25,5 +25,4 @@ ENV IS_DOCKER=true\
     TEXT_END=""\
     OPEN_JTALK_FLAGS=""
 WORKDIR /root/discordjtalkbot
-# ENTRYPOINT ["python3", "discordjtalkbot.py"]
 CMD ["python3", "discordjtalkbot.py"]

@@ -31,10 +31,6 @@ class AutoReaderCog(commands.Cog):
         self.vch = None
         LOG.info("_init_")
 
-    # async def on_ready(self):
-    #     LOG.info('We have logged in as {0}'.format(self.user))
-    #     setup()
-
     # Botの準備完了時に呼び出されるイベント
     @commands.Cog.listener()
     async def on_ready(self):
@@ -49,11 +45,9 @@ class AutoReaderCog(commands.Cog):
         """Called when a `Message` is created and sent. """
 
         bot = self.bot
-        LOG.info(f'nya-n43')
         if msg.author == bot.user:
             return
 
-        # tch = msg.channel
         tch = self.vch
         if self.vch:
             vcl = discord.utils.get(
@@ -61,6 +55,10 @@ class AutoReaderCog(commands.Cog):
             if vcl:
                 # コマンドは無視
                 if msg.clean_content.startswith(await self.bot.get_prefix(msg)):
+                    return
+
+                # 接続しているギルド以外は無視
+                if msg.guild != tch.guild:
                     return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
@@ -97,7 +95,6 @@ class AutoReaderCog(commands.Cog):
                     await tch.send(appenv['text_start'])
             else:
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
-
 
         elif before.channel and not after.channel:
             # someone disconnected the voice channel.

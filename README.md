@@ -2,7 +2,7 @@
 
 ## A Discord bot talking Japanese
 
-Discordのテキストチャンネルに投稿されたメッセージをボイスチャンネルで読み上げるBotプログラムです。  
+Discordのテキストチャンネルに投稿されたメッセージをボイスチャンネルで読み上げるBotです。  
 ＊このプログラムは[Masaaki Shibata](https://bitbucket.org/emptypage/)さまの[jtalkbot](https://bitbucket.org/emptypage/jtalkbot/src/master/)を改造したものです(discordが前についていますが、修正前プログラムもDiscordで動作します)  
 ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
 > Copyright © 2020 Masaaki Shibata
@@ -10,6 +10,26 @@ ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
 ＊上記は、修正前のプログラムのLICENSEから抜粋したもの
 
 このBotは、読み上げBotを見知らぬ人のサーバーで実行することに不安を覚える人が自分のマシンで読み上げさせることが可能です。低機能ですが、そのあたりが嬉しいかもしれません。
+
+## Table of Contesnts
+
+1. [A Discord bot talking Japanese](<#A Discord bot talking Japanese>)
+
+2. [動作環境](#動作環境)
+
+3. [導入](#導入)
+
+4. [準備作業(Homebrew)](#準備作業Homebrew)
+
+5. [本作業](#本作業)
+
+6. [使いかた](#使いかた)
+
+7. [Botの実行](#Botの実行)
+
+8. [Botの動作](#Botの動作)
+
+9. [Dockerでの動かし方](#dockerでの動かし方)
 
 ## 動作環境
 
@@ -43,7 +63,7 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 ### 例
 
   ```sh
-  ~/ $ git clone <https://github.com/tetsuya-ki/discord-jtalkbot.git>
+  ~/ $ git clone https://github.com/tetsuya-ki/discord-jtalkbot.git
   ~/ $ cd discord-jtalkbot
   ~/discord-jtalkbot $ python3 -m venv .venv
   ~/discord-jtalkbot $ source .venv/bin/activate
@@ -121,3 +141,15 @@ Botを停止するときは `Ctrl+C` を押します。
 - 接続時の動作
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
   - URLは「URL省略」と発言します。
+
+### Dockerでの動かし方
+
+#### Pull from Docker Hub
+
+`docker pull tk2812/discord-jtalkbot:latest`
+
+#### Run docker container  
+
+tokenを環境変数で指定して起動すると動く。
+
+`docker run -e token=XXXXXXXX tk2812/discord-jtalkbot:latest`
