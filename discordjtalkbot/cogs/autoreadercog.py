@@ -161,8 +161,9 @@ class AutoReaderCog(commands.Cog):
         if vcl and vcl.channel.name == tch.name and vcl.is_connected():
             await vcl.disconnect()
 
-    @commands.command(aliases=['c','con','conn','setsuzoku'])
+    @commands.command(aliases=['c','con','conn','setsuzoku'],description='コマンド実行者の接続しているボイスチャンネルに、Botを接続するコマンドです')
     async def connect(self, ctx: commands.Context):
+        """ コマンド実行者の接続しているボイスチャンネルに、Botを接続するコマンドです """
         guild = ctx.guild
         member = ctx.author
         voice_state = ctx.author.voice
@@ -175,8 +176,9 @@ class AutoReaderCog(commands.Cog):
                 vcl = await vch.connect()
                 self.vch = vch
 
-    @commands.command(aliases=['d','dc','disco','setsudan'])
+    @commands.command(aliases=['d','dc','disco','setsudan'],description='ボイスチャンネルからBotを切断するコマンドです')
     async def disconnect(self, ctx: commands.Context):
+        """ ボイスチャンネルからBotを切断するコマンドです """
         guild = ctx.guild
         member = ctx.author
 
