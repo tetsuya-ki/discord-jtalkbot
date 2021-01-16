@@ -133,7 +133,6 @@ class Help(commands.HelpCommand):
 
 if __name__ == "__main__":
 
-        bot = commands.Bot('$')
         appenv = environ.get_appenv()
         appenv.add_field('prefix', default='$', help='command prefix (%(default)s)')
         appenv.add_field('token', help='bot token')
@@ -171,16 +170,16 @@ if __name__ == "__main__":
         if discord.opus.is_loaded():
             LOG.info('Opus library is loaded.')
 
-        bot.command_prefix = appenv.get('prefix', '$')
         intents = discord.Intents.default()
         intents.members = True
         intents.presences = True
         intents.typing = False
         LOG.info(f'{__file__} is running.')
+        token = appenv.get('token')
 
         bot = DiscordJTalkBot(
-                command_prefix = bot.command_prefix
+                command_prefix = appenv.get('prefix', '$')
                 ,help_command=Help()
                 ,intents=intents
             )# 大文字小文字は気にしない
-        bot.run(appenv['token'])
+        bot.run(token)
