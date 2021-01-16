@@ -16,6 +16,8 @@ RUN set -x && \
     /root/discordjtalkbot/cogs/modules/files/discordjtalkbot-config.json && \
     sed -i -e "s/open-jtalk/open_jtalk/g" \
     /root/discordjtalkbot/cogs/modules/files/discordjtalkbot-config.json && \
+    sed -i -e "s/\/m100\//\/nitech\//g" \
+    /root/discordjtalkbot/cogs/modules/files/discordjtalkbot-config.json && \
     cat  /root/discordjtalkbot/cogs/modules/files/discordjtalkbot-config.json && \
     ls -l /root/discordjtalkbot
 ENV IS_DOCKER=true\
@@ -23,6 +25,7 @@ ENV IS_DOCKER=true\
     VOICE_HELLO=""\
     TEXT_START=""\
     TEXT_END=""\
-    OPEN_JTALK_FLAGS=""
+    OPEN_JTALK_FLAGS=""\
+    VOICES=""
 WORKDIR /root/discordjtalkbot
 CMD ["python3", "discordjtalkbot.py"]

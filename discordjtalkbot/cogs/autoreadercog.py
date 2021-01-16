@@ -5,6 +5,7 @@ import io
 import logging
 import re
 import os
+import random
 from os.path import join, dirname
 
 import discord
@@ -29,6 +30,14 @@ class AutoReaderCog(commands.Cog):
         self.agent = openjtalk.Agent.from_flags(flags)
         self.agent.sampling = openjtalk.FREQ_48000HZ
         self.vch = None
+
+        self.member_name = ''
+        LOG.debug("voices:" + appenv.get('voices', ''))
+        voices = str(appenv.get('voices', '')).split(',')
+        self.voices = voices
+        self.voices_init = voices
+        self.voice_init = self.agent.voice
+        self.member2voice = {}
         LOG.info("_init_")
 
     # Botの準備完了時に呼び出されるイベント
@@ -62,6 +71,7 @@ class AutoReaderCog(commands.Cog):
                     return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
+                self.member_name = msg.author.name
 
                 # URL省略
                 message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
@@ -125,10 +135,20 @@ class AutoReaderCog(commands.Cog):
                     self.vch = None
 
     async def talk(self, vcl: discord.VoiceClient, text: str):
+        if len(self.voices) == 0 or not self.member_name:
+            LOG.debug('default voice.')
+            self.agent.voice = self.voice_init
+            data = await self.agent.async_talk(text)
+        else:
+            # メンバーにボイスを対応させる
+            self._set_member2voice()
+            self.agent.voice = self.member2voice[self.member_name]
+            LOG.debug('member:' + self.member_name + ', voice:' + self.agent.voice)
+            data = await self.agent.async_talk(text)
+            self.member_name = ''
 
-        LOG.info(f'talk:{text}')
-
-        data = await self.agent.async_talk(text)
+        voice_name = re.sub('.+/', '', self.agent.voice)
+        LOG.info(f'talk({voice_name}):{text}')
         stream = io.BytesIO(data)
         audio = discord.PCMAudio(stream)
         sleeptime = 0.1
@@ -203,6 +223,22 @@ class AutoReaderCog(commands.Cog):
             await self.talk(vcl, '停止')
             LOG.info("stop talking")
 
+    def _set_member2voice(self):
+        # すでに登録されているか確認
+        if self.member_name in self.member2voice:
+            return
+
+        # voicesがあるならシャッフルしておき、ないなら初期のものを持ってくる
+        if self.voices:
+            random.shuffle(self.voices)
+        else:
+            self.voices = random.shuffle(self.voices_init)
+
+        voice = self.voices.pop()
+        name = self.member_name
+        self.member2voice[name]=voice
+        LOG.info(f'set voice({voice}) to member({name}).')
+
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
     LOG.setLevel(logging.INFO)
@@ -219,12 +255,14 @@ def setup(bot: commands.Bot):
                     help='command to disconnect from the voice channel (%(default)s)')
     appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
                     help='open jtalk settings  (%(default)s)')
+    appenv.add_field('voices', default='/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+                    help='voices  (%(default)s)')    
     # environment variables
     appenv.load_env(prefix=BOT_NAME)
-    # setting file
-    filename = BOT_NAME + '-config.json'
-    file_path = join(dirname(__file__), 'modules' + os.sep +'files' + os.sep + filename)
-    if os.path.exists(file_path):
-        appenv.load_json(file_path)
+    # setting file (不要だったらしい...)
+    # filename = BOT_NAME + '-config.json'
+    # file_path = join(dirname(__file__), 'modules' + os.sep +'files' + os.sep + filename)
+    # if os.path.exists(file_path):
+    #     appenv.load_json(file_path)
     # command line args
     bot.add_cog(AutoReaderCog(bot))
