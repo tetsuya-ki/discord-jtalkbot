@@ -13,7 +13,7 @@ ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
 
 ## Table of Contesnts
 
-1. [A Discord bot talking Japanese](<#A Discord bot talking Japanese>)
+1. [A Discord bot talking Japanese](#A-Discord-bot-talking-Japanese)
 
 2. [動作環境](#動作環境)
 
@@ -133,9 +133,13 @@ Botを停止するときは `Ctrl+C` を押します。
 - オーナー追従機能
   - Botアカウントが招待されているDiscordサーバー（ギルドともいいます）において、そのサーバーのオーナーであるユーザー（ギルドマスター）がボイスチャンネルに接続したとき、同じボイスチャンネルへ同時に接続します。
   - サーバーのオーナーがボイスチャンネルから切断すると読み上げ動作を停止し、同時にボイスチャンネルからも切断します。
-- コマンドによる接続/切断機能
+- コマンドによる接続/切断/再生停止機能
   - `$connect`やP`$c`(エイリアス)で、Botがコマンドしたメンバーの接続しているボイスチャンネルに接続します。
   - `$disconnect`や`$d`(エイリアス)で、Botがボイスチャンネルから切断します。
+  - `$stop`や`$s`(エイリアス)で、Botの発言を停止させることができます。
+- Help機能
+  - `$help`で、このBotで使用できるコマンドが表示されます
+  - `$help connect`や`$help stop`で、それぞれの機能の説明や使用できるエイリアスが表示されます
 - さびしんぼ機能
   - メンバーの切断により、ボイスチャンネルに接続しているメンバーがBotのみになった場合、Botもボイスチャンネルから切断します。
 - 接続時の動作

@@ -192,6 +192,17 @@ class AutoReaderCog(commands.Cog):
             self.vch = None
             LOG.info("set self.vch to None")
 
+    @commands.command(aliases=['s','tomeru'],description='Botの発言を止めさせるコマンドです')
+    async def stop(self, ctx: commands.Context):
+        """ Botの発言を止めさせるコマンドです """
+        vcl = self.vch.guild.voice_client
+
+        # 再生を停止
+        if vcl and vcl.is_playing():
+            vcl.stop()
+            await self.talk(vcl, '停止')
+            LOG.info("stop talking")
+
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
     LOG.setLevel(logging.INFO)
