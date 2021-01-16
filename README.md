@@ -13,7 +13,7 @@ ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
 
 ## Table of Contesnts
 
-1. [A Discord bot talking Japanese](<#A Discord bot talking Japanese>)
+1. [A Discord bot talking Japanese](#A-Discord-bot-talking-Japanese)
 
 2. [動作環境](#動作環境)
 
@@ -41,9 +41,15 @@ ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
 
 それぞれの導入方法はお使いのシステムによって違いますので各自でお調べください([Homebrewでの導入方法は後述](#準備作業Homebrew)します)。
 修正元ソースの作者さまはmacOSで[MacPorts](https://www.macports.org "The MacPorts Project -- Home") を使っています。
-このソース(discord-jtalkbot)の作者は[Homebrew]("xx")を使っています。
+このソース(discord-jtalkbot)の作者は[Homebrew](https://brew.sh/index_ja)を使っています。
 
 ## 導入
+
+### 前置き
+
+[Dockerでの動かし方](#Dockerでの動かし方)を参照ください。Discord Botのトークンを指定するだけで、すぐに動かせます。  
+以降では、Macに、Homebrewを使って環境構築し、Botを動かす手順を説明します。  
+また、**このBotはWindowsではエラーが発生し、動作しません。** Dockerでなら動かせるかと思いますので、[Dockerでの動かし方](#Dockerでの動かし方)を参照ください。
 
 ### 準備作業(Homebrew)
 
@@ -133,16 +139,23 @@ Botを停止するときは `Ctrl+C` を押します。
 - オーナー追従機能
   - Botアカウントが招待されているDiscordサーバー（ギルドともいいます）において、そのサーバーのオーナーであるユーザー（ギルドマスター）がボイスチャンネルに接続したとき、同じボイスチャンネルへ同時に接続します。
   - サーバーのオーナーがボイスチャンネルから切断すると読み上げ動作を停止し、同時にボイスチャンネルからも切断します。
-- コマンドによる接続/切断機能
+- コマンドによる接続/切断/再生停止機能
   - `$connect`やP`$c`(エイリアス)で、Botがコマンドしたメンバーの接続しているボイスチャンネルに接続します。
   - `$disconnect`や`$d`(エイリアス)で、Botがボイスチャンネルから切断します。
+  - `$stop`や`$s`(エイリアス)で、Botの読み上げを停止させることができます。
+- Help機能
+  - `$help`で、このBotで使用できるコマンドが表示されます
+  - `$help connect`や`$help stop`で、それぞれの「機能の説明」や「使用できるエイリアス」が表示されます
 - さびしんぼ機能
   - メンバーの切断により、ボイスチャンネルに接続しているメンバーがBotのみになった場合、Botもボイスチャンネルから切断します。
 - 接続時の動作
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
-  - URLは「URL省略」と発言します。
+  - URLは「URL省略」と発言します。「||」で囲われた部分は「ネタバレ」で読み替えます
 
 ### Dockerでの動かし方
+
+Docker Hubのページは以下です。  
+<https://hub.docker.com/r/tk2812/discord-jtalkbot>
 
 #### Pull from Docker Hub
 
@@ -150,6 +163,10 @@ Botを停止するときは `Ctrl+C` を押します。
 
 #### Run docker container  
 
-tokenを環境変数で指定して起動すると動く。
+TOKENを環境変数で指定し、docker runする。
 
-`docker run -e token=XXXXXXXX tk2812/discord-jtalkbot:latest`
+`docker run -e TOKEN=XXXXXXXX tk2812/discord-jtalkbot:latest`
+
+#### Build Dockerfile(memo)
+
+`docker build -t discord-jtalkbot:dev .`

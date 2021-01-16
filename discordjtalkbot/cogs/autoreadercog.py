@@ -62,8 +62,14 @@ class AutoReaderCog(commands.Cog):
                     return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
-                LOG.info(f'nya-n')
+
+                # URL省略
                 message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
+                # ネタバレ削除
+                message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
+                # 改行対策
+                message = re.sub('\n', '。。', message)
+
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()
@@ -155,8 +161,9 @@ class AutoReaderCog(commands.Cog):
         if vcl and vcl.channel.name == tch.name and vcl.is_connected():
             await vcl.disconnect()
 
-    @commands.command(aliases=['c','con','conn','setsuzoku'])
+    @commands.command(aliases=['c','con','conn','setsuzoku'],description='コマンド実行者の接続しているボイスチャンネルに、Botを接続するコマンドです')
     async def connect(self, ctx: commands.Context):
+        """ コマンド実行者の接続しているボイスチャンネルに、Botを接続するコマンドです """
         guild = ctx.guild
         member = ctx.author
         voice_state = ctx.author.voice
@@ -169,8 +176,9 @@ class AutoReaderCog(commands.Cog):
                 vcl = await vch.connect()
                 self.vch = vch
 
-    @commands.command(aliases=['d','dc','disco','setsudan'])
+    @commands.command(aliases=['d','dc','disco','setsudan'],description='ボイスチャンネルからBotを切断するコマンドです')
     async def disconnect(self, ctx: commands.Context):
+        """ ボイスチャンネルからBotを切断するコマンドです """
         guild = ctx.guild
         member = ctx.author
 
@@ -183,6 +191,17 @@ class AutoReaderCog(commands.Cog):
                 await vcl.disconnect()
             self.vch = None
             LOG.info("set self.vch to None")
+
+    @commands.command(aliases=['s','tomeru'],description='Botの発言を止めさせるコマンドです')
+    async def stop(self, ctx: commands.Context):
+        """ Botの発言を止めさせるコマンドです """
+        vcl = self.vch.guild.voice_client
+
+        # 再生を停止
+        if vcl and vcl.is_playing():
+            vcl.stop()
+            await self.talk(vcl, '停止')
+            LOG.info("stop talking")
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
