@@ -136,6 +136,11 @@ if __name__ == "__main__":
         appenv = environ.get_appenv()
         appenv.add_field('prefix', default='$', help='command prefix (%(default)s)')
         appenv.add_field('token', help='bot token')
+        appenv.add_field('voice_hello')
+        appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+                        help='open jtalk settings  (%(default)s)')
+        appenv.add_field('voices', default='/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+                        help='voices  (%(default)s)')    
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'
@@ -162,6 +167,8 @@ if __name__ == "__main__":
                 env_list.extend(['--text_end', os.getenv('TEXT_END')])
             if os.getenv('OPEN_JTALK_FLAGS'):
                 env_list.extend(['--open_jtalk_flags', os.getenv('OPEN_JTALK_FLAGS')])
+            if os.getenv('VOICES'):
+                env_list.extend(['--voices', os.getenv('VOICES')])
             if env_list:
                 LOG.info(env_list)
                 appenv.load_args(env_list)

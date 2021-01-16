@@ -32,9 +32,11 @@ class AutoReaderCog(commands.Cog):
         self.vch = None
 
         self.member_name = ''
+        LOG.debug("voices:" + appenv.get('voices', ''))
         voices = str(appenv.get('voices', '')).split(',')
         self.voices = voices
         self.voices_init = voices
+        self.voice_init = self.agent.voice
         self.member2voice = {}
         LOG.info("_init_")
 
@@ -134,12 +136,16 @@ class AutoReaderCog(commands.Cog):
 
     async def talk(self, vcl: discord.VoiceClient, text: str):
         if len(self.voices) == 0 or not self.member_name:
+            LOG.debug('default voice.')
+            self.agent.voice = self.voice_init
             data = await self.agent.async_talk(text)
         else:
             # メンバーにボイスを対応させる
             self._set_member2voice()
             self.agent.voice = self.member2voice[self.member_name]
+            LOG.debug('member:' + self.member_name + ', voice:' + self.agent.voice)
             data = await self.agent.async_talk(text)
+            self.member_name = ''
 
         voice_name = re.sub('.+/', '', self.agent.voice)
         LOG.info(f'talk({voice_name}):{text}')
@@ -231,6 +237,7 @@ class AutoReaderCog(commands.Cog):
         voice = self.voices.pop()
         name = self.member_name
         self.member2voice[name]=voice
+        LOG.info(f'set voice({voice}) to member({name}).')
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
@@ -252,10 +259,10 @@ def setup(bot: commands.Bot):
                     help='voices  (%(default)s)')    
     # environment variables
     appenv.load_env(prefix=BOT_NAME)
-    # setting file
-    filename = BOT_NAME + '-config.json'
-    file_path = join(dirname(__file__), 'modules' + os.sep +'files' + os.sep + filename)
-    if os.path.exists(file_path):
-        appenv.load_json(file_path)
+    # setting file (不要だったらしい...)
+    # filename = BOT_NAME + '-config.json'
+    # file_path = join(dirname(__file__), 'modules' + os.sep +'files' + os.sep + filename)
+    # if os.path.exists(file_path):
+    #     appenv.load_json(file_path)
     # command line args
     bot.add_cog(AutoReaderCog(bot))
