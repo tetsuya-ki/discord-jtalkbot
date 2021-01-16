@@ -4,7 +4,7 @@
 
 Discordのテキストチャンネルに投稿されたメッセージをボイスチャンネルで読み上げるBotです。  
 ＊このプログラムは[Masaaki Shibata](https://bitbucket.org/emptypage/)さまの[jtalkbot](https://bitbucket.org/emptypage/jtalkbot/src/master/)を改造したものです(discordが前についていますが、修正前プログラムもDiscordで動作します)  
-ref. https://bitbucket.org/emptypage/jtalkbot/src/master/
+ref. <https://bitbucket.org/emptypage/jtalkbot/src/master/>
 > Copyright © 2020 Masaaki Shibata
 
 ＊上記は、修正前のプログラムのLICENSEから抜粋したもの
@@ -148,6 +148,10 @@ Botを停止するときは `Ctrl+C` を押します。
   - `$help connect`や`$help stop`で、それぞれの「機能の説明」や「使用できるエイリアス」が表示されます
 - さびしんぼ機能
   - メンバーの切断により、ボイスチャンネルに接続しているメンバーがBotのみになった場合、Botもボイスチャンネルから切断します。
+- 声色設定機能:
+  - discordjtalkbot-config.jsonに、`voices`を追加し、以下のような設定(htsのフルパスを`,`でセパレート)すると、メンバーごとに適当な声色を振り分けます
+  - `"voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice"`,
+  - 声色を使い切った場合、また最初から振り分けます（声色が重複して設定されます）
 - 接続時の動作
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
   - URLは「URL省略」と発言します。「||」で囲われた部分は「ネタバレ」で読み替えます
