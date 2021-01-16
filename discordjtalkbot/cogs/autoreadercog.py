@@ -62,8 +62,14 @@ class AutoReaderCog(commands.Cog):
                     return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
-                LOG.info(f'nya-n')
+
+                # URL省略
                 message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
+                # ネタバレ削除
+                message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
+                # 改行対策
+                message = re.sub('\n', '。。', message)
+
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()
