@@ -29,7 +29,7 @@ class DiscordJTalkBot(commands.Bot):
             try:
                 self.load_extension(cog)
             except Exception:
-                LOG.warn("traceback:", stack_info=True)
+                LOG.warning("traceback:", stack_info=True)
 
 
 # クラス定義。HelpCommandクラスを継承。
