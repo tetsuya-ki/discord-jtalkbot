@@ -183,4 +183,8 @@ TOKENを環境変数で指定し、docker runする。
 
 #### Build Dockerfile(memo)
 
+- 開発用にDockerイメージを作成  
 `docker build -t discord-jtalkbot:dev .`
+
+- 開発用のDockerイメージからコンテナを作成  
+`docker run -e TOKEN=XXXXXXXX discord-jtalkbot:dev`
