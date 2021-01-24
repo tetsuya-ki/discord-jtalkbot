@@ -46,7 +46,6 @@ class AutoReaderCog(commands.Cog):
         """called when the bot is ready """
 
         bot = self.bot
-        appenv = environ.get_appenv()
         LOG.info('We have logged in as {0}'.format(bot.user))
 
     @commands.Cog.listener()
@@ -65,6 +64,12 @@ class AutoReaderCog(commands.Cog):
                 # コマンドは無視
                 if msg.clean_content.startswith(await self.bot.get_prefix(msg)):
                     return
+
+                appenv = environ.get_appenv()
+                command = str(appenv.get('except_prefix', '')).split(',')
+                for ignore_command in command:
+                    if msg.clean_content.startswith(ignore_command):
+                        return
 
                 # 接続しているギルド以外は無視
                 if msg.guild != tch.guild:
@@ -242,27 +247,6 @@ class AutoReaderCog(commands.Cog):
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
     LOG.setLevel(logging.INFO)
-
     appenv = environ.get_appenv()
-    appenv.add_field('voice_hello')
-    appenv.add_field('text_start',
-                    help='text on start speaking  (%(default)s)')
-    appenv.add_field('text_end',
-                    help='text on stop speaking  (%(default)s)')
-    appenv.add_field('cmd_connect', default='connect',
-                    help='command to connect to the voice channel (%(default)s)')
-    appenv.add_field('cmd_disconnect', default='disconnect',
-                    help='command to disconnect from the voice channel (%(default)s)')
-    appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
-                    help='open jtalk settings  (%(default)s)')
-    appenv.add_field('voices', default='/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
-                    help='voices  (%(default)s)')    
-    # environment variables
     appenv.load_env(prefix=BOT_NAME)
-    # setting file (不要だったらしい...)
-    # filename = BOT_NAME + '-config.json'
-    # file_path = join(dirname(__file__), 'modules' + os.sep +'files' + os.sep + filename)
-    # if os.path.exists(file_path):
-    #     appenv.load_json(file_path)
-    # command line args
     bot.add_cog(AutoReaderCog(bot))

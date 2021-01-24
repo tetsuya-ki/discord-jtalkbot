@@ -140,7 +140,9 @@ if __name__ == "__main__":
         appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
                         help='open jtalk settings  (%(default)s)')
         appenv.add_field('voices', default='/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
-                        help='voices  (%(default)s)')    
+                        help='voices  (%(default)s)')
+        appenv.add_field('except_prefix', default='$',
+                        help='ignore prefix charactor  (%(default)s)')
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'
@@ -169,6 +171,8 @@ if __name__ == "__main__":
                 env_list.extend(['--open_jtalk_flags', os.getenv('OPEN_JTALK_FLAGS')])
             if os.getenv('VOICES'):
                 env_list.extend(['--voices', os.getenv('VOICES')])
+            if os.getenv('EXCEPT_PREFIX'):
+                env_list.extend(['--except_prefix', os.getenv('EXCEPT_PREFIX')])
             if env_list:
                 LOG.info(env_list)
                 appenv.load_args(env_list)
