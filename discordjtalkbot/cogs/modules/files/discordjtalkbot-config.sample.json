@@ -4,5 +4,6 @@
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。",
-    "voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_bashful.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_happy.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_sad.htsvoice"
+    "voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_bashful.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_happy.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_sad.htsvoice",
+    "except_prefix": "!,$,/"
 }

@@ -144,3 +144,6 @@ dmypy.json
 # vscode
 .devcontainer/
 .vscode/
+
+# secret
+secret/

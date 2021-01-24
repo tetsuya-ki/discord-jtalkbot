@@ -93,7 +93,9 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
     "open_jtalk_flags": "-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
-    "text_end": "読み上げを終わります。"
+    "text_end": "読み上げを終わります。",
+    "voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_bashful.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_happy.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_sad.htsvoice",
+    "except_prefix": "!,$,/"
   }
   ```
 
@@ -116,6 +118,14 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 #### `text_end`
 
 文字列型。Botがテキストチャンネルの投稿の読み上げを停止するときに、そのテキストチャンネルに投稿するメッセージを記述します(2021/01/10現在、なんか動きません)。
+
+#### `voices`
+
+文字列型。人に適当にvoiceを割り当てます（カンマ区切りで指定）。voiceが足りなくなった場合、重複します。
+
+##### `except_prefix`
+
+文字列型。指定したプレフィックスが先頭にあるメッセージは読み上げしないようになります(カンマ区切りで指定)。ギルドで使用しているBotのプレフィックスを指定すると良いと思います。
 
 ### Botの実行
 
@@ -173,4 +183,8 @@ TOKENを環境変数で指定し、docker runする。
 
 #### Build Dockerfile(memo)
 
+- 開発用にDockerイメージを作成  
 `docker build -t discord-jtalkbot:dev .`
+
+- 開発用のDockerイメージからコンテナを作成  
+`docker run -e TOKEN=XXXXXXXX discord-jtalkbot:dev`
