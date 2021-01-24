@@ -82,6 +82,8 @@ class AutoReaderCog(commands.Cog):
                 message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
                 # ネタバレ削除
                 message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
+                # 絵文字無視
+                message = re.sub(r'<:\w+:\d+>', '絵文字', message)
                 # 改行対策
                 message = re.sub('\n', '。。', message)
 
