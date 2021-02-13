@@ -4,6 +4,7 @@ import logging
 import os
 import textwrap
 from os.path import join, dirname, basename
+from keep_alive import keep_alive
 
 from ctypes.util import find_library
 
@@ -194,7 +195,8 @@ if __name__ == "__main__":
         intents.presences = True
         intents.typing = False
         LOG.info(f'{__file__} is running.')
-        token = appenv.get('token')
+        keep_alive()  # Starts a webserver to be pinged.
+        token = os.environ.get("DISCORD_BOT_SECRET") 
 
         bot = DiscordJTalkBot(
                 command_prefix = appenv.get('prefix', '$')

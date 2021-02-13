@@ -147,3 +147,6 @@ dmypy.json
 
 # secret
 secret/
+
+# repl.it
+.hts_voice/
