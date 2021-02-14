@@ -25,10 +25,13 @@ ref. <https://bitbucket.org/emptypage/jtalkbot/src/master/>
 
 6. [Botの動作](#Botの動作)
 
+7. [open-jtalk辞書の更新](#open-jtalk辞書の更新)
+
+8. [FAQ](#FAQ)
 
 ## 動作環境
 
-以下のプログラム／ライブラリが正常に動作しているシステムが必要ですが、repl.itでは自動で設定されるようにシェルを作りましたので、準備は不要のはずです。
+以下のプログラム／ライブラリが正常に動作しているシステムが必要ですが、Repl.itでは自動で設定されるようにシェルを作りましたので、準備は不要のはずです。
 
 - [Python 3.8](https://www.python.org "Welcome to Python.org")
 - [Open JTalk](http://open-jtalk.sourceforge.net "Open JTalk")（`open_jtalk` コマンド）
@@ -37,15 +40,15 @@ ref. <https://bitbucket.org/emptypage/jtalkbot/src/master/>
 ## 導入
 
 下記URLで**FORK**を押します。
-https://repl.it/@tetsuyaki/discord-jtalkbot
+https://Repl.it/@tetsuyaki/discord-jtalkbot
 
-ログインし、repl.itでこのプロジェクトを開ける状態にします。
+ログインし、Repl.itでこのプロジェクトを開ける状態にします。
 
 ## 使いかた
 
 ### .envファイルの準備
 
-repl.itの場合は、`.env`ファイルに**Botアカウントのトークンを記述**してください(.env以外は公開されてしまうため！)  
+Repl.itの場合は、`.env`ファイルに**Botアカウントのトークンを記述**してください(.env以外は公開されてしまうため！)  
 README.mdと同階層に`.env.sample`がありますので、これをコピーし、`.env`に名前を変更した上で、Botアカウントのトークンを記述してください。
 (discordjtalkbot-config.jsonにトークンを記述しては**いけません**)
 
@@ -72,7 +75,7 @@ README.mdと同階層に`.env.sample`がありますので、これをコピー�
 
 #### `token`
 
-repl.itで使用する場合は、絶対にBotアカウントのトークンを記述しないでください！（ココに記載すると、全世界に公開されます！）
+Repl.itで使用する場合は、絶対にBotアカウントのトークンを記述しないでください！（ココに記載すると、全世界に公開されます！）
 
 #### `open_jtalk_flags`
 
@@ -108,7 +111,7 @@ repl.itで使用する場合は、絶対にBotアカウントのトークンを�
 
 ### Botの実行
 
-repl.itの場合は、上にある「RUN」ボタンをクリックしてください。
+Repl.itの場合は、上にある「RUN」ボタンをクリックしてください。
 
 起動するとログを表示しながら待機し続けます。
 
@@ -156,10 +159,19 @@ Botを停止するときは `Ctrl+C` を押します。
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
   - URLは「URL省略」と発言します。「||」で囲われた部分は「ネタバレ」で読み替えます
 
+### open-jtalk辞書の更新
+
+- 下記手順に従って、`naist-jdic.csv`に単語を登録したのち、`make install`し、`sys.dic`を作成してください
+  - https://Repl.it/@tetsuyaki/openjtalkdev#README.md
+  - もちろん、自分のパソコンを使って生成することも可能です
+  - 英単語は全角英数字でないと登録できないかもしれません（Open-jtalkに詳しくないのでわからないですが、そんな動作にみえます）
+- sys.dicをアップロードし、`.dicディレクトリ`の`sys.dic`を上書きしてください
+- Botを再起動すれば使用されます
+
 ### FAQ
 
 #### 音声を読み上げない場合
 
-- repl.itのConsuleにあるログを見て対応してください
+- Repl.itのConsuleにあるログを見て対応してください
   - Stopボタンを押したあと、Runボタンを押すとたいてい直ります
-  - バグがある場合は、Issueに書き込んでください
+  - バグがある場合は、Issueに書き込んでください(Repl.itでしか再現しないものは対応できないかもしれません)

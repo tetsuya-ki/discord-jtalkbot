@@ -6,6 +6,7 @@ import logging
 import re
 import os
 import random
+import mojimoji
 from os.path import join, dirname
 
 import discord
@@ -92,8 +93,10 @@ class AutoReaderCog(commands.Cog):
 
                 # 設定ファイルで設定されていれば、名前を読み上げる
                 if appenv.get('read_name') == 'True':
-                    LOG.info(f"read_name: {appenv.get('read_name')}")
                     message = f'{self.member_name}さん、' + message
+
+                # 半角英カナを全角へ変換
+                message = mojimoji.han_to_zen(message, digit=False)
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()

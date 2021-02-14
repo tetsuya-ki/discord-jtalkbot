@@ -1,6 +1,6 @@
 {
     "token": "__DON'T_USE_IT__",
-    "open_jtalk_flags": "-x /home/runner/.apt/var/lib/mecab/dic/open-jtalk/naist-jdic/ -m /home/runner/.apt/usr/share/hts-voice/nitech-jp-atr503-m001/nitech_jp_atr503_m001.htsvoice",
+    "open_jtalk_flags": "-x /home/runner/discord-jtalkbot/.dic -m /home/runner/discord-jtalkbot/.hts_voice/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。",
