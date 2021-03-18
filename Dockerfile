@@ -29,6 +29,7 @@ ENV IS_DOCKER=true\
     VOICES=""\
     EXCEPT_PREFIX=""\
     READ_NAME=""\
-    READ_SYSTEM_MESSAGE=""
+    READ_SYSTEM_MESSAGE=""\
+    READ_ALL_GUILD=""
 WORKDIR /root/discordjtalkbot
 CMD ["python3", "discordjtalkbot.py"]
