@@ -61,6 +61,9 @@ class AutoReaderCog(commands.Cog):
             vcl = discord.utils.get(
                 bot.voice_clients, channel__guild=tch.guild, channel__name=tch.name)
             if vcl:
+                # 何もなかったら無視
+                if len(msg.clean_content) == 0:
+                    return
                 # コマンドは無視
                 if msg.clean_content.startswith(await self.bot.get_prefix(msg)):
                     return
@@ -71,15 +74,20 @@ class AutoReaderCog(commands.Cog):
                     if msg.clean_content.startswith(ignore_command):
                         return
 
-                # 接続しているギルド以外は無視
-                if msg.guild != tch.guild:
-                    return
+                # 設定ファイルで設定されていれば、他のギルドも読み上げる
+                if not appenv.get('read_all_guild') == 'True':
+                    # 接続しているギルド以外は無視
+                    if msg.guild != tch.guild:
+                        return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
-                self.member_name = msg.author.name
+                if msg.author.bot:
+                    self.member_name = 'ボット'
+                else:
+                    self.member_name = msg.author.display_name
 
                 # URL省略
-                message = re.sub('http(s)?://(\w+\.)+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
+                message = re.sub('http(s)?://[\w.,~:#%-]+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
                 # ネタバレ削除
                 message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
                 # 絵文字無視
@@ -87,6 +95,9 @@ class AutoReaderCog(commands.Cog):
                 # 改行対策
                 message = re.sub('\n', '。。', message)
 
+                # 設定ファイルで設定されていれば、名前を読み上げる
+                if appenv.get('read_name') == 'True':
+                    message = f'{self.member_name}さん、' + message
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()
@@ -119,6 +130,13 @@ class AutoReaderCog(commands.Cog):
             else:
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
 
+                # 設定ファイルで設定されていれば、入退室を読み上げる
+                if appenv.get('read_system_message') == 'True':
+                    LOG.info(f"read_system_message: {appenv.get('read_system_message')}")
+                    vcl = discord.utils.get(bot.voice_clients, channel=vch)
+                    if vcl:
+                        await self.talk(vcl, f'{member.display_name}さんが接続しました')
+
         elif before.channel and not after.channel:
             # someone disconnected the voice channel.
             vch = before.channel
@@ -134,6 +152,13 @@ class AutoReaderCog(commands.Cog):
                     await tch.send(appenv['text_end'])
             else:
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
+
+                # 設定ファイルで設定されていれば、入退室を読み上げる
+                if appenv.get('read_system_message') == 'True':
+                    LOG.info(f"read_system_message: {appenv.get('read_system_message')}")
+                    vcl = discord.utils.get(bot.voice_clients, channel=vch)
+                    if vcl:
+                        await self.talk(vcl, f'{member.display_name}さんが切断しました')
 
                 # 誰もいなくなったら切断する
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)

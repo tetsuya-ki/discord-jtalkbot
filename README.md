@@ -95,7 +95,10 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。",
     "voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_bashful.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_happy.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_sad.htsvoice",
-    "except_prefix": "!,$,/"
+    "except_prefix": "!,$,/",
+    "read_name": "True",
+    "read_system_message": "True",
+    "read_all_guild": "False"
   }
   ```
 
@@ -127,6 +130,17 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 
 文字列型。指定したプレフィックスが先頭にあるメッセージは読み上げしないようになります(カンマ区切りで指定)。ギルドで使用しているBotのプレフィックスを指定すると良いと思います。
 
+##### `read_name`
+
+文字列型。名前を読み上げるかどうか。設定がない場合は読み上げない("True"の時のみ読み上げる)
+
+##### `read_system_message`
+
+文字列型。メンバーのボイスチャンネルへの入退室を読み上げるかどうか。設定がない場合は読み上げない("True"の時のみ読み上げる)
+
+#### `read_all_guild`
+
+文字列型。すべてのギルドのメッセージを読み上げるかどうか。設定がない場合はボイスチャンネルに接続したギルドのみ読み上げる
 ### Botの実行
 
  `python3 discordjtalkbot/discordJtalkbot.py` コマンドを実行します。  
