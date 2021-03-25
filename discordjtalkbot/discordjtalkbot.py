@@ -27,10 +27,11 @@ class DiscordJTalkBot(commands.Bot):
         # INITIAL_EXTENSIONに格納されている名前からCogを読み込む。
         # エラーが発生した場合、エラー内容を表示する。
         for cog in INITIAL_EXTENSIONS:
-            try:
-                self.load_extension(cog)
-            except Exception:
-                LOG.warning("traceback:", stack_info=True)
+          self.load_extension(cog)
+        #     try:
+        #         self.load_extension(cog)
+        #     except Exception:
+        #         LOG.warning("traceback:", stack_info=True)
 
 
 # クラス定義。HelpCommandクラスを継承。
@@ -148,6 +149,8 @@ if __name__ == "__main__":
                         help="read message author's name")
         appenv.add_field('read_system_message', default='False',
                         help="read system messsage")
+        appenv.add_field('read_guild_all', default='False',
+                        help="read guild all messsage")
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'

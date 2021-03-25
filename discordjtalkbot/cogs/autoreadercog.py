@@ -72,9 +72,11 @@ class AutoReaderCog(commands.Cog):
                     if msg.clean_content.startswith(ignore_command):
                         return
 
-                # 接続しているギルド以外は無視
-                if msg.guild != tch.guild:
-                    return
+                # 設定ファイルで設定されていれば、他のギルドも読み上げる
+                if appenv.get('read_guild_all') == 'False':
+                  # 接続しているギルド以外は無視
+                  if msg.guild != tch.guild:
+                      return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
                 if msg.author.bot:
@@ -95,8 +97,6 @@ class AutoReaderCog(commands.Cog):
                 if appenv.get('read_name') == 'True':
                     message = f'{self.member_name}さん、' + message
 
-                # 半角英カナを全角へ変換
-                message = mojimoji.han_to_zen(message, digit=False)
                 await self.talk(vcl, message)
 
     @commands.Cog.listener()
@@ -114,13 +114,22 @@ class AutoReaderCog(commands.Cog):
             # someone connected the voice channel.
             vch = after.channel
             guild = vch.guild
-            if member == vch.guild.owner and self.vch is None:
+
+            # おかしくなったときの挙動を確認するため、ログを埋め込む
+            LOG.info(vch)
+            LOG.info(self.vch)
+            voice_client = guild.voice_client
+            vcl = discord.utils.get(bot.voice_clients, channel=vch)
+            if member == vch.guild.owner and voice_client is None:
                 LOG.info(f'Guild owner {member} connected v:{guild}/{vch}.')
                 vcl = await vch.connect()
+
+                # おかしくなったときの挙動を確認するため、ログを埋め込む
+                LOG.info(vcl)
+                
                 self.vch = vch
             elif member == bot.user:
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
-                vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl:
                     await self.talk(vcl, appenv['voice_hello'])
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
@@ -131,8 +140,6 @@ class AutoReaderCog(commands.Cog):
 
                 # 設定ファイルで設定されていれば、入退室を読み上げる
                 if appenv.get('read_system_message') == 'True':
-                    LOG.info(f"read_system_message: {appenv.get('read_system_message')}")
-                    vcl = discord.utils.get(bot.voice_clients, channel=vch)
                     if vcl:
                         await self.talk(vcl, f'{member.display_name}さんが接続しました')
 
@@ -140,9 +147,9 @@ class AutoReaderCog(commands.Cog):
             # someone disconnected the voice channel.
             vch = before.channel
             guild = vch.guild
+            vcl = discord.utils.get(bot.voice_clients, channel=vch)
             if member.id == vch.guild.owner_id:
                 LOG.info(f'Guild owner {member} disconnected v:{guild}/{vch}.')
-                vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl and vcl.is_connected():
                     await vcl.disconnect()
                     self.vch = None
@@ -154,45 +161,51 @@ class AutoReaderCog(commands.Cog):
 
                 # 設定ファイルで設定されていれば、入退室を読み上げる
                 if appenv.get('read_system_message') == 'True':
-                    LOG.info(f"read_system_message: {appenv.get('read_system_message')}")
-                    vcl = discord.utils.get(bot.voice_clients, channel=vch)
                     if vcl:
                         await self.talk(vcl, f'{member.display_name}さんが切断しました')
 
                 # 誰もいなくなったら切断する
-                vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if len(vch.members) == 1 and vcl and vcl.is_connected():
                     await vcl.disconnect()
                     self.vch = None
 
     async def talk(self, vcl: discord.VoiceClient, text: str):
-        if len(self.voices) == 0 or not self.member_name:
-            LOG.debug('default voice.')
-            self.agent.voice = self.voice_init
-            data = await self.agent.async_talk(text)
-        else:
-            # メンバーにボイスを対応させる
-            self._set_member2voice()
-            self.agent.voice = self.member2voice[self.member_name]
-            LOG.debug('member:' + self.member_name + ', voice:' + self.agent.voice)
-            data = await self.agent.async_talk(text)
-            self.member_name = ''
+        # 半角英カナを全角へ変換
+        text = mojimoji.han_to_zen(text, digit=True)
 
-        voice_name = re.sub('.+/', '', self.agent.voice)
-        LOG.info(f'talk({voice_name}):{text}')
-        stream = io.BytesIO(data)
-        audio = discord.PCMAudio(stream)
-        sleeptime = 0.1
-        timeout = 6.0
-        for _ in range(int(timeout / sleeptime)):
-            if vcl.is_connected():
-                break
-            await asyncio.sleep(sleeptime)
+        texts = text.split('。。')
+
+        for phrase in texts:
+          if len(phrase) == 0:
+            continue
+          if len(self.voices) == 0 or not self.member_name:
+              LOG.debug('default voice.')
+              self.agent.voice = self.voice_init
+              data = await self.agent.async_talk(phrase)
+          else:
+              # メンバーにボイスを対応させる
+              self._set_member2voice()
+              self.agent.voice = self.member2voice[self.member_name]
+              LOG.debug('member:' + self.member_name + ', voice:' + self.agent.voice)
+              data = await self.agent.async_talk(phrase)
+
+          voice_name = re.sub('.+/', '', self.agent.voice)
+          LOG.info(f'talk({voice_name}):{phrase}')
+          stream = io.BytesIO(data)
+          audio = discord.PCMAudio(stream)
+          sleeptime = 0.1
+          timeout = 3.0
+          for _ in range(int(timeout / sleeptime)):
+              if vcl.is_connected():
+                  break
+              await asyncio.sleep(sleeptime)
+          else:
+              return# return
+          vcl.play(audio, after=lambda e: stream.close())
+          while vcl.is_playing():
+              await asyncio.sleep(sleeptime)
         else:
-            return
-        while vcl.is_playing():
-            await asyncio.sleep(0.1)
-        vcl.play(audio, after=lambda e: stream.close())
+          self.member_name = ''
 
     async def cmd_connect(self, ctx: commands.Context):
         """connect to the voice channel the name of which is the same as
