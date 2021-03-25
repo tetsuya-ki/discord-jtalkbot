@@ -69,7 +69,8 @@ README.mdと同階層に`.env.sample`がありますので、これをコピー�
     "voices": "/usr/local/opt/open-jtalk/voice/m100/nitech_jp_atr503_m001.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_angry.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_bashful.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_happy.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice,/usr/local/opt/open-jtalk/voice/mei/mei_sad.htsvoice",
     "except_prefix": "!,$,/",
     "read_name": "True",
-    "read_system_message": "True"
+    "read_system_message": "True",
+    "read_all_guild": "False"
   }
   ```
 
@@ -109,6 +110,9 @@ Repl.itで使用する場合は、絶対にBotアカウントのトークンを�
 
 文字列型。メンバーのボイスチャンネルへの入退室を読み上げるかどうか。設定がない場合は読み上げない("True"の時のみ読み上げる)
 
+#### `read_all_guild`
+
+文字列型。すべてのギルドのメッセージを読み上げるかどうか。設定がない場合はボイスチャンネルに接続したギルドのみ読み上げる
 ### Botの実行
 
 Repl.itの場合は、上にある「RUN」ボタンをクリックしてください。

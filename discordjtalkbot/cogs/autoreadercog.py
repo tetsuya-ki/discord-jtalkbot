@@ -62,6 +62,9 @@ class AutoReaderCog(commands.Cog):
             vcl = discord.utils.get(
                 bot.voice_clients, channel__guild=tch.guild, channel__name=tch.name)
             if vcl:
+                # 何もなかったら無視
+                if len(msg.clean_content) == 0:
+                    return
                 # コマンドは無視
                 if msg.clean_content.startswith(await self.bot.get_prefix(msg)):
                     return
@@ -73,10 +76,10 @@ class AutoReaderCog(commands.Cog):
                         return
 
                 # 設定ファイルで設定されていれば、他のギルドも読み上げる
-                if appenv.get('read_guild_all') == 'False':
-                  # 接続しているギルド以外は無視
-                  if msg.guild != tch.guild:
-                      return
+                if not appenv.get('read_all_guild') == 'True':
+                    # 接続しているギルド以外は無視
+                    if msg.guild != tch.guild:
+                        return
 
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
                 if msg.author.bot:

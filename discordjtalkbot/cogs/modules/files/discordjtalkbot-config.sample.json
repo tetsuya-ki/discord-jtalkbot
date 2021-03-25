@@ -7,5 +7,6 @@
     "voices": "/home/runner/discord-jtalkbot/.hts_voice/mei_angry.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_bashful.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_happy.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_normal.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_sad.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/nitech_jp_atr503_m001.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-happy.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-neutral.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-sad.htsvoice",
     "except_prefix": "!,$,/",
     "read_name": "True",
-    "read_system_message": "True"
+    "read_system_message": "True",
+    "read_all_guild": "False"
 }

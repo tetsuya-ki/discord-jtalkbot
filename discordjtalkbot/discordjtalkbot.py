@@ -149,8 +149,8 @@ if __name__ == "__main__":
                         help="read message author's name")
         appenv.add_field('read_system_message', default='False',
                         help="read system messsage")
-        appenv.add_field('read_guild_all', default='False',
-                        help="read guild all messsage")
+        appenv.add_field('read_all_guild', default='False',
+                        help="read all guild messsage")
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'
@@ -185,6 +185,8 @@ if __name__ == "__main__":
                 env_list.extend(['--read_name', os.getenv('READ_NAME')])
             if os.getenv('READ_SYSTEM_MESSAGE'):
                 env_list.extend(['--read_system_message', os.getenv('READ_SYSTEM_MESSAGE')])
+            if os.getenv('READ_ALL_GUILD'):
+                env_list.extend(['--read_all_guild', os.getenv('READ_ALL_GUILD')])
             if env_list:
                 LOG.info(env_list)
                 appenv.load_args(env_list)
