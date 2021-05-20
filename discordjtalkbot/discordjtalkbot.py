@@ -149,6 +149,10 @@ if __name__ == "__main__":
                         help="read system messsage")
         appenv.add_field('read_all_guild', default='False',
                         help="read all guild messsage")
+        appenv.add_field('owner_connect', default='True',
+                        help="if owner connect vc, bot connect to vc.")
+        appenv.add_field('owner_disconnect', default='True',
+                        help="if owner dicconnect to vc, bot dicconnect to vc.")
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'
@@ -185,6 +189,10 @@ if __name__ == "__main__":
                 env_list.extend(['--read_system_message', os.getenv('READ_SYSTEM_MESSAGE')])
             if os.getenv('READ_ALL_GUILD'):
                 env_list.extend(['--read_all_guild', os.getenv('READ_ALL_GUILD')])
+            if os.getenv('OWNER_CONNECT'):
+                env_list.extend(['--owner_connect', os.getenv('OWNER_CONNECT')])
+            if os.getenv('OWNER_DISCONNECT'):
+                env_list.extend(['--owner_disconnect', os.getenv('OWNER_DISCONNECT')])
             if env_list:
                 LOG.info(env_list)
                 appenv.load_args(env_list)

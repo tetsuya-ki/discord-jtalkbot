@@ -104,7 +104,9 @@ Herokuで使えるかは試してないから分かりません。
     "except_prefix": "!,$,/",
     "read_name": "True",
     "read_system_message": "True",
-    "read_all_guild": "False"
+    "read_all_guild": "False",
+    "owner_connect": "True",
+    "owner_disconnect": "True"
   }
   ```
 
@@ -149,6 +151,14 @@ Repl.itで使用する場合は、絶対にBotアカウントのトークンを�
 
 文字列型。すべてのギルドのメッセージを読み上げるかどうか。設定がない場合はボイスチャンネルに接続したギルドのみ読み上げる
 
+#### `owner_connect`
+
+文字列型。オーナー追従機能・接続（オーナーが接続すると、そのボイスチャンネルに接続する機能）が動くかを決めます（デフォルトはTrue/オフにしたい場合はFalseを指定）
+
+#### `owner_disconnect`
+
+文字列型。オーナー追従機能・切断（オーナーが切断すると、ボイスチャンネルから切断する機能）が動くかを決めます（デフォルトはTrue/オフにしたい場合はFalseを指定）
+
 ### Botの実行
 
  `python3 discordjtalkbot/discordJtalkbot.py` コマンドを実行します。  
@@ -171,6 +181,7 @@ Botを停止するときは `Ctrl+C` を押します。
 - オーナー追従機能
   - Botアカウントが招待されているDiscordサーバー（ギルドともいいます）において、そのサーバーのオーナーであるユーザー（ギルドマスター）がボイスチャンネルに接続したとき、同じボイスチャンネルへ同時に接続します。
   - サーバーのオーナーがボイスチャンネルから切断すると読み上げ動作を停止し、同時にボイスチャンネルからも切断します。
+    - `discordjtalkbot-config.json`の`owner_connect`,`owner_disconnect`で機能を停止できます。
 - コマンドによる接続/切断/再生停止機能
   - `$connect`やP`$c`(エイリアス)で、Botがコマンドしたメンバーの接続しているボイスチャンネルに接続します。
   - `$disconnect`や`$d`(エイリアス)で、Botがボイスチャンネルから切断します。

@@ -123,7 +123,7 @@ class AutoReaderCog(commands.Cog):
             # someone connected the voice channel.
             vch = after.channel
             guild = vch.guild
-            if member == vch.guild.owner and self.vch is None:
+            if member == vch.guild.owner and self.vch is None and appenv.get('owner_connect') == 'True':
                 LOG.info(f'Guild owner {member} connected v:{guild}/{vch}.')
                 vcl = await vch.connect()
                 self.vch = vch
@@ -152,7 +152,7 @@ class AutoReaderCog(commands.Cog):
             if member.id == vch.guild.owner_id:
                 LOG.info(f'Guild owner {member} disconnected v:{guild}/{vch}.')
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)
-                if vcl and vcl.is_connected():
+                if vcl and vcl.is_connected() and appenv.get('owner_disconnect') == 'True':
                     await vcl.disconnect()
                     self.vch = None
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
