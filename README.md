@@ -80,6 +80,12 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 
 ## 使いかた
 
+### repl.itで使用する際の注意
+
+repl.itの場合は、ブランチをfor-replitにしてください
+jsonにトークンを書き込まないようにしてください(公開されてしまうため)。
+Herokuで使えるかは試してないから分かりません。
+
 ### 設定ファイルの準備
 
 はじめに `discordjtalkbot-config.json` ファイルを編集します。  
@@ -105,6 +111,7 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 #### `token`
 
 文字列型。Discordによって発行されたBotアカウントのトークンを記述します(**トークンは厳重に管理し公開されないようにしてください**)
+Repl.itで使用する場合は、絶対にBotアカウントのトークンを記述しないでください！（ココに記載すると、全世界に公開されます！）
 
 #### `open_jtalk_flags`
 
@@ -141,6 +148,7 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 #### `read_all_guild`
 
 文字列型。すべてのギルドのメッセージを読み上げるかどうか。設定がない場合はボイスチャンネルに接続したギルドのみ読み上げる
+
 ### Botの実行
 
  `python3 discordjtalkbot/discordJtalkbot.py` コマンドを実行します。  
@@ -167,6 +175,8 @@ Botを停止するときは `Ctrl+C` を押します。
   - `$connect`やP`$c`(エイリアス)で、Botがコマンドしたメンバーの接続しているボイスチャンネルに接続します。
   - `$disconnect`や`$d`(エイリアス)で、Botがボイスチャンネルから切断します。
   - `$stop`や`$s`(エイリアス)で、Botの読み上げを停止させることができます。
+  - `$set チャンネル名(もしくは、#チャンネル)`で、読み上げるチャンネルを1つだけにできます。
+    - `$reset`で、すべてのチャンネルを読み上げるようにできます。
 - Help機能
   - `$help`で、このBotで使用できるコマンドが表示されます
   - `$help connect`や`$help stop`で、それぞれの「機能の説明」や「使用できるエイリアス」が表示されます
