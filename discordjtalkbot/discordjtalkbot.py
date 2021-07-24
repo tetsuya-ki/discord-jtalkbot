@@ -209,7 +209,9 @@ if __name__ == "__main__":
         intents.typing = False
         LOG.info(f'{__file__} is running.')
         keep_alive()  # Starts a webserver to be pinged.
-        token = os.environ.get("DISCORD_BOT_SECRET") 
+        token = appenv.get('token')
+        if token is None:
+            token = os.environ.get("DISCORD_BOT_SECRET") 
 
         bot = DiscordJTalkBot(
                 command_prefix = appenv.get('prefix', '$')
