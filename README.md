@@ -19,55 +19,87 @@ ref. <https://bitbucket.org/emptypage/jtalkbot/src/master/>
 
 3. [導入](#導入)
 
-4. [使いかた](#使いかた)
+4. [準備作業(Homebrew)](#準備作業Homebrew)
 
-5. [Botの実行](#Botの実行)
+5. [本作業](#本作業)
 
-6. [Botの動作](#Botの動作)
+6. [使いかた](#使いかた)
 
-7. [open-jtalk辞書の更新](#open-jtalk辞書の更新)
+7. [Botの実行](#Botの実行)
 
-8. [FAQ](#FAQ)
+8. [Botの動作](#Botの動作)
+
+9. [Dockerでの動かし方](#dockerでの動かし方)
 
 ## 動作環境
 
-以下のプログラム／ライブラリが正常に動作しているシステムが必要ですが、Repl.itでは自動で設定されるようにシェルを作りましたので、準備は不要のはずです。
+以下のプログラム／ライブラリが正常に動作しているシステムが必要です。  
+(Repl.itでは自動で設定されるようにシェルを作りましたので、準備は不要です)
 
 - [Python 3.8](https://www.python.org "Welcome to Python.org")
 - [Open JTalk](http://open-jtalk.sourceforge.net "Open JTalk")（`open_jtalk` コマンド）
 - [Opus ライブラリ](https://opus-codec.org "Opus Codec")（[discord.py](https://pypi.org/project/discord.py/ "discord.py · PyPI") の音声機能に必要）
 
+それぞれの導入方法はお使いのシステムによって違いますので各自でお調べください([Homebrewでの導入方法は後述](#準備作業Homebrew)します)。
+修正元ソースの作者さまはmacOSで[MacPorts](https://www.macports.org "The MacPorts Project -- Home") を使っています。
+このソース(discord-jtalkbot)の作者は[Homebrew](https://brew.sh/index_ja)を使っています。
+
 ## 導入
 
-下記URLで**FORK**を押します。
-https://Repl.it/@tetsuyaki/discord-jtalkbot
+### 前置き
 
-ログインし、Repl.itでこのプロジェクトを開ける状態にします。
-
-## 使いかた
+[Dockerでの動かし方](#Dockerでの動かし方)を参照ください。Discord Botのトークンを指定するだけで、すぐに動かせます。  
+以降では、Macに、Homebrewを使って環境構築し、Botを動かす手順を説明します。  
+また、**このBotはWindowsではエラーが発生し、動作しません。** Dockerでなら動かせるかと思いますので、[Dockerでの動かし方](#Dockerでの動かし方)を参照ください。
 
 ### repl.itで使用する際の注意
 
-repl.itの場合は、ブランチをfor-replitにしてください
-jsonにトークンを書き込まないようにしてください(公開されてしまうため)。
+repl.itの場合は、**ブランチをfor-replit**にしてください  
+`git clone -b for-replit https://github.com/tetsuya-ki/discord-jtalkbot.git`  
+jsonにトークンを書き込まないようにしてください(公開されてしまうため)。  
+その代わり、環境変数はサイドバーのSecrets(Environment variables)で指定してください。  
+(discordjtalkbot-config.jsonにトークンを記述しては**いけません**。二度目)  
 Herokuで使えるかは試してないから分かりません。
 
-### .envファイルの準備
+### 準備作業(Homebrew)
 
-Repl.itの場合は、`.env`ファイルに**Botアカウントのトークンを記述**してください(.env以外は公開されてしまうため！)  
-README.mdと同階層に`.env.sample`がありますので、これをコピーし、`.env`に名前を変更した上で、Botアカウントのトークンを記述してください。
-(discordjtalkbot-config.jsonにトークンを記述しては**いけません**)
+何も対策せずに実行すると、PyAudioをインストール中に`portaudio.hが見つからない`旨のエラーが発生したため、[Qiitaの記事](https://qiita.com/mayfair/items/abb59ebf503cc294a581#%E5%95%8F%E9%A1%8C)を参考に、portaudioをインストールし、「インストールされたライブラリおよびインクルードファイルの位置を指定」した上でpip installします。
+
+```sh
+brew install open-jtalk
+brew install opus
+brew install portaudio
+sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install pyaudio
+```
+
+### 本作業
+
+`git clone` します。その後、requirements.txtのモジュールをインストールし、Botを実行します。
+
+### 例
+
+  ```sh
+  ~/ $ git clone https://github.com/tetsuya-ki/discord-jtalkbot.git
+  ~/ $ cd discord-jtalkbot
+  ~/discord-jtalkbot $ python3 -m venv .venv
+  ~/discord-jtalkbot $ source .venv/bin/activate
+  (.venv) ~/discord-jtalkbot $ pip3 install -r requirements.txt
+  ...
+  (.venv) ~/discord-jtalkbot $ python3 discordjtalkbot/discordJtalkbot.py
+  ```
+
+## 使いかた
 
 ### 設定ファイルの準備
 
-続いて `discordjtalkbot-config.json` ファイルを編集します。  
+はじめに `discordjtalkbot-config.json` ファイルを編集します。  
 ライブラリ内にサンプルファイルが `discordjtalkbot-config.sample.json` として入っていますので、これをコピー、リネームして使ってください。
 
 #### `discordjtalkbot-config.json` ファイルの例
 
   ```JSON
   {
-    "token": "__DON'T_USE_THIS!__",
+    "token": "__ENTER_YOUR_TOKEN_HERE__",
     "open_jtalk_flags": "-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
@@ -85,7 +117,6 @@ README.mdと同階層に`.env.sample`がありますので、これをコピー�
 #### `token`
 
 文字列型。Discordによって発行されたBotアカウントのトークンを記述します(**トークンは厳重に管理し公開されないようにしてください**)
-Repl.itで使用する場合は、絶対にBotアカウントのトークンを記述しないでください！（ココに記載すると、全世界に公開されます！）
 
 #### `open_jtalk_flags`
 
@@ -133,27 +164,16 @@ Repl.itで使用する場合は、絶対にBotアカウントのトークンを�
 
 ### Botの実行
 
-Repl.itの場合は、上にある「RUN」ボタンをクリックしてください。
+ `python3 discordjtalkbot/discordJtalkbot.py` コマンドを実行します。  
+ 下記設定ファイルを参照し、処理を開始します。  
+ `{Clone先ディレクトリ}/discordjtalkbot/cogs/modules/files/discordjtalkbot-config.json`
 
 起動するとログを表示しながら待機し続けます。
 
 ```sh
-open_jtalkはインストール済
-ダウンロード済
-Installing dependencies from lock file
-
-No dependencies to install or update
-
-INFO:discordjtalkbot.py$__main__:Opus library is loaded.
-INFO:discordjtalkbot.py$__main__:discordjtalkbot/discordjtalkbot.py is running.
- * Serving Flask app "" (lazy loading)
- * Environment: production
-   WARNING: This is a development server. Do not use it in a production deployment.
-   Use a production WSGI server instead.
- * Debug mode: off
-INFO:werkzeug: * Running on http://0.0.0.0:xxxxx/ (Press CTRL+C to quit)
-INFO:cogs.autoreadercog:_init_
-INFO:werkzeug:XXXXXX - - [13/Feb/2021 11:41:30] "GET / HTTP/1.1" 200 -
+~/discord-jtalkbot $ python3 discordjtalkbot/discordJtalkbot.py
+INFO:discordJtalkbot.py$__main__:Opus library is loaded.
+INFO:discordJtalkbot.py$__main__:discordjtalkbot/discordJtalkbot.py is running.
 INFO:cogs.autoreadercog:We have logged in as MyBot#nnnn.
 ```
 
@@ -184,19 +204,25 @@ Botを停止するときは `Ctrl+C` を押します。
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
   - URLは「URL省略」と発言します。「||」で囲われた部分は「ネタバレ」で読み替えます
 
-### open-jtalk辞書の更新
+### Dockerでの動かし方
 
-- 下記の手順にしたがって、`naist-jdic.csv`に単語を登録したのち、`make install`し、`sys.dic`を作成してください
-  - <https://Repl.it/@tetsuyaki/openjtalkdev#README.md>
-  - もちろん、自分のパソコンを使って生成することも可能です(重くてrepl.it上では動かないかも/自分は、自分のPCで作りました)
-  - 英単語は全角英数字でないと登録できないかもしれません（Open-jtalkに詳しくないのでわからないですが、そんな動作にみえます）
-- sys.dicをアップロードし、`.dicディレクトリ`の`sys.dic`を上書きしてください
-- Botを再起動すれば使用されます
+Docker Hubのページは以下です。  
+<https://hub.docker.com/r/tk2812/discord-jtalkbot>
 
-### FAQ
+#### Pull from Docker Hub
 
-#### 音声を読み上げない場合
+`docker pull tk2812/discord-jtalkbot:latest`
 
-- Repl.itのConsuleにあるログを見て対応してください
-  - Stopボタンを押したあと、Runボタンを押すとたいてい直ります
-  - バグがある場合は、Issueに書き込んでください(Repl.itでしか再現しないものは対応できないかもしれません)
+#### Run docker container  
+
+TOKENを環境変数で指定し、docker runする。
+
+`docker run -e TOKEN=XXXXXXXX tk2812/discord-jtalkbot:latest`
+
+#### Build Dockerfile(memo)
+
+- 開発用にDockerイメージを作成  
+`docker build -t discord-jtalkbot:dev .`
+
+- 開発用のDockerイメージからコンテナを作成  
+`docker run -e TOKEN=XXXXXXXX discord-jtalkbot:dev`
