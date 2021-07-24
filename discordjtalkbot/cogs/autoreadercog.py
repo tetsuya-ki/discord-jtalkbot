@@ -151,8 +151,9 @@ class AutoReaderCog(commands.Cog):
             vch = before.channel
             guild = vch.guild
             vcl = discord.utils.get(bot.voice_clients, channel=vch)
-            if member.id == vch.guild.owner_id:
+            if member.id == vch.guild.owner_id and len(vch.members) != 1:
                 LOG.info(f'Guild owner {member} disconnected v:{guild}/{vch}.')
+                LOG.info(f'{str(len(vch.members))} 人になりました')
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl and vcl.is_connected() and appenv.get('owner_disconnect') == 'True':
                     await vcl.disconnect()
@@ -162,6 +163,9 @@ class AutoReaderCog(commands.Cog):
                     await tch.send(appenv['text_end'])
             else:
                 LOG.info(f'{member} disconnected v:{guild}/{vch}.')
+                LOG.info(f'{str(len(vch.members))} 人になりました')
+                
+                vcl = discord.utils.get(bot.voice_clients, channel=vch)
 
                 # 設定ファイルで設定されていれば、入退室を読み上げる
                 if appenv.get('read_system_message') == 'True':
@@ -172,6 +176,9 @@ class AutoReaderCog(commands.Cog):
                 if len(vch.members) == 1 and vcl and vcl.is_connected():
                     await vcl.disconnect()
                     self.vch = None
+                    tch = discord.utils.get(guild.text_channels, name=vch.name)
+                    if tch:
+                        await tch.send(appenv['text_end'])
 
     async def talk(self, vcl: discord.VoiceClient, text: str):
         # 半角英カナを全角へ変換
