@@ -101,6 +101,8 @@ class AutoReaderCog(commands.Cog):
                 message = re.sub('\n', '。。', message)
                 # ソース削除
                 message = re.sub(r'[`]+.+?[`]+', '', message)
+                # いろいろ変換
+                message = self._suuji2hiragana(message)
 
                 # 設定ファイルで設定されていれば、名前を読み上げる
                 if appenv.get('read_name') == 'True':
@@ -325,6 +327,55 @@ class AutoReaderCog(commands.Cog):
         name = self.member_name
         self.member2voice[name]=voice
         LOG.info(f'set voice({voice}) to member({name}).')
+
+    def _suuji2hiragana(self, text):
+        converted_text = ''
+        # 日付
+        r_date = r'(\d{4})[-/](\d{1,2})[-/](\d{1,2})'
+        rep_r_date = r'\1ねん、\2がつ、\3にち。'
+        r_date2 = r'(\d{1,2})[-/](\d{1,2})'
+        rep_r_date2 = r'\1がつ、\2にち。'
+        converted_text = re.sub(r_date, rep_r_date, text)
+        converted_text = re.sub(r_date2, rep_r_date2, converted_text)
+
+        # 時間
+        r_time = r'(\d{1,2}):(\d{1,2}):(\d{1,2})(\.\d{3})?'
+        rep_r_time = r'\1じ、\2ふん、\3びょう。'
+        r_time2 = r'(\d{1,2}):(\d{1,2})'
+        rep_r_time2 = r'\1じ、\2ふん。'
+        converted_text = re.sub(r_time, rep_r_time, converted_text)
+        converted_text = re.sub(r_time2, rep_r_time2, converted_text)
+
+        # 数字
+        str1 = r'(\d)(\d{12,20})'
+        rep_str1 = '大きい数字'
+        converted_text = re.sub(str1, rep_str1, converted_text) # １兆以上は読まない
+        converted_text = re.sub(r'(\d{1,4})(\d{8})', r'\1おく\2', converted_text) # 1億
+        LOG.info(converted_text)
+        converted_text = re.sub(r'(\d{1,4})(\d{4})', r'\1まん\2', converted_text) # 1万
+        LOG.info(converted_text)
+        converted_text = re.sub(r'(\d)(\d{3})', r'\1せん\2', converted_text)
+        LOG.info(converted_text)
+        converted_text = re.sub(r'(\d)(\d{2})', r'\1ひゃく\2', converted_text)
+        LOG.info(converted_text)
+        converted_text = re.sub(r'(\d)(\d{1})', r'\1じゅう\2', converted_text)
+        LOG.info(converted_text)
+        converted_text = re.sub(r'1(せん)', r'イッ\1', converted_text)
+        converted_text = re.sub(r'1(ひゃく|じゅう)', r'\1', converted_text)
+        LOG.info(converted_text)
+        converted_text = re.sub(r'1', 'イチ', converted_text)
+        converted_text = re.sub(r'2', 'ニイ', converted_text)
+        converted_text = re.sub(r'3', 'サン', converted_text)
+        converted_text = re.sub(r'4', 'ヨン', converted_text)
+        converted_text = re.sub(r'5', 'ゴ', converted_text)
+        converted_text = re.sub(r'6', 'ロク', converted_text)
+        converted_text = re.sub(r'7', 'ナナ', converted_text)
+        converted_text = re.sub(r'8', 'ハチ', converted_text)
+        converted_text = re.sub(r'9', 'キュウ', converted_text)
+        converted_text = re.sub(r'0(おく|まん|せん|ひゃく|じゅう)', '', converted_text) # ゼロは読まない
+        
+        LOG.info(converted_text)
+        return converted_text
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
