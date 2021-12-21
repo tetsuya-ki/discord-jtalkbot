@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
         intents = discord.Intents.default()
         intents.members = True
-        intents.presences = True
+        intents.presences = False
         intents.typing = False
         LOG.info(f'{__file__} is running.')
         keep_alive()  # Starts a webserver to be pinged.
