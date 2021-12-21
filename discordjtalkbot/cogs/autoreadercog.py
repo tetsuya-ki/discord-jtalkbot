@@ -8,6 +8,7 @@ import os
 import random
 import mojimoji
 from os.path import join, dirname
+from collections import deque
 
 import discord
 from discord import member
@@ -21,6 +22,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AutoReaderCog(commands.Cog):
+    BOT_NAME = 'ボット'
 
     def __init__(self, bot: commands.Bot):
         """constructor """
@@ -32,7 +34,6 @@ class AutoReaderCog(commands.Cog):
         self.agent.sampling = openjtalk.FREQ_48000HZ
         self.vch = None
 
-        self.member_name = ''
         LOG.debug("voices:" + appenv.get('voices', ''))
         voices = str(appenv.get('voices', '')).split(',')
         self.voices = voices
@@ -40,6 +41,9 @@ class AutoReaderCog(commands.Cog):
         self.voice_init = self.agent.voice
         self.member2voice = {}
         self.read_channel = None
+        self.queue = deque()
+        self.last_talked_member = ''
+
         LOG.info("_init_")
 
     # Botの準備完了時に呼び出されるイベント
@@ -49,6 +53,7 @@ class AutoReaderCog(commands.Cog):
 
         bot = self.bot
         LOG.info('We have logged in as {0}'.format(bot.user))
+        await self.main_task()
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
@@ -87,12 +92,12 @@ class AutoReaderCog(commands.Cog):
                     return
                 LOG.info(f'!!Reading {msg.author}\'s post on t:{tch.guild}/{tch}!!.')
                 if msg.author.bot:
-                    self.member_name = 'ボット'
+                    member_name = self.BOT_NAME
                 else:
-                    self.member_name = msg.author.display_name
+                    member_name = msg.author.display_name
 
                 # URL省略
-                message = re.sub('http(s)?://[\w.,~:#%-]+\w+(/[\w .,/?%&=~:#-]*)?','URL省略', msg.clean_content)
+                message = re.sub('http(s)?://[\w.,~:#%-]+\w+(/[\w .,/?%&=~:#-$]*)?','URL省略', msg.clean_content)
                 # ネタバレ削除
                 message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
                 # 絵文字無視
@@ -103,12 +108,7 @@ class AutoReaderCog(commands.Cog):
                 message = re.sub(r'[`]+.+?[`]+', '', message)
                 # いろいろ変換
                 message = self._suuji2hiragana(message)
-
-                # 設定ファイルで設定されていれば、名前を読み上げる
-                if appenv.get('read_name') == 'True':
-                    message = f'{self.member_name}さん、' + message
-
-                await self.talk(vcl, message)
+                self.add_queue(vcl, member_name, message)
 
     @commands.Cog.listener()
     async def on_voice_state_update(
@@ -135,7 +135,7 @@ class AutoReaderCog(commands.Cog):
                 LOG.info(f'{member} connected v:{guild}/{vch}.')
                 vcl = discord.utils.get(bot.voice_clients, channel=vch)
                 if vcl:
-                    await self.talk(vcl, appenv['voice_hello'])
+                    self.add_to_head_queue(vcl, '', appenv['voice_hello'])
                 tch = discord.utils.get(guild.text_channels, name=vch.name)
                 if tch:
                     await tch.send(appenv['text_start'])
@@ -146,7 +146,7 @@ class AutoReaderCog(commands.Cog):
                 # 設定ファイルで設定されていれば、入退室を読み上げる
                 if appenv.get('read_system_message') == 'True':
                     if vcl:
-                        await self.talk(vcl, f'{member.display_name}さんが接続しました')
+                        self.add_to_head_queue(vcl, '', f'{member.display_name}さんが接続しました')
 
         elif before.channel and not after.channel:
             # someone disconnected the voice channel.
@@ -172,7 +172,7 @@ class AutoReaderCog(commands.Cog):
                 # 設定ファイルで設定されていれば、入退室を読み上げる
                 if appenv.get('read_system_message') == 'True':
                     if vcl:
-                        await self.talk(vcl, f'{member.display_name}さんが切断しました')
+                        self.add_to_head_queue(vcl, '', f'{member.display_name}さんが切断しました')
 
                 # 誰もいなくなったら切断する
                 if len(vch.members) == 1 and vcl and vcl.is_connected():
@@ -182,23 +182,30 @@ class AutoReaderCog(commands.Cog):
                     if tch:
                         await tch.send(appenv['text_end'])
 
-    async def talk(self, vcl: discord.VoiceClient, text: str):
+    async def talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
+        # 設定ファイルで設定されていれば、名前を読み上げる
+        appenv = environ.get_appenv()
+        if appenv.get('read_name') == 'True' and self.last_talked_member != member_name and member_name != '':
+            text = f'{member_name}さん、' + text
+        self.last_talked_member = member_name
+
         # 半角英カナを全角へ変換
         text = mojimoji.han_to_zen(text, digit=True)
         texts = text.split('。。')
+        data_list = []
 
         for phrase in texts:
             if len(phrase) == 0:
                 continue
-            if len(self.voices) == 0 or not self.member_name:
+            if len(self.voices) == 0 or not member_name or member_name == self.BOT_NAME:
                 LOG.debug('default voice.')
                 self.agent.voice = self.voice_init
                 data = await self.agent.async_talk(phrase)
             else:
                 # メンバーにボイスを対応させる
-                self._set_member2voice()
-                self.agent.voice = self.member2voice[self.member_name]
-                LOG.debug('member:' + self.member_name + ', voice:' + self.agent.voice)
+                self._set_member2voice(member_name)
+                self.agent.voice = self.member2voice[member_name]
+                LOG.debug('member:' + member_name + ', voice:' + self.agent.voice)
                 data = await self.agent.async_talk(phrase)
 
             voice_name = re.sub('.+/', '', self.agent.voice)
@@ -216,8 +223,6 @@ class AutoReaderCog(commands.Cog):
             vcl.play(audio, after=lambda e: stream.close())
             while vcl.is_playing():
                 await asyncio.sleep(sleeptime)
-        else:
-            self.member_name = ''
 
     async def cmd_connect(self, ctx: commands.Context):
         """connect to the voice channel the name of which is the same as
@@ -276,7 +281,7 @@ class AutoReaderCog(commands.Cog):
         # 再生を停止
         if vcl and vcl.is_playing():
             vcl.stop()
-            await self.talk(vcl, '停止')
+            self.add_to_head_queue(vcl, '', '停止します')
             LOG.info("stop talking")
 
     @commands.command(aliases=['set','setChannel'],description='Botで読み上げるチャンネルを指定するコマンドです')
@@ -295,13 +300,13 @@ class AutoReaderCog(commands.Cog):
                 self.read_channel = ctx.guild.get_channel(channel_id).name
             else:
                 if vcl:
-                    await self.talk(vcl, '無効なチャンネルです。')
+                    self.add_to_head_queue(vcl, '', '無効なチャンネルです。')
         else:
             self.read_channel = channel
 
         LOG.info(f"set 「{self.read_channel}」 for read channel")
         if vcl:
-            await self.talk(vcl, self.read_channel + 'のみ読み上げるように変更しました')
+            self.add_to_head_queue(vcl, '', self.read_channel + 'のみ読み上げるように変更しました')
 
     @commands.command(aliases=['reset','resetChannel'],description='Botで読み上げるチャンネルを解除するコマンドです')
     async def resetReadTextChannel(self, ctx: commands.Context):
@@ -310,11 +315,11 @@ class AutoReaderCog(commands.Cog):
         vcl = self.vch.guild.voice_client
         LOG.info(f"reset read channel")
         if vcl:
-            await self.talk(vcl, '読み上げチャンネル指定を解除')
+            self.add_to_head_queue(vcl, '', '読み上げチャンネル指定を解除')
 
-    def _set_member2voice(self):
+    def _set_member2voice(self, member_name):
         # すでに登録されているか確認
-        if self.member_name in self.member2voice:
+        if member_name in self.member2voice:
             return
 
         # voicesがあるならシャッフルしておき、ないなら初期のものを持ってくる
@@ -324,9 +329,8 @@ class AutoReaderCog(commands.Cog):
             self.voices = random.shuffle(self.voices_init)
 
         voice = self.voices.pop()
-        name = self.member_name
-        self.member2voice[name]=voice
-        LOG.info(f'set voice({voice}) to member({name}).')
+        self.member2voice[member_name]=voice
+        LOG.info(f'set voice({voice}) to member({member_name}).')
 
     def _suuji2hiragana(self, text):
         converted_text = ''
@@ -376,6 +380,32 @@ class AutoReaderCog(commands.Cog):
 
         LOG.debug(converted_text)
         return converted_text
+
+    async def main_task(self):
+        while True:
+            await asyncio.sleep(1)
+            await self.talk_task()
+
+    async def talk_task(self):
+        talking_task = asyncio.create_task(self.talking_task())
+        await talking_task
+
+    def add_queue(self, vcl, name, message):
+        self.queue.append([vcl, name, message])
+
+    def add_to_head_queue(self, vcl, name, message):
+        self.queue.appendleft([vcl, name, message])
+
+    def pop_queue(self):
+        return self.queue.popleft()
+
+    async def talking_task(self):
+        if len(self.queue) == 0:
+            return
+        while len(self.queue) > 0:
+            vcl, name, message = self.pop_queue()
+            await self.talk(vcl, name, message)
+        return
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
