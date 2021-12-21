@@ -351,18 +351,18 @@ class AutoReaderCog(commands.Cog):
         rep_str1 = '大きい数字'
         converted_text = re.sub(str1, rep_str1, converted_text) # １兆以上は読まない
         converted_text = re.sub(r'(\d{1,4})(\d{8})', r'\1おく\2', converted_text) # 1億
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'(\d{1,4})(\d{4})', r'\1まん\2', converted_text) # 1万
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'(\d)(\d{3})', r'\1せん\2', converted_text)
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'(\d)(\d{2})', r'\1ひゃく\2', converted_text)
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'(\d)(\d{1})', r'\1じゅう\2', converted_text)
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'1(せん)', r'イッ\1', converted_text)
         converted_text = re.sub(r'1(ひゃく|じゅう)', r'\1', converted_text)
-        LOG.info(converted_text)
+        LOG.debug(converted_text)
         converted_text = re.sub(r'1', 'イチ', converted_text)
         converted_text = re.sub(r'2', 'ニイ', converted_text)
         converted_text = re.sub(r'3', 'サン', converted_text)
@@ -373,8 +373,8 @@ class AutoReaderCog(commands.Cog):
         converted_text = re.sub(r'8', 'ハチ', converted_text)
         converted_text = re.sub(r'9', 'キュウ', converted_text)
         converted_text = re.sub(r'0(おく|まん|せん|ひゃく|じゅう)', '', converted_text) # ゼロは読まない
-        
-        LOG.info(converted_text)
+
+        LOG.debug(converted_text)
         return converted_text
 
 def setup(bot: commands.Bot):
