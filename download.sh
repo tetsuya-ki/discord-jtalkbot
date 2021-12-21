@@ -1,11 +1,11 @@
 #!/bin/bash
 
-FILE=~/discord-jtalkbot/.hts_voice/nitech_jp_atr503_m001.htsvoice
+FILE=.hts_voice/nitech_jp_atr503_m001.htsvoice
 if [ -f ${FILE} ]; then
   echo "ダウンロード済"
 else
-  mkdir ~/discord-jtalkbot/.dl_hts_voice
-  cd ~/discord-jtalkbot/.dl_hts_voice
+  mkdir .dl_hts_voice
+  cd .dl_hts_voice
 
   # download voices
   wget https://github.com/icn-lab/htsvoice-tohoku-f01/archive/master.zip
@@ -17,8 +17,8 @@ else
   tar -xvzof hts_voice_nitech_jp_atr503_m001-1.05.tar.gz
   unzip MMDAgent_Example-1.7.zip
 
-  mkdir ~/discord-jtalkbot/.hts_voice
-  cd ~/discord-jtalkbot/.hts_voice
+  mkdir .hts_voice
+  cd .hts_voice
 
   # move voices
   mv ../.dl_hts_voice/htsvoice-tohoku-f01-master/*.htsvoice ./

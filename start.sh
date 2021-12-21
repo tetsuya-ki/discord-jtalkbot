@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR=~/discord-jtalkbot/.dic
+DIR=.dic
 
 # open_jtalkの確認
 open_jtalk -h
