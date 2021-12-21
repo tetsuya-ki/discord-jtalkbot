@@ -182,6 +182,10 @@ class AutoReaderCog(commands.Cog):
                     if tch:
                         await tch.send(appenv['text_end'])
 
+    async def new_talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
+        talk_data_list = await self.create_talk_data(member_name, text)
+        await self.play_talk_data(vcl, talk_data_list)
+
     async def talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
         # 設定ファイルで設定されていれば、名前を読み上げる
         appenv = environ.get_appenv()
@@ -383,7 +387,7 @@ class AutoReaderCog(commands.Cog):
 
     async def main_task(self):
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.01)
             await self.talk_task()
 
     async def talk_task(self):
@@ -404,8 +408,65 @@ class AutoReaderCog(commands.Cog):
             return
         while len(self.queue) > 0:
             vcl, name, message = self.pop_queue()
-            await self.talk(vcl, name, message)
+            # await self.talk(vcl, name, message)
+            await self.new_talk(vcl, name, message)
         return
+
+    async def create_talk_data(self, member_name:str, text: str):
+        # 設定ファイルで設定されていれば、名前を読み上げる
+        appenv = environ.get_appenv()
+        if appenv.get('read_name') == 'True' and self.last_talked_member != member_name and member_name != '':
+            text = f'{member_name}さん、' + text
+        self.last_talked_member = member_name
+
+        # 半角英カナを全角へ変換
+        text = mojimoji.han_to_zen(text, digit=True)
+        texts = text.split('。。')
+        audio_data_list = []
+
+        if len(self.voices) == 0 or not member_name or member_name == self.BOT_NAME:
+            LOG.debug('default voice.')
+            self.agent.voice = self.voice_init
+        else:
+            # メンバーにボイスを対応させる
+            self._set_member2voice(member_name)
+            self.agent.voice = self.member2voice[member_name]
+            LOG.debug('member:' + member_name + ', voice:' + self.agent.voice)
+        voice_name = re.sub('.+/', '', self.agent.voice)
+
+        for i in range(0, len(texts)):
+            if len(texts[i]) == 0:
+                continue
+
+            create_talk_task = asyncio.create_task(self.async_create_talk_data(i, texts[i]))
+            index,data = await create_talk_task
+            LOG.info(f'talk({voice_name}):{texts[i]}')
+            stream = io.BytesIO(data)
+            audio = discord.PCMAudio(stream)
+            audio_data_list.append([index, audio, stream])
+        # 並び替え
+        datas = sorted(audio_data_list)
+        # 先頭のインデックスを削る
+        data_list = [row[1:] for row in datas]
+        return data_list
+
+    async def play_talk_data(self, vcl: discord.VoiceClient, talk_data_list):
+        for talk_data in talk_data_list:
+            sleeptime = 0.1
+            timeout = 3.0
+            for _ in range(int(timeout / sleeptime)):
+                if vcl.is_connected():
+                    break
+                await asyncio.sleep(sleeptime)
+            else:
+                return# return
+            vcl.play(talk_data[0], after=lambda e: talk_data[1].close())
+            while vcl.is_playing():
+                await asyncio.sleep(sleeptime)
+
+    async def async_create_talk_data(self, number:int, text: str):
+        data = await self.agent.async_talk(text)
+        return number,data
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
