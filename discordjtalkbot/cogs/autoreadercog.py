@@ -432,23 +432,21 @@ class AutoReaderCog(commands.Cog):
 
         if len(self.voices) == 0 or not member_name or member_name == self.BOT_NAME:
             LOG.debug('default voice.')
-            self.agent.voice = self.voice_init
+            voice = self.voice_init
         else:
             # メンバーにボイスを対応させる
             self._set_member2voice(member_name)
-            self.agent.voice = self.member2voice[member_name]
-            LOG.debug('member:' + member_name + ', voice:' + self.agent.voice)
-        voice_name = re.sub('.+/', '', self.agent.voice)
+            voice = self.member2voice[member_name]
+            LOG.debug('member:' + member_name + ', voice:' + voice)
+        voice_name = re.sub('.+/', '', voice)
 
         for i in range(0, len(texts)):
             if len(texts[i]) == 0:
                 continue
 
-            create_talk_task = asyncio.create_task(self.async_create_talk_data(i, texts[i]))
-            index,data = await create_talk_task
+            create_talk_task = asyncio.create_task(self.async_create_talk_data(i, texts[i], voice))
+            index,stream,audio = await create_talk_task
             LOG.info(f'talk({voice_name}):{texts[i]}')
-            stream = io.BytesIO(data)
-            audio = discord.PCMAudio(stream)
 
             # 優先するものなら、タスクを繰り上げる
             task_id = self.play_talk_task_id if is_parimary else self.create_talk_task_id
@@ -549,9 +547,12 @@ class AutoReaderCog(commands.Cog):
                 while talk_data[2].is_playing():
                     await asyncio.sleep(sleeptime)
 
-    async def async_create_talk_data(self, number:int, text: str):
+    async def async_create_talk_data(self, number:int, text:str, voice:str):
+        self.agent.voice = voice
         data = await self.agent.async_talk(text)
-        return number,data
+        stream = io.BytesIO(data)
+        audio = discord.PCMAudio(stream)
+        return number,stream,audio
 
 def setup(bot: commands.Bot):
     BOT_NAME = 'discordjtalkbot'
