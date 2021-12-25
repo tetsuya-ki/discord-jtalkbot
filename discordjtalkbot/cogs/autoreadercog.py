@@ -6,6 +6,7 @@ import logging
 import re
 import os
 import random
+from discord import player
 import mojimoji
 from os.path import join, dirname
 from collections import deque
@@ -43,6 +44,9 @@ class AutoReaderCog(commands.Cog):
         self.read_channel = None
         self.queue = deque()
         self.last_talked_member = ''
+        self.talk_queue = deque()
+        self.create_talk_task_id = 0
+        self.play_talk_task_id = 0
 
         LOG.info("_init_")
 
@@ -182,9 +186,9 @@ class AutoReaderCog(commands.Cog):
                     if tch:
                         await tch.send(appenv['text_end'])
 
-    async def new_talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
-        talk_data_list = await self.create_talk_data(member_name, text)
-        await self.play_talk_data(vcl, talk_data_list)
+    # async def new_talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
+    #     talk_data_list = await self.create_talk_data(member_name, text)
+    #     await self.play_talk_data(vcl, talk_data_list)
 
     async def talk(self, vcl: discord.VoiceClient, member_name:str, text: str):
         # 設定ファイルで設定されていれば、名前を読み上げる
@@ -392,13 +396,14 @@ class AutoReaderCog(commands.Cog):
 
     async def talk_task(self):
         talking_task = asyncio.create_task(self.talking_task())
-        await talking_task
+        playing_talk_task = asyncio.create_task(self.play_talk_data()) 
+        await talking_task, playing_talk_task
 
     def add_queue(self, vcl, name, message):
-        self.queue.append([vcl, name, message])
+        self.queue.append([vcl, name, message, False])
 
     def add_to_head_queue(self, vcl, name, message):
-        self.queue.appendleft([vcl, name, message])
+        self.queue.appendleft([vcl, name, message, True])
 
     def pop_queue(self):
         return self.queue.popleft()
@@ -407,12 +412,13 @@ class AutoReaderCog(commands.Cog):
         if len(self.queue) == 0:
             return
         while len(self.queue) > 0:
-            vcl, name, message = self.pop_queue()
+            vcl, name, message, primary = self.pop_queue()
             # await self.talk(vcl, name, message)
-            await self.new_talk(vcl, name, message)
+            await self.create_talk_data(name, message, vcl, primary)
+            self.create_talk_task_id += 1
         return
 
-    async def create_talk_data(self, member_name:str, text: str):
+    async def create_talk_data(self, member_name:str, text: str, vcl: discord.VoiceClient, is_parimary:bool):
         # 設定ファイルで設定されていれば、名前を読み上げる
         appenv = environ.get_appenv()
         if appenv.get('read_name') == 'True' and self.last_talked_member != member_name and member_name != '':
@@ -443,26 +449,105 @@ class AutoReaderCog(commands.Cog):
             LOG.info(f'talk({voice_name}):{texts[i]}')
             stream = io.BytesIO(data)
             audio = discord.PCMAudio(stream)
-            audio_data_list.append([index, audio, stream])
+
+            # 優先するものなら、タスクを繰り上げる
+            task_id = self.play_talk_task_id if is_parimary else self.create_talk_task_id
+            audio_data_list.append([index, audio, stream, vcl, texts[i], task_id])
         # 並び替え
         datas = sorted(audio_data_list)
         # 先頭のインデックスを削る
         data_list = [row[1:] for row in datas]
-        return data_list
+        self.talk_queue.append(data_list)
+        LOG.info(f'{task_id})create talk:{text}')
 
-    async def play_talk_data(self, vcl: discord.VoiceClient, talk_data_list):
-        for talk_data in talk_data_list:
-            sleeptime = 0.1
-            timeout = 3.0
-            for _ in range(int(timeout / sleeptime)):
-                if vcl.is_connected():
-                    break
-                await asyncio.sleep(sleeptime)
+    async def play_talk_data(self):
+        if len(self.talk_queue) == 0:
+            return
+        while len(self.talk_queue) > 0:
+            talk_data_list = self.talk_queue.popleft()
+            if len(self.talk_queue) > 0:
+                talk_data_list_next = self.talk_queue.popleft()
+                talk_data_list_next_id = talk_data_list_next[0][4]
             else:
-                return# return
-            vcl.play(talk_data[0], after=lambda e: talk_data[1].close())
-            while vcl.is_playing():
-                await asyncio.sleep(sleeptime)
+                talk_data_list_next_id = 0
+            if len(self.talk_queue) > 0:
+                talk_data_list_third = self.talk_queue.popleft()
+                talk_data_list_third_id = talk_data_list_next[0][4]
+            else:
+                talk_data_list_third_id = 0
+
+            # 再生中や次のデータまで来てしまった場合は、無視
+            ##or talk_data_list[0][4] >= self.create_talk_task_id
+            if type(talk_data_list) == int:
+                return
+            else:
+                LOG.info(f'len:{len(talk_data_list)} / atai_{talk_data_list[0]}')
+            if talk_data_list[0][2].is_playing():
+                if talk_data_list_third_id != 0:
+                    self.talk_queue.appendleft(talk_data_list_third)
+                if talk_data_list_next_id != 0:
+                    self.talk_queue.appendleft(talk_data_list_next)
+                self.talk_queue.appendleft(talk_data_list[0][4])
+                LOG.info(f'テスト！ len:{len(talk_data_list)} / atai_{talk_data_list[0]}')
+                return
+            if (talk_data_list[0][4] > talk_data_list_next_id and talk_data_list_next_id != 0) \
+                or (talk_data_list[0][4] > talk_data_list_third_id and talk_data_list_third_id != 0):
+                if talk_data_list_third_id != 0:
+                    if talk_data_list_third_id < talk_data_list_next_id < talk_data_list[0][4]:
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list_next)
+                        self.talk_queue.appendleft(talk_data_list_third)
+                    elif talk_data_list_next_id < talk_data_list_third_id < talk_data_list[0][4]:
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list_third)
+                        self.talk_queue.appendleft(talk_data_list_next)
+                    elif talk_data_list_third_id < talk_data_list[0][4] < talk_data_list_next_id:
+                        self.talk_queue.appendleft(talk_data_list_next)
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list_third)
+                    elif talk_data_list[0][4] < talk_data_list_third_id < talk_data_list_next_id:
+                        self.talk_queue.appendleft(talk_data_list_next)
+                        self.talk_queue.appendleft(talk_data_list_third)
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                    elif talk_data_list_next_id < talk_data_list[0][4] < talk_data_list_third_id:
+                        self.talk_queue.appendleft(talk_data_list_third)
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list_next)
+                    else:
+                        self.talk_queue.appendleft(talk_data_list_third)
+                        self.talk_queue.appendleft(talk_data_list_next)
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                elif talk_data_list_next_id != 0:
+                    if talk_data_list_next_id < talk_data_list[0][4]:
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list_next)
+                    else:
+                        self.talk_queue.appendleft(talk_data_list_next)
+                        self.talk_queue.appendleft(talk_data_list[0][4])
+                self.talk_queue.appendleft(talk_data_list)
+                LOG.info(f'talk_data_{talk_data_list[0][4]}/next_{talk_data_list_next_id}/th_{talk_data_list_third_id}/self_talk_data_{self.create_talk_task_id})play talk:{talk_data_list[0][3]}')
+                LOG.info(f'talk_data_list[0][2].is_playing(){talk_data_list[0][2].is_playing()}/talk_data_list[0][4] > talk_data_list_next_id{talk_data_list[0][4] > talk_data_list_next_id}talk_data_list[0][4] > talk_data_list_third_id/{talk_data_list[0][4] > talk_data_list_third_id}')
+                return
+            else:
+                self.play_talk_task_id += 1
+
+            for talk_data in talk_data_list:
+                LOG.info(f'{self.play_talk_task_id}/talk_data_{talk_data[4]}/self_talk_data_{self.create_talk_task_id})play talk:{talk_data[3]}')
+                sleeptime = 0.5
+                timeout = 3.0
+                for _ in range(int(timeout / sleeptime)):
+                    if talk_data[2].is_connected():
+                        break
+                    await asyncio.sleep(sleeptime)
+                else:
+                    return
+                try:
+                    talk_data[2].play(talk_data[0], after=lambda e: talk_data[1].close())
+                except Exception as e:
+                    LOG.info(str(e))
+
+                while talk_data[2].is_playing():
+                    await asyncio.sleep(sleeptime)
 
     async def async_create_talk_data(self, number:int, text: str):
         data = await self.agent.async_talk(text)
