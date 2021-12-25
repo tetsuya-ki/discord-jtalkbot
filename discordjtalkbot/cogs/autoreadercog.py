@@ -100,18 +100,8 @@ class AutoReaderCog(commands.Cog):
                 else:
                     member_name = msg.author.display_name
 
-                # URL省略
-                message = re.sub('http(s)?://[\w.,~:#%-]+\w+(/[\w .,/?%&=~:#-$]*)?','URL省略', msg.clean_content)
-                # ネタバレ削除
-                message = re.sub(r'[|]+.+?[|]+', 'ネタバレ', message)
-                # 絵文字無視
-                message = re.sub(r'<:\w+:\d+>', '絵文字', message)
-                # 改行対策
-                message = re.sub('\n', '。。', message)
-                # ソース削除
-                message = re.sub(r'[`]+.+?[`]+', '', message)
                 # いろいろ変換
-                message = self._suuji2hiragana(message)
+                message = self._convert2hiragana(msg.clean_content)
                 self.add_queue(vcl, member_name, message)
 
     @commands.Cog.listener()
@@ -340,54 +330,66 @@ class AutoReaderCog(commands.Cog):
         self.member2voice[member_name]=voice
         LOG.info(f'set voice({voice}) to member({member_name}).')
 
-    def _suuji2hiragana(self, text):
-        converted_text = ''
-        # 日付
-        r_date = r'(\d{4})[-/](\d{1,2})[-/](\d{1,2})'
-        rep_r_date = r'\1ねん、\2がつ、\3にち。'
-        r_date2 = r'(\d{1,2})[-/](\d{1,2})'
-        rep_r_date2 = r'\1がつ、\2にち。'
-        converted_text = re.sub(r_date, rep_r_date, text)
-        converted_text = re.sub(r_date2, rep_r_date2, converted_text)
+    def _convert2hiragana(self, text):
+        sys_dict = {
+                r'http(s)?://[\w.,~:#%-]+\w+(/[\w .,/?%&=~:#-$]*)?' : 'URL省略' # URL省略
+                , r'[|]+.+?[|]+' : 'ネタバレ' # ネタバレ削除
+                , r'<:\w+:\d+>' : '絵文字' # 絵文字無視
+                , '\n' : '。。' # 改行対策
+                , r'[`]+.+?[`]+' : '' # ソース削除
+                , r'(\d{4})[-/](\d{1,2})[-/](\d{1,2})' : r'\1ねん、\2がつ、\3にち。' # 日付
+                , r'(\d{1,2})[-/](\d{1,2})' : r'\1がつ、\2にち。' # 日付2
+                , r'(\d{1,2}):(\d{1,2}):(\d{1,2})(\.\d{3})?' : r'\1じ、\2ふん。' # 時間(秒は省略)
+                , r'(\d{1,2}):(\d{1,2})' : r'\1じ、\2ふん。' # 時間2
+                , r',' : '' # カンマ無視
+                , r'(\d)(\d{12,20})' : '大きい数字' # 数字(大きい)
+                , r'(\d{1,4})(\d{8})' : r'\1おく\2' # 1億
+                , r'(\d{1,4})(\d{4})' : r'\1まん\2' # 1万
+                , '(\d)(\d{3})' : r'\1せん\2' # 千
+                , r'(\d)(\d{2})' : r'\1ひゃく\2' # 百
+                , r'(\d)(\d{1})' : r'\1じゅう\2' # 十
+                , r'じゅう0' : r'じゅう'
+                , r'0(おく|まん|せん|ひゃく|じゅう)' : '' # ゼロは読まない
+                , r'1(せん)' : r'イッ\1'
+                , r'8(せん)' : r'ハッ\1'
+                , r'1(ひゃく|じゅう)' : r'\1'
+                , r'8(ひゃく)' : r'はっぴゃく\1'
+                , r'6(ひゃく)' : r'ろっぴゃく\1'
+                , r'3(ひゃく)' : r'さんびゃく'
+                , r'0' : 'ゼロ'
+                , r'1' : 'イチ'
+                , r'2' : 'ニイ'
+                , r'3' : 'サン'
+                , r'4' : 'ヨン'
+                , r'5' : 'ゴ'
+                , r'6' : 'ロク'
+                , r'7' : 'ナナ'
+                , r'8' : 'ハチ'
+                , r'9' : 'キュウ'
+        }
+        user_dict = {
+                '(Mon)' : 'マン'
+                , '(Tue)' : 'タァズ'
+                , '(Wed)' : 'ウェンズ'
+                , '(Thu)' : 'サーズ'
+                , '(Fri)' : 'フライ'
+                , '(Sat)' : 'サタ'
+                , '(Sun)' : 'サン'
+                , 'Date:' : 'デイト '
+                , 'Tuber' : 'チューバー'
+        }
 
-        # 時間
-        r_time = r'(\d{1,2}):(\d{1,2}):(\d{1,2})(\.\d{3})?'
-        rep_r_time = r'\1じ、\2ふん、\3びょう。'
-        r_time2 = r'(\d{1,2}):(\d{1,2})'
-        rep_r_time2 = r'\1じ、\2ふん。'
-        converted_text = re.sub(r_time, rep_r_time, converted_text)
-        converted_text = re.sub(r_time2, rep_r_time2, converted_text)
+        read_list = [] # 読み仮名リスト
+        for i, one_dic in enumerate(user_dict.items()): # one_dicは単語と読みのタプル。添字はそれぞれ0と1。
+            text = re.sub(one_dic[0], '{'+str(i)+'}', text)
+            read_list.append(one_dic[1]) # 変換が発生した順に読み仮名リストに追加
+        read_text = text.format(*read_list) #読み仮名リストを引数にとる
 
-        # 数字
-        str1 = r'(\d)(\d{12,20})'
-        rep_str1 = '大きい数字'
-        converted_text = re.sub(str1, rep_str1, converted_text) # １兆以上は読まない
-        converted_text = re.sub(r'(\d{1,4})(\d{8})', r'\1おく\2', converted_text) # 1億
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'(\d{1,4})(\d{4})', r'\1まん\2', converted_text) # 1万
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'(\d)(\d{3})', r'\1せん\2', converted_text)
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'(\d)(\d{2})', r'\1ひゃく\2', converted_text)
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'(\d)(\d{1})', r'\1じゅう\2', converted_text)
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'1(せん)', r'イッ\1', converted_text)
-        converted_text = re.sub(r'1(ひゃく|じゅう)', r'\1', converted_text)
-        LOG.debug(converted_text)
-        converted_text = re.sub(r'1', 'イチ', converted_text)
-        converted_text = re.sub(r'2', 'ニイ', converted_text)
-        converted_text = re.sub(r'3', 'サン', converted_text)
-        converted_text = re.sub(r'4', 'ヨン', converted_text)
-        converted_text = re.sub(r'5', 'ゴ', converted_text)
-        converted_text = re.sub(r'6', 'ロク', converted_text)
-        converted_text = re.sub(r'7', 'ナナ', converted_text)
-        converted_text = re.sub(r'8', 'ハチ', converted_text)
-        converted_text = re.sub(r'9', 'キュウ', converted_text)
-        converted_text = re.sub(r'0(おく|まん|せん|ひゃく|じゅう)', '', converted_text) # ゼロは読まない
+        # その他の読みかえ(正規表現あり)
+        for word, read in sys_dict.items():
+            read_text = re.sub(word, read, read_text)
 
-        LOG.debug(converted_text)
-        return converted_text
+        return read_text
 
     async def main_task(self):
         while True:
@@ -440,6 +442,7 @@ class AutoReaderCog(commands.Cog):
             LOG.debug('member:' + member_name + ', voice:' + voice)
         voice_name = re.sub('.+/', '', voice)
 
+        task_id = self.play_talk_task_id if is_parimary else self.create_talk_task_id
         for i in range(0, len(texts)):
             if len(texts[i]) == 0:
                 continue
@@ -449,7 +452,6 @@ class AutoReaderCog(commands.Cog):
             LOG.info(f'talk({voice_name}):{texts[i]}')
 
             # 優先するものなら、タスクを繰り上げる
-            task_id = self.play_talk_task_id if is_parimary else self.create_talk_task_id
             audio_data_list.append([index, audio, stream, vcl, texts[i], task_id])
         # 並び替え
         datas = sorted(audio_data_list)
