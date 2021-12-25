@@ -478,52 +478,48 @@ class AutoReaderCog(commands.Cog):
 
             # 再生中や次のデータまで来てしまった場合は、無視
             ##or talk_data_list[0][4] >= self.create_talk_task_id
-            if type(talk_data_list) == int:
-                return
-            else:
-                LOG.info(f'len:{len(talk_data_list)} / atai_{talk_data_list[0]}')
+            LOG.info(f'len:{len(talk_data_list)} / atai_{talk_data_list[0]}')
             if talk_data_list[0][2].is_playing():
                 if talk_data_list_third_id != 0:
                     self.talk_queue.appendleft(talk_data_list_third)
                 if talk_data_list_next_id != 0:
                     self.talk_queue.appendleft(talk_data_list_next)
-                self.talk_queue.appendleft(talk_data_list[0][4])
-                LOG.info(f'テスト！ len:{len(talk_data_list)} / atai_{talk_data_list[0]}')
+                self.talk_queue.appendleft(talk_data_list)
                 return
             if (talk_data_list[0][4] > talk_data_list_next_id and talk_data_list_next_id != 0) \
                 or (talk_data_list[0][4] > talk_data_list_third_id and talk_data_list_third_id != 0):
                 if talk_data_list_third_id != 0:
                     if talk_data_list_third_id < talk_data_list_next_id < talk_data_list[0][4]:
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                         self.talk_queue.appendleft(talk_data_list_next)
                         self.talk_queue.appendleft(talk_data_list_third)
                     elif talk_data_list_next_id < talk_data_list_third_id < talk_data_list[0][4]:
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                         self.talk_queue.appendleft(talk_data_list_third)
                         self.talk_queue.appendleft(talk_data_list_next)
                     elif talk_data_list_third_id < talk_data_list[0][4] < talk_data_list_next_id:
                         self.talk_queue.appendleft(talk_data_list_next)
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                         self.talk_queue.appendleft(talk_data_list_third)
                     elif talk_data_list[0][4] < talk_data_list_third_id < talk_data_list_next_id:
                         self.talk_queue.appendleft(talk_data_list_next)
                         self.talk_queue.appendleft(talk_data_list_third)
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                     elif talk_data_list_next_id < talk_data_list[0][4] < talk_data_list_third_id:
                         self.talk_queue.appendleft(talk_data_list_third)
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                         self.talk_queue.appendleft(talk_data_list_next)
                     else:
                         self.talk_queue.appendleft(talk_data_list_third)
                         self.talk_queue.appendleft(talk_data_list_next)
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                 elif talk_data_list_next_id != 0:
                     if talk_data_list_next_id < talk_data_list[0][4]:
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                         self.talk_queue.appendleft(talk_data_list_next)
                     else:
                         self.talk_queue.appendleft(talk_data_list_next)
-                        self.talk_queue.appendleft(talk_data_list[0][4])
+                        self.talk_queue.appendleft(talk_data_list)
                 self.talk_queue.appendleft(talk_data_list)
                 LOG.info(f'talk_data_{talk_data_list[0][4]}/next_{talk_data_list_next_id}/th_{talk_data_list_third_id}/self_talk_data_{self.create_talk_task_id})play talk:{talk_data_list[0][3]}')
                 LOG.info(f'talk_data_list[0][2].is_playing(){talk_data_list[0][2].is_playing()}/talk_data_list[0][4] > talk_data_list_next_id{talk_data_list[0][4] > talk_data_list_next_id}talk_data_list[0][4] > talk_data_list_third_id/{talk_data_list[0][4] > talk_data_list_third_id}')
