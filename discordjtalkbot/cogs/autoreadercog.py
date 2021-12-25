@@ -17,6 +17,7 @@ from discord.ext import commands
 
 from .modules import environ
 from .modules import openjtalk
+from .modules.secret import secret_bou
 
 logging.basicConfig()
 LOG = logging.getLogger(__name__)
@@ -529,6 +530,7 @@ class AutoReaderCog(commands.Cog):
 
             for talk_data in talk_data_list:
                 LOG.info(f'{self.play_talk_task_id}/talk_data_{talk_data[4]}/self_talk_data_{self.create_talk_task_id})play talk:{talk_data[3]}')
+                LOG.info(talk_data)
                 sleeptime = 0.5
                 timeout = 3.0
                 for _ in range(int(timeout / sleeptime)):
@@ -538,6 +540,7 @@ class AutoReaderCog(commands.Cog):
                 else:
                     return
                 try:
+                    LOG.info('reading' + talk_data[3])
                     talk_data[2].play(talk_data[0], after=lambda e: talk_data[1].close())
                 except Exception as e:
                     LOG.info(str(e))
@@ -547,9 +550,14 @@ class AutoReaderCog(commands.Cog):
 
     async def async_create_talk_data(self, number:int, text:str, voice:str):
         self.agent.voice = voice
-        data = await self.agent.async_talk(text)
-        stream = io.BytesIO(data)
-        audio = discord.PCMAudio(stream)
+        if 'phont/' in voice:
+            data = secret_bou.talk(text, file_phont=self.agent.voice)
+            stream = io.BytesIO(data)
+            audio = discord.PCMAudio(stream)
+        else:
+            data = await self.agent.async_talk(text)
+            stream = io.BytesIO(data)
+            audio = discord.PCMAudio(stream)
         return number,stream,audio
 
 def setup(bot: commands.Bot):
