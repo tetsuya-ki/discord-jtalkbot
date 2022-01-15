@@ -74,18 +74,18 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 
 ### 本作業
 
-`git clone` します。その後、requirements.txtのモジュールをインストールし、Botを実行します。
+`git clone` します。その後、start.shとdownload.shに実行権限を与え、start.shを実行します。
 
 ### 例
 
   ```sh
   ~/ $ git clone https://github.com/tetsuya-ki/discord-jtalkbot.git
   ~/ $ cd discord-jtalkbot
-  ~/discord-jtalkbot $ python3 -m venv .venv
-  ~/discord-jtalkbot $ source .venv/bin/activate
-  (.venv) ~/discord-jtalkbot $ pip3 install -r requirements.txt
-  ...
-  (.venv) ~/discord-jtalkbot $ python3 discordjtalkbot/discordJtalkbot.py
+  ~/ $ chmod 755 start.sh download.sh 
+  ~/ $ ls -la start.sh download.sh
+  -rwxr-xr-x  1 mac_mini  staff  964 12 25 11:32 download.sh
+  -rwxr-xr-x  1 mac_mini  staff  635 12 25 11:32 start.sh
+  ~/ $ ./start.sh
   ```
 
 ## 使いかた
@@ -171,7 +171,7 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 起動するとログを表示しながら待機し続けます。
 
 ```sh
-~/discord-jtalkbot $ python3 discordjtalkbot/discordJtalkbot.py
+~/discord-jtalkbot $ ./start.sh
 INFO:discordJtalkbot.py$__main__:Opus library is loaded.
 INFO:discordJtalkbot.py$__main__:discordjtalkbot/discordJtalkbot.py is running.
 INFO:cogs.autoreadercog:We have logged in as MyBot#nnnn.
