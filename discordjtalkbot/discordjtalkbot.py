@@ -139,9 +139,9 @@ if __name__ == "__main__":
         appenv.add_field('prefix', default='$', help='command prefix (%(default)s)')
         appenv.add_field('token', help='bot token')
         appenv.add_field('voice_hello')
-        appenv.add_field('open_jtalk_flags', default='-x /usr/local/opt/open-jtalk/dic -m /usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+        appenv.add_field('open_jtalk_flags', default='-x /dic -m .hts_voice/mei_normal.htsvoice',
                         help='open jtalk settings  (%(default)s)')
-        appenv.add_field('voices', default='/usr/local/opt/open-jtalk/voice/mei/mei_normal.htsvoice',
+        appenv.add_field('voices', default='.hts_voice/mei_normal.htsvoice',
                         help='voices  (%(default)s)')
         appenv.add_field('except_prefix', default='$',
                         help='ignore prefix charactor  (%(default)s)')

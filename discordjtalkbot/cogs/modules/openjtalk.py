@@ -413,6 +413,11 @@ class Agent(object):
         kwds = parse_args(args)
         dictinary = kwds.pop('dictionary', DICT)
         voice = kwds.pop('voice', VOICE)
+        path = os.path.join(os.path.dirname(__file__), '..' + os.sep + '..' + os.sep + '..' + os.sep)
+        if dictinary.startswith('.'):
+            dictinary = path + dictinary
+        if voice.startswith('.'):
+            voice = path + voice
         return cls(dictinary, voice, **kwds)
 
     @classmethod

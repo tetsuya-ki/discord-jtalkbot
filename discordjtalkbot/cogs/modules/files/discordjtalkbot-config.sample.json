@@ -1,10 +1,10 @@
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
-    "open_jtalk_flags": "-x /home/runner/discord-jtalkbot/.dic -m /home/runner/discord-jtalkbot/.hts_voice/mei_normal.htsvoice",
+    "open_jtalk_flags": "-x .dic -m .hts_voice/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。",
-    "voices": "/home/runner/discord-jtalkbot/.hts_voice/mei_angry.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_bashful.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_happy.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_normal.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/mei_sad.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/nitech_jp_atr503_m001.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-happy.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-neutral.htsvoice,/home/runner/discord-jtalkbot/.hts_voice/tohoku-f01-sad.htsvoice",
+    "voices": ".hts_voice/mei_angry.htsvoice,.hts_voice/mei_bashful.htsvoice,.hts_voice/mei_happy.htsvoice,.hts_voice/mei_normal.htsvoice,.hts_voice/mei_sad.htsvoice,.hts_voice/nitech_jp_atr503_m001.htsvoice,.hts_voice/tohoku-f01-happy.htsvoice,.hts_voice/tohoku-f01-neutral.htsvoice,.hts_voice/tohoku-f01-sad.htsvoice",
     "except_prefix": "!,$,/",
     "read_name": "True",
     "read_system_message": "True",
