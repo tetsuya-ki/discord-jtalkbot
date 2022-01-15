@@ -20,6 +20,8 @@ PyAudio="0.2.11"
 six = ">=1.5"
 toml = "0.10.1"
 yarl = "1.5.1"
+librosa = "^0.8.1"
+SoundFile = "^0.10.3"
 
 [tool.poetry.dev-dependencies]
 
