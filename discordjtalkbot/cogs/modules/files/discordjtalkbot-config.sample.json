@@ -1,10 +1,13 @@
 {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
+    "aq_dev_key": "000-000-000",
     "open_jtalk_flags": "-x .dic -m .hts_voice/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
     "text_end": "読み上げを終わります。",
     "voices": ".hts_voice/mei_angry.htsvoice,.hts_voice/mei_bashful.htsvoice,.hts_voice/mei_happy.htsvoice,.hts_voice/mei_normal.htsvoice,.hts_voice/mei_sad.htsvoice,.hts_voice/nitech_jp_atr503_m001.htsvoice,.hts_voice/tohoku-f01-happy.htsvoice,.hts_voice/tohoku-f01-neutral.htsvoice,.hts_voice/tohoku-f01-sad.htsvoice",
+    "voices_yukkuri": "phont/aq_f1c.phont,phont/aq_f3a.phont,phont/aq_huskey.phont,phont/aq_m4b.phont,phont/aq_mf1.phont,phont/aq_rb2.phont,phont/aq_rb3.phont,phont/aq_rm.phont,phont/aq_robo.phont,phont/aq_yukkuri.phont,phont/ar_f4.phont,phont/ar_m5.phont,phont/ar_mf2.phont,phont/ar_rm3.phont",
+    "voices_all": ".hts_voice/nitech_jp_atr503_m001.htsvoice,.hts_voice/mei_angry.htsvoice,.hts_voice/mei_bashful.htsvoice,.hts_voice/mei_happy.htsvoice,.hts_voice/mei_normal.htsvoice,.hts_voice/mei_sad.htsvoice,.hts_voice/tohoku-f01-happy.htsvoice,/.hts_voice/htsvoice-tohoku-f01-master/tohoku-f01-neutral.htsvoice,.hts_voice/tohoku-f01-sad.htsvoice,phont/aq_f1c.phont,phont/aq_f3a.phont,phont/aq_huskey.phont,phont/aq_m4b.phont,phont/aq_mf1.phont,phont/aq_rb2.phont,phont/aq_rb3.phont,phont/aq_rm.phont,phont/aq_robo.phont,phont/aq_yukkuri.phont,phont/ar_f4.phont,phont/ar_m5.phont,phont/ar_mf2.phont,phont/ar_rm3.phont",
     "except_prefix": "!,$,/",
     "read_name": "True",
     "read_system_message": "True",

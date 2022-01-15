@@ -155,6 +155,8 @@ if __name__ == "__main__":
                         help="if owner connect vc, bot connect to vc.")
         appenv.add_field('owner_disconnect', default='True',
                         help="if owner dicconnect to vc, bot dicconnect to vc.")
+        appenv.add_field('aq_dev_key', default='',
+                        help="aquestalk's dev key.")
 
         # environment variables
         BOT_NAME = 'discordjtalkbot'

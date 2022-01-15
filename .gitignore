@@ -146,7 +146,13 @@ dmypy.json
 .vscode/
 
 # secret
-secret/
+aq_dic/
+aq_dic_large/
+AqKanji2Koe.framework/
+AquesTalk2.framework/
+AquesTalk2Eva.framework/
+phont/
+test/
 
 # repl.it
 .hts_voice/

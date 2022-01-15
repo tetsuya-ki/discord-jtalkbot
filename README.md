@@ -100,6 +100,7 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
   ```JSON
   {
     "token": "__ENTER_YOUR_TOKEN_HERE__",
+    "aq_dev_key": "000-000-000",
     "open_jtalk_flags": "-x /dic -m .hts_voice/mei_normal.htsvoice",
     "voice_hello": "みなさんこんにちは。",
     "text_start": "読み上げを始めます。",
@@ -117,6 +118,12 @@ sudo env LDFLAGS="-L/usr/local/lib" CFLAGS="-I/usr/local/include" pip3 install p
 #### `token`
 
 文字列型。Discordによって発行されたBotアカウントのトークンを記述します(**トークンは厳重に管理し公開されないようにしてください**)
+＊replitなどの場合Secretを保管するところに登録し、jsonには記載しないこと！
+
+#### `aq_dev_key`
+
+文字列型。[AquesTalk2](https://www.a-quest.com/products/aquestalk_2.html)の開発ライセンスキーを記述します(**開発ライセンスキーは厳重に管理し公開されないようにしてください**)
+＊replitなどの場合Secretを保管するところに登録し、jsonには記載しないこと！
 
 #### `open_jtalk_flags`
 
@@ -179,6 +186,103 @@ INFO:cogs.autoreadercog:We have logged in as MyBot#nnnn.
 
 Botを停止するときは `Ctrl+C` を押します。
 
+### AquesTalk2を使う場合
+
+[AQUESTの評価版ダウンロード](https://www.a-quest.com/download.html)から以下の圧縮ファイルをダウンロードします
+
+- AquesTalk2 Mac(v2.3.0で確認)
+- AqKanji2Koe-A Mac(v3.0.0で確認)
+  - なお、**評価版は「ナ行、マ行」の音韻がすべて「ヌ」になる制限があります。**
+- この項目の記載は[個人利用](https://www.a-quest.com/licence_free.html)である前提で記載しています
+  - このリポジトリの内容について、株式会社アクエストには問い合わせしないようにしてください(迷惑になってしまうため)
+  - やらないと思いますが、学校利用、商用利用などはできません(個人で趣味の範囲でお楽しみください)
+
+#### ディレクトリ構成
+
+```sh
+./discordjtalkbot/cogs/modules/secret/
+┝aq_dic/...→辞書ファイルが配置される
+┝aq_dic_large/...→辞書ファイル(大)が配置される
+┝AqKanji2Koe.framework/...
+┝AquesTalk2.framework/...→製品版SDKの場合
+┝AquesTalk2Eva.framework/...→評価版の場合
+┝output_file/...→出力ファイルが配置される
+┗phont/...→phontファイルが配置される
+```
+
+#### ディレクトリ構成の手順
+
+![移動元](https://gyazo.com/7e25b832d182d3683f12315bd43881d3.png)
+![移動先](https://gyazo.com/c41fc1d0f2617e3fe10824c848772778.png)
+![移動先](https://gyazo.com/e36a27b29dacd31d2a8e9f9960595ffc.png)
+
+#### サンプル実行
+
+以下を実行する
+
+```sh
+discordjtalkbot/cogs/modules/secret/secret_bou.py
+```
+
+#### エラーが発生した場合の手順
+
+認証できない的なエラーが発生した場合、以下の手順で対応すること
+＊ゴミ箱に入れないでください。とりあえずキャンセル押してください(「RuntimeError: ライブラリが読み込めませんでした」になる想定)
+
+- 方針としては以下(この後画像つきで説明します)
+
+1. System Preferences.appを開く
+2. 「一般」タブにする(デフォルトのはず)
+3. 一番下の「変更するにはカギをクリックします。」を選択し、パスワードを入力。変更できる状態にする
+4. ダウンロードしたアプリケーションの実行許可を「App Storeと確認済みの開発元からのアプリケーションを許可」(下側)にする
+5. 「このまま許可」するを選ぶ
+6. もう一度実行する
+
+- System Preferences.appで許可する
+
+![System Preferences.appで許可する](https://gyazo.com/feea53ae309cb6a8029c4774cb19c88d.png)
+
+- ボタン押すと下に書いてあった文章が消える
+
+![ボタン押すと下に書いてあった文章が消える](https://gyazo.com/68d29fb126e0ae7c48abe04ce273cfb9.png)
+
+- [再実行](#サンプル実行)する
+  - 開いても良いか聞かれたら「開く」を選択する
+
+![再実行する](https://gyazo.com/1e302341df8979e73339b94f28e630ca.png)
+
+- エラーなく完了する想定
+
+![エラーなく完了](https://gyazo.com/d4e6a078728d8eab39242565f1f340b3.png)
+
+#### 実行
+
+- [jsonファイル](#discordjtalkbot-config.json)でvoicesをAquesTalk2対応のリストに差し替える
+- ![差し替え前](https://gyazo.com/bde459bfd1f403f8f82b4c10db0bce68)
+  - voicesをリネームし、vocies_等の他とかぶらない文字列にする
+  - voices_yukkuriをvoicesにリネームする
+    - ![差し替え前](https://gyazo.com/cf3c5baad62915fb5c6d813f07cd4fb5)
+  - ./start.shで起動し、何か文字列を投稿する(デフォルトのみopenjtalkのため)
+    - AquesTalk2の音声になっていることを確認する
+    - お疲れ様でした。。。
+
+### AquesTalk2の開発者キーがある場合
+
+#### ローカルの場合
+
+- 環境変数「AQ_DEV_KEY」に開発者キーをセットする
+  - `export AQ_DEV_KEY=開発者キー`で設定できます(毎回やらないとダメかも知れません)
+- jsonファイルに直接記載する
+  - 前述のdiscordjtalkbot-config.jsonの`"aq_dev_key": "000-000-000",`にある「**000-000-000**」へ開発者キーを記載し、保存する
+    - 公開されてしまうので、ローカル環境のみで実施すること！
+    - こちらの場合、小文字なので注意
+
+#### ローカル以外の場合
+
+- 注意: **この機能を公開されて誰でもアクセスできるサイト(replit等)で動作させることはやめてください(株式会社アクエストの著作物を再頒布してしまうため)**
+- 環境変数「AQ_DEV_KEY」に開発者キーをセットする
+  - こちらの場合、大文字なので注意
+
 ### Botの動作
 
 - オーナー追従機能
@@ -198,9 +302,15 @@ Botを停止するときは `Ctrl+C` を押します。
   - メンバーの切断により、ボイスチャンネルに接続しているメンバーがBotのみになった場合、Botもボイスチャンネルから切断します。
 - 声色設定機能:
   - discordjtalkbot-config.jsonに、`voices`を追加し、以下のような設定
-    - open_jtalkの場合は**start.sh**から相対パスを`,`でセパレート
+    - open_jtalkの場合は`start.sh`から相対パスを`,`でセパレート
+    - AquestTalk2の場合は**phont/xxxx**のような相対パスを`,`でセパレート
+  - すると、メンバーごとに適当な声色を振り分けます
   - `"voices": ".hts_voice/nitech_jp_atr503_m001.htsvoice,.hts_voice/mei_angry.htsvoice"`,
-    - open_jtalkのみのパターン
+    - ↑↑↑open_jtalkのみのパターン↑↑↑
+  - `"voices": "phont/aq_f1c.phont,phont/aq_f3a.phont,phont/aq_huskey.phont`,
+    - ↑↑↑AquestTalk2のみのパターン↑↑↑
+  - `"voices": ".hts_voice/nitech_jp_atr503_m001.htsvoice,phont/aq_f1c.phont"`,
+    - ↑↑↑混在のパターン↑↑↑
   - 声色を使い切った場合、また最初から振り分けます（声色が重複して設定されます）
 - 接続時の動作
   - 接続中は、**すべてのチャンネルに投稿されたメッセージ**をボイスチャンネルにて読み上げます
@@ -210,6 +320,7 @@ Botを停止するときは `Ctrl+C` を押します。
 
 Docker Hubのページは以下です。  
 <https://hub.docker.com/r/tk2812/discord-jtalkbot>
+＊オートでDockerイメージをビルドできなくなってしまったので、古い可能性が高いです。。。
 
 #### Pull from Docker Hub
 
