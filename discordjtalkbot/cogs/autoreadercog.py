@@ -284,12 +284,11 @@ class AutoReaderCog(commands.Cog):
             LOG.info("stop talking")
 
     @commands.command(aliases=['set','setChannel'],description='Botで読み上げるチャンネルを指定するコマンドです')
-    async def setReadTextChannel(self, ctx: commands.Context, channel:str):
+    async def setReadTextChannel(self, ctx: commands.Context, channel:str=None):
         """ Botで読み上げるチャンネルを指定するコマンドです """
-        vcl = self.vch.guild.voice_client
-        if not channel:
+        if self.vch is None or not channel:
             return
-        
+        vcl = self.vch.guild.voice_client
         # チャンネルの設定
         temp_channel = discord.utils.get(ctx.guild.text_channels, name=channel)
         if temp_channel is None:
